@@ -159,6 +159,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7e
   </div>
 </div>
 
+<img id="ax-logo-src" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QB0RXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAABIAAAAAQAAAEgAAAABAAKgAgAEAAAAAQAAAQCgAwAEAAAAAQAAAQAAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/iAihJQ0NfUFJPRklMRQABAQAAAhhhcHBsBAAAAG1udHJSR0IgWFlaIAfmAAEAAQAAAAAAAGFjc3BBUFBMAAAAAEFQUEwAAAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtYXBwbOz9o444hUfDbbS9T3raGC8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACmRlc2MAAAD8AAAAMGNwcnQAAAEsAAAAUHd0cHQAAAF8AAAAFHJYWVoAAAGQAAAAFGdYWVoAAAGkAAAAFGJYWVoAAAG4AAAAFHJUUkMAAAHMAAAAIGNoYWQAAAHsAAAALGJUUkMAAAHMAAAAIGdUUkMAAAHMAAAAIG1sdWMAAAAAAAAAAQAAAAxlblVTAAAAFAAAABwARABpAHMAcABsAGEAeQAgAFAAM21sdWMAAAAAAAAAAQAAAAxlblVTAAAANAAAABwAQwBvAHAAeQByAGkAZwBoAHQAIABBAHAAcABsAGUAIABJAG4AYwAuACwAIAAyADAAMgAyWFlaIAAAAAAAAPbVAAEAAAAA0yxYWVogAAAAAAAAg98AAD2/////u1hZWiAAAAAAAABKvwAAsTcAAAq5WFlaIAAAAAAAACg4AAARCwAAyLlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW3NmMzIAAAAAAAEMQgAABd7///MmAAAHkwAA/ZD///ui///9owAAA9wAAMBu/8AAEQgBAAEAAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMABgYGBgYGCgYGCg4KCgoOEg4ODg4SFxISEhISFxwXFxcXFxccHBwcHBwcHCIiIiIiIicnJycnLCwsLCwsLCwsLP/bAEMBBwcHCwoLEwoKEy4fGh8uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLv/dAAQAEP/aAAwDAQACEQMRAD8A+qaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9D6pooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//0fqmiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//S+qaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9P6pooooAKKKKACiiigAoorkvEfjrwn4TITXb+OCQjIiGXkI9diAtj3IxQB1tFcDoPxQ8C+I7hbTTNTj89jhY5Q0TMfRd4GT7Cu+oAKKKKACiiigAooooAKK5vxP4s0bwhZJqOuPJHbu/l70jaQBjyAdoOM9s1wn/C9fht/z/Sf9+Jf/iaAPX6K8g/4Xr8Nv+f6T/vxL/8AE13Phfxf4f8AGNpJe6BcefHE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" style="display:none;" alt="">
 <div id="mob-ov" onclick="closeMob()"></div>
 <div id="app">
   <div id="sbw">
@@ -414,7 +415,7 @@ var EX=load('navex',{});
 var NAV=[
   {k:'tk',l:'Teknisk',c:'#2563EB',s:[{k:'tk_i',l:'Integrationer'},{k:'tk_s',l:'Säkerhet'},{k:'tk_a',l:'API & Webhooks'}]},
   {k:'pr',l:'Produkt',c:'#7C3AED',s:[{k:'pr_r',l:'Roadmap'},{k:'pr_f',l:'Feedback'},{k:'pr_e',l:'Releases'}]},
-  {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'}]},
+  {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'},{k:'fs_offert',l:'Offertmall'}]},
   {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'},{k:'ma_bw',l:'Wix-leads (SE)'}]},
   {k:'ek',l:'Ekonomi',c:'#166534',s:[{k:'ek_i',l:'Intäkter'},{k:'ek_s',l:'Scenario'},{k:'ek_f',l:'Fasta utgifter'},{k:'ek_u',l:'Int. & Utg.'}]},
   {k:'hr',l:'HR',c:'#BE185D',s:[{k:'hr_t',l:'Team'},{k:'hr_o',l:'Onboarding'},{k:'hr_f',l:'Förmåner'}]},
@@ -1194,83 +1195,414 @@ function omNyLev(){om(mhdr('Ny leverantör')+lbl('Namn')+'<input id="nl2-n" clas
 // ROUTER
 // ---------------------------------------------------------
 // === GANTT INFO ===
+// === OFFERTMALL ===
+// Logo loaded from DOM
+var offertData = {
+  kund:'',mail:'',tel:'',org:'',webb:'',start:'',deadline:'',
+  template:'hemsida',
+  beskrivning:'',inkluderar:'',extra_title:'',extra:'',villkor:'',
+  p1name:'Design & utveckling',p1desc:'',p1val:'',
+  p2name:'',p2desc:'',p2val:'',
+  p3name:'',p3desc:'',p3val:''
+};
+
+var OFFERT_TEMPLATES = {
+  hemsida:{
+    beskrivning:'Malet ar att utveckla en ny hemsida i Wix Studio for att forenkla och effektivisera hanteringen av webbplatsen. Den nya plattformen ska optimera mojligheterna att kommunicera en intuitiv och engagerande anvandarupplevelse som tydligt speglar varumarket och position.',
+    inkluderar:'Skapa hemsida i Wix Studio med anpassning for alla breakpoints<br>Webbdesign baserat pa er befintliga grafiska profil<br>UX-design och UI-design<br>Lagga in och publicera content pa hemsidan<br>Integration med webbhotell och publicering<br>GDPR-anpassningar<br>SEO-grundoptimering',
+    extra_title:'Utökning och förbättring',
+    extra:'Efter en utvardering av er webbplats utforskas olika strategier for att optimera bade funktionalitet och anvandarupplevelse. Malet ar att skapa en mer tillganglig, intuitiv och hallbar digital plattform.',
+    villkor:'Moms om 25% tillkommer pa samtliga priser.<br>Fakturering sker enligt foljande modell:<br>- 50% vid projektstart<br>- 50% vid godkand och publicerad webbplats<br>Betalningsvillkor: 10 dagar netto'
+  },
+  seo:{
+    beskrivning:'AXD tar fram en komplett digital losning som inkluderar en ny webbplats med inbyggd SEO-strategi. Malet ar att oka synligheten i sokmotorer, attrahera relevant trafik och konvertera besokare till kunder.',
+    inkluderar:'Ny hemsida i Wix Studio med responsiv design<br>Teknisk SEO-optimering: hastighet, struktur, metadata<br>Nyckelordsanalys och innehallsstruktur<br>Google Search Console och Analytics<br>Lokal SEO-optimering (Google Foretagsprofil)<br>GDPR-anpassning',
+    extra_title:'SEO-strategi',
+    extra:'En djupgaende nyckelordsanalys genomfors for att identifiera de soktermer som ger storst affarsvarde. Dessa integreras i webbplatsens struktur pa ett naturligt satt.',
+    villkor:'Moms om 25% tillkommer pa samtliga priser.<br>- 50% vid projektstart<br>- 50% vid leverans<br>Betalningsvillkor: 10 dagar netto'
+  },
+  grafisk:{
+    beskrivning:'AXD tar fram en komplett grafisk identitet. Det grafiska programmet skapar en enad, professionell och igenkannbar profil som kommunicerar varumarkets varderingar.',
+    inkluderar:'Logotyp (primar + varianter)<br>Fargpalett<br>Typografipaket<br>Grafiska element<br>Visitkort och brevpapper<br>Digitalanpassade tillgangar<br>Brandbook i PDF-format',
+    extra_title:'Leverans och format',
+    extra:'Alla filer levereras i editerbara format (AI, PDF) samt exporterade PNG/SVG. Brandbooken fungerar som ett levande dokument.',
+    villkor:'Moms om 25% tillkommer pa samtliga priser.<br>- 50% vid projektstart<br>- 50% vid godkant slutleverans<br>Betalningsvillkor: 10 dagar netto<br>2 revisionsrundor ingar.'
+  }
+};
+
+function offertLoadTemplate(t){
+  var tmpl = OFFERT_TEMPLATES[t];
+  if(!tmpl)return;
+  offertData.template=t;
+  offertData.beskrivning=tmpl.beskrivning;
+  offertData.inkluderar=tmpl.inkluderar;
+  offertData.extra_title=tmpl.extra_title;
+  offertData.extra=tmpl.extra;
+  offertData.villkor=tmpl.villkor;
+  rMain();
+}
+
+function offertFranKund(id){
+  var k=kunder.find(function(x){return x.id===id;});
+  if(!k)return;
+  offertData.kund=k.n;
+  offertData.mail=k.crmMail||'';
+  offertData.tel=k.crmTel||'';
+  offertData.webb=k.crmWebb||'';
+  offertData.org='';
+  offertLoadTemplate('hemsida');
+  go('fs_offert');
+}
+
+function offertFranCRM(id){
+  var l=crmLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  offertData.kund=l.foretag;
+  offertData.mail=l.mail||'';
+  offertData.tel=l.tel||'';
+  offertData.webb=l.webb||'';
+  offertData.org='';
+  offertLoadTemplate('hemsida');
+  go('fs_offert');
+}
+
+function offertCalcTotal(){
+  var tot=0;
+  ['p1val','p2val','p3val'].forEach(function(k){
+    var v=(offertData[k]||'').replace(/[^0-9]/g,'');
+    tot+=parseInt(v)||0;
+  });
+  var el=document.getElementById('off-total');
+  if(el)el.textContent=tot.toLocaleString('sv-SE')+' SEK';
+}
+
+function offertSaveField(field,val){
+  offertData[field]=val;
+  if(field==='p1val'||field==='p2val'||field==='p3val')offertCalcTotal();
+}
+
+function pgOffertMall(){
+  // Today formatted
+  var td=new Date();
+  var months=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  var todayStr=td.getDate()+':e '+months[td.getMonth()]+' '+td.getFullYear();
+
+  var h='';
+
+  // ── TOOLBAR ──
+  h+='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;" class="no-print">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">Offertmall</p>';
+  h+='<select class="ri" style="font-size:11px;padding:5px 10px;width:auto;" onchange="offertLoadTemplate(this.value)">';
+  h+='<option value="hemsida" '+(offertData.template==='hemsida'?'selected':'')+'>Hemsida / Webb</option>';
+  h+='<option value="seo" '+(offertData.template==='seo'?'selected':'')+'>Webb + SEO</option>';
+  h+='<option value="grafisk" '+(offertData.template==='grafisk'?'selected':'')+'>Grafisk profil</option>';
+  h+='</select>';
+  h+='<div style="margin-left:auto;display:flex;gap:8px;">';
+  h+='<button onclick="window.print()" class="btn btn-primary btn-sm">&#128438; Spara som PDF</button>';
+  h+='</div></div>';
+
+  // ── DOCUMENT ──
+  h+='<div style="background:#EFEFEB;padding:24px;min-height:calc(100vh - 100px);">';
+  h+='<div id="offert-doc" style="background:white;max-width:800px;margin:0 auto;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,.10);font-family:Inter,sans-serif;">';
+  h+='<div style="padding:48px 56px;">';
+
+  // Header
+  h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:40px;padding-bottom:28px;border-bottom:2px solid #0A0A0A;">';
+  var logoSrc=document.getElementById('ax-logo-src')?document.getElementById('ax-logo-src').src:'';
+h+='<img src="'+logoSrc+'" style="height:52px;object-fit:contain;">';
+  h+='<div style="text-align:right;">';
+  h+='<p style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6B6B6B;margin-bottom:4px;">Offertförslag</p>';
+  h+='<div style="font-size:22px;font-weight:700;color:#0A0A0A;" id="off-kund-display">'+(offertData.kund||'Kundnamn')+'</div>';
+  h+='</div></div>';
+
+  // Info grid
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid #0A0A0A;margin-bottom:40px;">';
+  var fields=[
+    ['Datum',todayStr,false],
+    ['Beställare','off-bestallare',true],
+    ['Telefon','off-tel',true],
+    ['Email','off-email',true],
+    ['Startdatum','off-start',true],
+    ['Deadline','off-deadline',true],
+    ['Org.nummer','off-org',true],
+    ['Webb','off-webb',true]
+  ];
+  fields.forEach(function(f,i){
+    var borderTop=i>=4?'border-top:1.5px solid #0A0A0A;':'';
+    var borderRight=i%4<3?'border-right:1.5px solid #0A0A0A;':'';
+    h+='<div style="padding:12px 16px;'+borderTop+borderRight+'">';
+    h+='<p style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#6B6B6B;margin-bottom:4px;">'+f[0]+'</p>';
+    if(f[2]){
+      // Get value from offertData
+      var fieldKey=f[1].replace('off-','');
+      var val=offertData[fieldKey]||'';
+      if(fieldKey==='webb'&&!val&&offertData.webb)val=offertData.webb;
+      h+='<input id="'+f[1]+'" data-fk="'+fieldKey+'" value="'+val+'" oninput="offertSaveField(this.getAttribute(&quot;data-fk&quot;),this.value)" placeholder="Ange..." style="border:none;background:transparent;font-family:Inter,sans-serif;font-size:12px;color:#0A0A0A;width:100%;outline:none;padding:0;">';
+    } else {
+      h+='<p style="font-size:12px;color:#0A0A0A;">'+f[0+'']+'</p>';
+      h+='<p style="font-size:12px;color:#0A0A0A;">'+todayStr+'</p>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+
+  // Kund-name input (hidden, updates display)
+  h+='<input id="off-kund" value="'+(offertData.kund||'')+'" oninput="offertSaveField(&quot;kund&quot;,this.value);document.getElementById(&quot;off-kund-display&quot;).textContent=this.value" style="display:none;">';
+
+  // Sections
+  function offSection(title, bodyId, initText, isUL){
+    var fieldKey=bodyId.replace('off-','');
+    var r='<div style="margin-bottom:32px;">';
+    r+='<p style="font-size:19px;font-weight:700;color:#0A0A0A;margin-bottom:10px;">'+title+'</p>';
+    if(isUL){
+      r+='<div id="'+bodyId+'" contenteditable="true" data-field="'+fieldKey+'" style="font-size:13px;line-height:1.8;color:#2A2A2A;outline:none;padding:4px 0;" onblur="offertSaveField(this.dataset.field,this.innerHTML)">'+initText+'</div>';
+    } else {
+      r+='<div id="'+bodyId+'" contenteditable="true" data-field="'+fieldKey+'" style="font-size:13px;line-height:1.75;color:#2A2A2A;outline:none;border-bottom:1px dashed #E0DDD8;" onblur="offertSaveField(this.dataset.field,this.innerText||this.textContent)">'+initText+'</div>';
+    }
+    r+='</div>';
+    return r;
+  }
+
+  h+=offSection('Uppdragsbeskrivning','off-beskrivning',offertData.beskrivning||OFFERT_TEMPLATES.hemsida.beskrivning,false);
+  h+=offSection('Uppdraget inkluderar','off-inkluderar',offertData.inkluderar||OFFERT_TEMPLATES.hemsida.inkluderar,true);
+
+  // Extra section with editable title
+  h+='<div style="margin-bottom:32px;">';
+  h+='<div id="off-extra-title" contenteditable="true" style="font-size:19px;font-weight:700;color:#0A0A0A;margin-bottom:10px;outline:none;" oninput="offertSaveField(&quot;extra_title&quot;,this.innerText)">'+(offertData.extra_title||'Utökning och förbättring')+'</div>';
+  h+='<div id="off-extra" contenteditable="true" style="font-size:13px;line-height:1.75;color:#2A2A2A;outline:none;border-bottom:1px dashed #E0DDD8;" oninput="offertSaveField(&quot;extra&quot;,this.innerText)">'+(offertData.extra||OFFERT_TEMPLATES.hemsida.extra)+'</div>';
+  h+='</div>';
+
+  // Pristtabell
+  h+='<div style="margin-bottom:32px;">';
+  h+='<p style="font-size:19px;font-weight:700;color:#0A0A0A;margin-bottom:12px;">Offertpris</p>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+  h+='<thead><tr style="background:#0A0A0A;color:white;">';
+  h+='<th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Post</th>';
+  h+='<th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Beskrivning</th>';
+  h+='<th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Belopp ex. moms</th>';
+  h+='</tr></thead><tbody>';
+  [{n:'p1name',d:'p1desc',v:'p1val'},{n:'p2name',d:'p2desc',v:'p2val'},{n:'p3name',d:'p3desc',v:'p3val'}].forEach(function(row,i){
+    var bg=i%2===1?'background:#F5F4F1;':'';
+    h+='<tr style="'+bg+'">';
+    h+='<td style="padding:10px 14px;border-bottom:1px solid #E0DDD8;"><input value="'+(offertData[row.n]||'')+'" data-f="extra_title" onblur="offertSaveField(this.dataset.f,this.innerHTML)"" placeholder="Post '+(i+1)+'..." style="border:none;background:transparent;font-family:Inter,sans-serif;font-size:13px;outline:none;width:100%;"></td>';
+    h+='<td style="padding:10px 14px;border-bottom:1px solid #E0DDD8;"><input value="'+(offertData[row.d]||'')+'" data-f="extra_title" onblur="offertSaveField(this.dataset.f,this.innerHTML)"" placeholder="Beskrivning..." style="border:none;background:transparent;font-family:Inter,sans-serif;font-size:13px;outline:none;width:100%;"></td>';
+    h+='<td style="padding:10px 14px;border-bottom:1px solid #E0DDD8;text-align:right;"><input value="'+(offertData[row.v]||'')+'" data-f="extra_title" onblur="offertSaveField(this.dataset.f,this.innerHTML)"" placeholder="0" style="border:none;background:transparent;font-family:Inter,sans-serif;font-size:13px;font-weight:600;outline:none;text-align:right;width:110px;"></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  // Total
+  var tot=0;
+  ['p1val','p2val','p3val'].forEach(function(k){var v=(offertData[k]||'').replace(/[^0-9]/g,'');tot+=parseInt(v)||0;});
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:13px 14px;background:#0A0A0A;color:white;border-radius:4px;">';
+  h+='<span style="font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;">Totalt ex. moms</span>';
+  h+='<span id="off-total" style="font-size:20px;font-weight:700;">'+tot.toLocaleString('sv-SE')+' SEK</span>';
+  h+='</div></div>';
+
+  // Villkor
+  h+=offSection('Villkor','off-villkor',offertData.villkor||OFFERT_TEMPLATES.hemsida.villkor,true);
+
+  // Signatur
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;padding-top:28px;border-top:1.5px solid #0A0A0A;">';
+  ['Bestellarens underskrift','AX Design — Alexander Ostling'].forEach(function(sig){
+    h+='<div><div style="border-bottom:1.5px solid #0A0A0A;height:44px;margin-bottom:7px;"></div>';
+    h+='<p style="font-size:11px;color:#6B6B6B;">'+sig+'</p></div>';
+  });
+  h+='</div>';
+
+  h+='</div></div>'; // /padding /offert-doc
+  h+='</div>'; // /bg
+
+  return h;
+}
+
+
 function pgGanttInfo(){
   var days=ganttDays();
   var startD=new Date(TODAY.getTime()+ganttOff*864e5);
   var MN=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
-  var colW=Math.max(8,Math.min(18,Math.floor(540/days)));
-  var totalW=days*colW;var LKOL=162;
+  var DAY=['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
   var todayS=dS(TODAY);
-  var todayPx=Math.floor((TODAY.getTime()-startD.getTime())/864e5)*colW;
-  var h=phdr('Forsaljning','Gantt / Timeline','+ Ledigt','omNyLedigt()');
-  h+='<div style="padding:8px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;gap:5px;flex-wrap:wrap;">';
+  var LKOL=200;
+  var INFO_W=70;
+  var colW=Math.max(16,Math.min(32,Math.floor((window.innerWidth||1200-LKOL-INFO_W-32)/days)));
+  var totalW=days*colW;
+
+  // ── TOOLBAR ──────────────────────────────────────────────────────
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+  h+='<div><p style="font-size:9px;color:#059669;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1px;font-weight:600;">Forsaljning</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Gantt / Timeline</h2></div>';
+  h+='<div style="flex:1;"></div>';
   ['4v','8v','16v','Kvartal','Halvar','Helar'].forEach(function(p){
     var a=p===ganttP;
-    h+='<button onclick="ganttSetP(\''+p+'\')" style="padding:3px 11px;border-radius:99px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;border:1px solid '+(a?'var(--s9)':'var(--s2)')+';background:'+(a?'var(--s9)':'white')+';color:'+(a?'white':'var(--s6)')+';">'+p+'</button>';
+    h+='<button onclick="ganttSetP(\''+p+'\')" style="padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;border:1.5px solid '+(a?'var(--s9)':'var(--s2)')+';background:'+(a?'var(--s9)':'white')+';color:'+(a?'white':'var(--s6)')+';">'+p+'</button>';
   });
-  h+='<div style="flex:1"></div>';
-  h+='<button onclick="ganttNav(-7)" class="btn btn-outline btn-sm">&larr; Bakat</button>';
-  h+='<button onclick="ganttNav(0)" class="btn btn-outline btn-sm">Idag</button>';
-  h+='<button onclick="ganttNav(7)" class="btn btn-outline btn-sm">Framat &rarr;</button>';
+  h+='<div style="width:1px;height:16px;background:var(--s2);margin:0 4px;"></div>';
+  h+='<button onclick="ganttNav(-7)" class="btn btn-outline btn-sm" style="padding:4px 10px;">&larr;</button>';
+  h+='<button onclick="ganttNav(0)" class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px;">Idag</button>';
+  h+='<button onclick="ganttNav(7)" class="btn btn-outline btn-sm" style="padding:4px 10px;">&rarr;</button>';
+  h+='<button onclick="omNyLedigt()" class="btn btn-primary btn-sm" style="margin-left:4px;">+ Ledigt</button>';
   h+='</div>';
+
+  // ── BUILD DATES ───────────────────────────────────────────────────
   var dates=[];
-  for(var i=0;i<days;i++)dates.push(new Date(startD.getTime()+i*864e5));
-  h+='<div style="overflow-x:auto;padding:10px 14px;">';
-  h+='<div style="min-width:'+(totalW+LKOL+16)+'px;">';
-  h+='<div style="display:flex;height:15px;margin-left:'+LKOL+'px;">';
-  var lastM=-1;
-  dates.forEach(function(d){
-    var m=d.getMonth();var isNew=m!==lastM;
-    if(isNew)lastM=m;
-    h+='<div style="width:'+colW+'px;font-size:8px;color:var(--s5);overflow:hidden;white-space:nowrap;font-weight:'+(isNew?'600':'400')+';">'+(isNew?MN[m]:'')+'</div>';
+  for(var i=0;i<days;i++) dates.push(new Date(startD.getTime()+i*864e5));
+  var todayPx=Math.floor((TODAY.getTime()-startD.getTime())/864e5)*colW;
+
+  // ── HEADER HTML ───────────────────────────────────────────────────
+  h+='<div style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 120px);">';
+  h+='<div style="min-width:'+(totalW+LKOL+INFO_W+2)+'px;">';
+
+  // Sticky header
+  h+='<div style="position:sticky;top:0;z-index:10;background:var(--s9);display:flex;">';
+  // Left cols header
+  h+='<div style="width:'+LKOL+'px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.1);padding:0 12px;display:flex;align-items:center;">';
+  h+='<span style="font-size:10px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;">Kund / Projekt</span></div>';
+  h+='<div style="width:'+INFO_W+'px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.1);padding:0 8px;display:flex;align-items:center;justify-content:center;">';
+  h+='<span style="font-size:10px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;">Klar</span></div>';
+
+  // Month row
+  var monthCells='';
+  var dayCells='';
+  var lastM=-1;var monthStart=0;var monthLen=0;
+  dates.forEach(function(d,i){
+    var m=d.getMonth();var isWeekend=d.getDay()===0||d.getDay()===6;
+    var isToday=dS(d)===todayS;
+    var bg=isToday?'rgba(26,158,117,.35)':isWeekend?'rgba(255,255,255,.04)':'transparent';
+    dayCells+='<div style="width:'+colW+'px;height:32px;border-right:1px solid rgba(255,255,255,.06);background:'+bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;">';
+    dayCells+='<span style="font-size:'+(colW>20?'9':'7')+'px;color:'+(isToday?'#4ADE80':isWeekend?'rgba(255,255,255,.25)':'rgba(255,255,255,.45)');
+    if(isToday) dayCells+=';font-weight:700';
+    dayCells+=';">'+d.getDate()+'</span></div>';
+    if(m!==lastM){if(lastM>=0)monthCells+='</div>';monthCells+='<div style="display:flex;flex:1;min-width:0;">';lastM=m;}
+    if(i===dates.length-1)monthCells+='</div>';
   });
-  h+='</div>';
-  h+='<div style="display:flex;height:14px;margin-left:'+LKOL+'px;margin-bottom:8px;border-bottom:1px solid var(--s1);padding-bottom:2px;">';
-  dates.forEach(function(d){
-    var isT=dS(d)===todayS;var isW=d.getDay()===0||d.getDay()===6;
-    h+='<div style="width:'+colW+'px;font-size:8px;text-align:center;color:'+(isT?'var(--g)':isW?'var(--s2)':'var(--s3)')+';font-weight:'+(isT?'700':'400')+';">'+d.getDate()+'</div>';
-  });
-  h+='</div>';
-  function mkBar(label,color,sd,ed,onclk,pct,badge){
-    var s2=sd?new Date(sd):null;var e2=ed?new Date(ed):null;
-    var bsP=0,bwP=0;
-    if(s2&&e2){
-      var bs=Math.max(0,Math.floor((s2.getTime()-startD.getTime())/864e5));
-      var be=Math.min(days,Math.ceil((e2.getTime()-startD.getTime())/864e5));
-      bsP=bs*colW;bwP=Math.max(0,be-bs)*colW;
+
+  // Month labels
+  h+='<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">';
+  h+='<div style="display:flex;height:20px;border-bottom:1px solid rgba(255,255,255,.08);">';
+  var curM=-1;var curMStart=0;
+  dates.forEach(function(d,i){
+    if(d.getMonth()!==curM){
+      if(curM>=0){
+        var w=(i-curMStart)*colW;
+        h+='</div>';
+      }
+      curM=d.getMonth();curMStart=i;
+      h+='<div style="display:flex;align-items:center;padding:0 8px;border-right:1px solid rgba(255,255,255,.1);min-width:0;overflow:hidden;flex-shrink:0;" id="mh'+i+'">';
+      h+='<span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;">'+MN[curM]+' '+d.getFullYear()+'</span>';
     }
-    var r='<div style="display:flex;align-items:center;height:26px;margin-bottom:2px;">';
-    r+='<div style="width:'+LKOL+'px;flex-shrink:0;display:flex;align-items:center;gap:4px;padding-right:6px;">';
-    if(onclk)r+='<span onclick="'+onclk+'" style="font-size:11px;font-weight:500;color:var(--b);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;" title="'+label+'">'+label+'</span>';
-    else r+='<span style="font-size:11px;color:var(--s6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">'+label+'</span>';
-    if(badge)r+='<span style="font-size:9px;color:var(--s4);flex-shrink:0;margin-left:2px;">'+badge+'</span>';
+  });
+  h+='</div>';
+  // Day numbers row
+  h+='<div style="display:flex;height:24px;">';
+  dates.forEach(function(d){
+    var isWeekend=d.getDay()===0||d.getDay()===6;
+    var isToday=dS(d)===todayS;
+    h+='<div style="width:'+colW+'px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.06);background:'+(isToday?'rgba(26,158,117,.3)':'transparent')+'">';
+    h+='<span style="font-size:'+(colW>20?'9':'7')+'px;color:'+(isToday?'#4ADE80':isWeekend?'rgba(255,255,255,.2)':'rgba(255,255,255,.4)')+';font-weight:'+(isToday?'700':'400')+';">'+d.getDate()+'</span></div>';
+  });
+  h+='</div></div>';
+  h+='</div></div>'; // end sticky header
+
+  // ── ROW RENDERER ─────────────────────────────────────────────────
+  function mkRow(label,sub,color,sdStr,edStr,pct,badge,clickFn,idx){
+    var sd=sdStr?new Date(sdStr):null;
+    var ed=edStr?new Date(edStr):null;
+    var bsP=0,bwP=0;
+    if(sd&&ed){
+      var bs=Math.floor((sd.getTime()-startD.getTime())/864e5);
+      var be=Math.ceil((ed.getTime()-startD.getTime())/864e5);
+      bsP=Math.max(0,bs)*colW;
+      var visEnd=Math.min(days,be);
+      var visStart=Math.max(0,bs);
+      bwP=Math.max(0,visEnd-visStart)*colW;
+    }
+    var rowBg=idx%2===0?'white':'#FAFAFA';
+    var r='<div style="display:flex;align-items:stretch;background:'+rowBg+';border-bottom:1px solid var(--s1);min-height:42px;" ';
+    if(clickFn) r+='onmouseover="this.style.background=\'#F0FDF4\'" onmouseout="this.style.background=\''+rowBg+'\'"';
+    r+='>';
+    // Name col
+    r+='<div style="width:'+LKOL+'px;flex-shrink:0;padding:0 12px;display:flex;align-items:center;gap:8px;border-right:1px solid var(--s1);cursor:'+(clickFn?'pointer':'default')+'" '+(clickFn?'onclick="'+clickFn+'"':'')+' >';
+    r+='<div style="width:8px;height:8px;border-radius:50%;background:'+color+';flex-shrink:0;"></div>';
+    r+='<div style="min-width:0;"><p style="font-size:12px;font-weight:600;color:'+(clickFn?'var(--b)':'var(--s8)')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+label+'</p>';
+    if(sub)r+='<p style="font-size:10px;color:var(--s4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+sub+'</p>';
+    r+='</div></div>';
+    // Info col
+    r+='<div style="width:'+INFO_W+'px;flex-shrink:0;padding:0 8px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--s1);">';
+    if(pct>0){
+      r+='<div style="width:40px;">';
+      r+='<div style="height:4px;background:var(--s1);border-radius:2px;margin-bottom:2px;"><div style="height:4px;width:'+Math.min(100,pct)+'%;background:'+color+';border-radius:2px;"></div></div>';
+      r+='<span style="font-size:9px;color:var(--s5);">'+Math.round(pct)+'%</span>';
+      r+='</div>';
+    }
+    if(badge)r+='<span style="font-size:9px;color:var(--s4);margin-left:4px;">'+badge+'</span>';
     r+='</div>';
-    r+='<div style="position:relative;width:'+totalW+'px;height:16px;background:var(--s0);border-radius:2px;">';
-    if(todayPx>=0&&todayPx<totalW)r+='<div style="position:absolute;left:'+todayPx+'px;top:0;width:1px;height:16px;background:var(--g);opacity:.55;z-index:2;pointer-events:none;"></div>';
+    // Timeline col
+    r+='<div style="flex:1;position:relative;overflow:hidden;min-height:42px;">';
+    // Weekend shading
+    dates.forEach(function(d,di){
+      if(d.getDay()===0||d.getDay()===6){
+        r+='<div style="position:absolute;left:'+(di*colW)+'px;top:0;width:'+colW+'px;height:100%;background:rgba(0,0,0,.02);pointer-events:none;"></div>';
+      }
+    });
+    // Today line
+    if(todayPx>=0&&todayPx<=totalW)
+      r+='<div style="position:absolute;left:'+todayPx+'px;top:0;width:2px;height:100%;background:#1A9E75;opacity:.5;z-index:2;pointer-events:none;"></div>';
+    // Grid lines
+    dates.forEach(function(d,di){
+      r+='<div style="position:absolute;left:'+(di*colW)+'px;top:0;width:1px;height:100%;background:'+(d.getDay()===1?'rgba(0,0,0,.06)':'rgba(0,0,0,.03)')+';pointer-events:none;"></div>';
+    });
+    // Bar
     if(bwP>0){
-      r+='<div '+(onclk?'onclick="'+onclk+'"':'')+' style="position:absolute;left:'+bsP+'px;width:'+bwP+'px;height:12px;background:'+color+';border-radius:3px;top:2px;z-index:1;overflow:hidden;cursor:'+(onclk?'pointer':'default')+';"><div style="width:'+pct+'%;height:100%;background:rgba(255,255,255,.25);"></div></div>';
+      r+='<div '+(clickFn?'onclick="'+clickFn+'"':'')+' style="position:absolute;left:'+bsP+'px;width:'+bwP+'px;height:18px;top:12px;border-radius:4px;background:'+color+';z-index:3;cursor:'+(clickFn?'pointer':'default')+';overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15);">';
+      if(pct>0)r+='<div style="height:100%;width:'+Math.min(100,pct)+'%;background:rgba(255,255,255,.22);border-radius:4px 0 0 4px;"></div>';
+      if(bwP>50&&label.length<20)r+='<span style="position:absolute;left:8px;top:1px;font-size:9px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;">'+label+'</span>';
+      r+='</div>';
     }
     r+='</div></div>';
     return r;
   }
+
+  // ── ROWS ─────────────────────────────────────────────────────────
+  h+='<div>';
+
   var akt=kunder.filter(function(k){return !k.ark;});
-  akt.forEach(function(k){
-    var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
-    var sd2=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
-    var ed2=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
-    var nm=k.n.indexOf(' ')>=0?k.n.split('--')[0].trim():k.n;
-    var tH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
-    var badge=tH>0?(Math.round(tH*10)/10)+'h':'';
-    h+=mkBar(nm,AVC[k.ci%7],sd2,ed2,'openKund('+k.id+')',pct,badge);
-  });
-  var hasLed=ledigtRows.some(function(l){return l.start&&l.end;});
-  if(hasLed){
-    h+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--s2);">';
-    ledigtRows.forEach(function(lv){if(lv.start&&lv.end)h+=mkBar(lv.label,lv.color||'#D97706',lv.start,lv.end,'',0,'');});
+  if(akt.length){
+    // Group header
+    h+='<div style="display:flex;background:var(--s9);padding:6px 12px;align-items:center;gap:8px;">';
+    h+='<span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;">Kunder &amp; Uppdrag</span>';
+    h+='<span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:9px;padding:1px 7px;border-radius:99px;">'+akt.length+'</span>';
     h+='</div>';
+
+    akt.forEach(function(k,idx){
+      var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
+      var sd=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
+      var ed=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
+      var nm=k.n;
+      var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
+      var badge=totH>0?(Math.round(totH*10)/10)+'h':'';
+      var col=AVC[k.ci%7];
+      h+=mkRow(nm,k.t,col,sd,ed,pct,badge,'openKund('+k.id+')',idx);
+    });
   }
-  h+='<button onclick="omNyLedigt()" class="btn btn-outline btn-sm" style="margin-top:8px;">+ Lagg till ledigt</button>';
-  h+='</div></div>';return h;
+
+  // Ledigt rows
+  var hasLed=ledigtRows&&ledigtRows.some(function(l){return l.start&&l.end;});
+  if(hasLed){
+    h+='<div style="display:flex;background:#374151;padding:6px 12px;align-items:center;gap:8px;">';
+    h+='<span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;">Ledigt &amp; Semester</span>';
+    h+='</div>';
+    ledigtRows.forEach(function(lv,idx){
+      if(!lv.start||!lv.end)return;
+      h+=mkRow(lv.label,'',lv.color||'#D97706',lv.start,lv.end,0,'','',idx);
+    });
+  }
+
+  h+='<div style="padding:10px 12px;">';
+  h+='<button onclick="omNyLedigt()" class="btn btn-outline btn-sm" style="font-size:11px;">+ Lagg till ledigt / semester</button>';
+  h+='</div>';
+
+  h+='</div></div></div>';
+  return h;
 }
 
 // === TEXTER ===
@@ -1624,6 +1956,7 @@ function pgKundDetail(id){
   h+='<div><p style="font-size:15px;font-weight:700;color:var(--s9);">'+k.n+'</p>';
   h+='<p style="font-size:11px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p></div>';
   h+='<div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">';
+  h+='<button onclick="offertFranKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--p);color:var(--p);">&#128196; Skapa offert</button>';
   h+='<span class="bdg" style="background:var(--gl);color:var(--gd);">'+Math.round(totH*10)/10+' timmar loggade</span>';
   if(totKr>0)h+='<span class="bdg" style="background:#ECFDF5;color:#166534;">'+kr(totKr)+' fakturerbart</span>';
   if(k.timMin||k.timMax){var te=(k.timMin||0)+'-'+(k.timMax||0)+'h';var pctEst=k.timMax>0?Math.min(100,Math.round(totH/k.timMax*100)):0;h+='<span class="bdg" style="background:#EFF6FF;color:var(--b);">'+te+' estimerat'+(pctEst>0?' ('+pctEst+'% klar)':'')+'</span>';}
@@ -2722,6 +3055,7 @@ function pgCRMDetail(id){
   h+='</div>';
   h+='<span style="padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;background:'+fasColor+';color:white;">'+lead.fas+'</span>';
   if(lead.fas!=='Vunnen'&&lead.fas!=='Forlorad')h+='<button onclick="crmTillKund('+id+')" class="btn btn-primary btn-sm" style="background:#059669;">&#10003; Till kund</button>';
+  h+='<button onclick="offertFranCRM('+id+')" class="btn btn-outline btn-sm" style="border-color:var(--p);color:var(--p);">&#128196; Skapa offert</button>';
   h+='<button onclick="crmDelLead('+id+')" class="btn btn-danger btn-sm">Ta bort</button>';
   h+='</div>';
 
@@ -2819,6 +3153,7 @@ function rMain(){
     case'fs_p':h=pgPipeline();break;
     case'fs_g':h=pgGanttInfo();break;
     case'fs_t':h=pgTexter();break;
+    case'fs_offert':h=pgOffertMall();break;
     case'ma_w':h=pgWebb();break;
     case'ma_k':h=pgKampanjer();break;
     case'ma_l':h=pgLeads();break;
