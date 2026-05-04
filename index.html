@@ -694,88 +694,118 @@ function pgReleases(){
 // ---------------------------------------------------------
 function pgKunder(){
   if(kundOpen)return pgKundDetail(kundOpen);
-  var akt=kunder.filter(function(k){return !k.ark;});
+  var akt=kunder.filter(function(k){return !k.ark&&k.fak!=='offert';});
+  var offerter=kunder.filter(function(k){return !k.ark&&k.fak==='offert';});
+  var ark=kunder.filter(function(k){return k.ark;});
   var h=phdr('Kunder','Kunder','+ Ny kund','omNyKund()');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+
+  // ── AKTIVA KUNDER ─────────────────────────────────────────────────
   h+='<div class="card">';
-  akt.forEach(function(k){
-    var done=k.tasks.filter(function(t){return t.done;}).length;
-    var pct=k.tasks.length>0?Math.round(done/k.tasks.length*100):0;
-    var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
-    var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
-    h+='<div class="row">';
-    h+='<div class="av" style="width:35px;height:35px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:11px;border:2px solid '+AVC[k.ci%7]+'22;">'+ini(k.n)+'</div>';
-    h+='<div style="flex:1;min-width:0;cursor:pointer;" onclick="openKund('+k.id+')">';
-    h+='<p style="font-size:13px;font-weight:600;color:var(--b);margin-bottom:2px;text-decoration:underline;text-underline-offset:2px;">'+k.n+'</p>';
-    h+='<p style="font-size:11px;color:var(--s4);margin-bottom:3px;">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p>';
-    h+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
-    h+='<div class="pb" style="width:60px;"><div class="pf" style="width:'+pct+'%;background:'+AVC[k.ci%7]+';"></div></div>';
-    h+='<span style="font-size:10px;color:var(--s4);">'+done+'/'+k.tasks.length+' uppgifter</span>';
-    if(totH>0)h+='<span class="bdg" style="background:var(--gl);color:var(--gd);font-size:10px;">'+Math.round(totH*10)/10+'h &middot; '+kr(totKr)+'</span>';
-    if(k.timMax>0){var pctEst=Math.min(100,Math.round(totH/k.timMax*100));h+='<span class="bdg" style="background:#EFF6FF;color:var(--b);font-size:10px;">'+(k.timMin||0)+'-'+k.timMax+'h est. ('+pctEst+'%)</span>';}
-    h+='</div></div>';
-    h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Tidlogg</button>';
-    h+='<button onclick="omEditKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Redigera</button>';
-    h+='<button onclick="arkiveraKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--a);color:var(--a);">Arkivera</button></div>';
-  });
-  var ark=kunder.filter(function(k){return k.ark;});
-  if(ark.length){
-    h+='<div style="margin:10px 14px 0;border:1px solid var(--a);border-radius:10px;overflow:hidden;">';
-    h+='<div style="padding:9px 14px;background:#FEF3C7;display:flex;align-items:center;justify-content:space-between;">';
+  if(akt.length){
+    akt.forEach(function(k){
+      var done=k.tasks.filter(function(t){return t.done;}).length;
+      var pct=k.tasks.length>0?Math.round(done/k.tasks.length*100):0;
+      var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
+      var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
+      h+='<div class="row">';
+      h+='<div class="av" style="width:35px;height:35px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:11px;border:2px solid '+AVC[k.ci%7]+'22;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;min-width:0;cursor:pointer;" onclick="openKund('+k.id+')">';
+      h+='<p style="font-size:13px;font-weight:600;color:var(--b);margin-bottom:2px;text-decoration:underline;">'+k.n+'</p>';
+      h+='<p style="font-size:11px;color:var(--s4);margin-bottom:3px;">'+k.t+' &middot; '+k.tx+' kr/h</p>';
+      h+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+      h+='<div class="pb" style="width:60px;"><div class="pf" style="width:'+pct+'%;background:'+AVC[k.ci%7]+';"></div></div>';
+      h+='<span style="font-size:10px;color:var(--s4);">'+done+'/'+k.tasks.length+' uppgifter</span>';
+      if(totH>0)h+='<span class="bdg" style="background:var(--gl);color:var(--gd);font-size:10px;">'+Math.round(totH*10)/10+'h &middot; '+kr(totKr)+'</span>';
+      if(k.timMax>0){var pE=Math.min(100,Math.round(totH/k.timMax*100));h+='<span class="bdg" style="background:#EFF6FF;color:var(--b);font-size:10px;">'+(k.timMin||0)+'-'+k.timMax+'h est. ('+pE+'%)</span>';}
+      h+='</div></div>';
+      h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Tidlogg</button>';
+      h+='<button onclick="omEditKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Redigera</button>';
+      h+='<button onclick="arkiveraKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--a);color:var(--a);">Arkivera</button></div>';
+    });
+  } else {
+    h+='<div style="padding:20px;text-align:center;color:var(--s4);font-size:13px;">Inga aktiva kunder</div>';
+  }
+  h+='<div style="padding:9px 14px;text-align:center;border-top:1px solid var(--s1);">';
+  h+='<button class="btn btn-outline btn-sm" onclick="omNyKund()">+ Ny kund</button></div>';
+  h+='</div>';
+
+  // ── OFFERTER ──────────────────────────────────────────────────────
+  if(offerter.length){
+    h+='<div style="border:2px solid var(--a);border-radius:12px;overflow:hidden;">';
+    h+='<div style="padding:10px 14px;background:#FEF3C7;display:flex;align-items:center;justify-content:space-between;">';
     h+='<div style="display:flex;align-items:center;gap:8px;">';
-    h+='<span style="font-size:13px;">&#128230;</span>';
-    h+='<p style="font-size:12px;font-weight:600;color:#92400E;">Arkiverade kunder ('+ark.length+')</p></div>';
-    h+='<p style="font-size:11px;color:#92400E;">Finns kvar i ekonomi &middot; Visas ej i Gantt</p>';
-    h+='</div>';
+    h+='<span style="font-size:14px;">&#128196;</span>';
+    h+='<p style="font-size:13px;font-weight:700;color:#92400E;">Offerter ('+offerter.length+')</p></div>';
+    h+='<p style="font-size:11px;color:#92400E;">Ej bekraftade kunder</p></div>';
+    h+='<div style="background:white;">';
+    offerter.forEach(function(k){
+      var offBel=k.offsum||k.fp||0;
+      h+='<div class="row">';
+      h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;min-width:0;cursor:pointer;" onclick="openKund('+k.id+')">';
+      h+='<p style="font-size:13px;font-weight:600;color:var(--b);text-decoration:underline;">'+k.n+'</p>';
+      h+='<p style="font-size:11px;color:var(--s4);">'+k.t+(k.kontakt?' &middot; '+k.kontakt:'')+'</p></div>';
+      if(offBel)h+='<span style="font-size:13px;font-weight:700;color:var(--a);margin-right:10px;">'+kr(offBel)+'</span>';
+      h+='<button onclick="beKraftaOffert('+k.id+')" class="btn btn-primary btn-sm" style="background:var(--g);margin-right:4px;">Bekrafta</button>';
+      h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Visa</button>';
+      h+='<button onclick="arkiveraKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--a);color:var(--a);">Arkivera</button></div>';
+    });
+    h+='</div></div>';
+  }
+
+  // ── ARKIVERADE ────────────────────────────────────────────────────
+  if(ark.length){
+    h+='<div style="border:1px solid var(--s2);border-radius:12px;overflow:hidden;">';
+    h+='<div style="padding:9px 14px;background:var(--s0);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s5);">&#128230; Arkiverade kunder ('+ark.length+')</p>';
+    h+='<p style="font-size:11px;color:var(--s4);">Finns kvar i ekonomi &middot; Visas ej i Gantt</p></div>';
+    h+='<div style="background:white;">';
     ark.forEach(function(k){
       var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
       var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
-      h+='<div class="row" style="background:white;">';
-      h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;opacity:.6;">'+ini(k.n)+'</div>';
-      h+='<div style="flex:1;min-width:0;">';
-      h+='<p style="font-size:13px;font-weight:600;color:var(--s6);">'+k.n+'</p>';
-      h+='<p style="font-size:11px;color:var(--s4);">'+k.t;
-      if(totH>0)h+=' &middot; '+Math.round(totH*10)/10+'h &middot; '+kr(totKr);
-      h+='</p></div>';
+      h+='<div class="row" style="opacity:.7;">';
+      h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:var(--s6);">'+k.n+'</p>';
+      h+='<p style="font-size:11px;color:var(--s4);">'+k.t+(totH>0?' &middot; '+Math.round(totH*10)/10+'h &middot; '+kr(totKr):'')+'</p></div>';
       h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:6px;">Visa</button>';
-      h+='<button onclick="aterstallKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--g);color:var(--g);">Aterstall</button>';
-      h+='</div>';
+      h+='<button onclick="aterstallKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--g);color:var(--g);">Aterstall</button></div>';
     });
-    h+='</div>';
+    h+='</div></div>';
   }
-  h+='<div style="padding:9px 14px;text-align:center;border-top:1px solid var(--s1);"><button class="btn btn-outline btn-sm" onclick="omNyKund()">+ Ny kund</button></div>';
-  h+='</div></div>';return h;
+  h+='</div>';return h;
 }
 function omNyKund(){
   nyKundTyp='aktiv';
   nyKundCI=kunder.length%NKCOLORS.length;
   var h=mhdr('Lagg till ny kund');
   h+=lbl('Foretagsnamn')+'<input id="nk-n" class="ri" placeholder="T.ex. Karlsson Design AB" style="margin-bottom:10px;">';
-  h+=lbl('Taxa (kr/h)')+'<input id="nk-tx" class="ri" type="number" value="720" style="margin-bottom:10px;">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  h+='<div>'+lbl('Kontaktperson')+'<input id="nk-kontakt" class="ri" placeholder="Fornamn Efternamn"></div>';
+  h+='<div>'+lbl('Taxa (kr/h)')+'<input id="nk-tx" class="ri" type="number" value="720"></div></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  h+='<div>'+lbl('E-post')+'<input id="nk-mail" class="ri" placeholder="kontakt@foretag.se" type="email"></div>';
+  h+='<div>'+lbl('Telefon')+'<input id="nk-tel" class="ri" placeholder="07X-XXX XX XX"></div></div>';
+  h+=lbl('Webbsida')+'<input id="nk-webb" class="ri" placeholder="www.foretaget.se" style="margin-bottom:10px;">';
   h+=lbl('Kategori / typ av arbete')+'<input id="nk-kat" class="ri" placeholder="Webb, App-dev, Grafik..." style="margin-bottom:10px;">';
-  h+=lbl('Projekterade timmar (intervall)');
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
-  h+='<input id="nk-tmin" class="ri" type="number" min="0" placeholder="Min t.ex. 10" style="flex:1;">';
-  h+='<span style="color:var(--s4);font-size:16px;">&ndash;</span>';
-  h+='<input id="nk-tmax" class="ri" type="number" min="0" placeholder="Max t.ex. 20" style="flex:1;">';
-  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+  h+='<div>'+lbl('Projekterade timmar (intervall)')+'<div style="display:flex;align-items:center;gap:6px;"><input id="nk-tmin" class="ri" type="number" min="0" placeholder="Min"><span style="color:var(--s4);">&ndash;</span><input id="nk-tmax" class="ri" type="number" min="0" placeholder="Max"></div></div>';
+  h+='<div>'+lbl('Offertsumma (ex. moms)')+'<input id="nk-offsum" class="ri" type="number" min="0" placeholder="T.ex. 25000"></div></div>';
   h+=lbl('Kundtyp &mdash; var hamnar kunden?');
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
-  h+='<div id="nk-typ-offert" onclick="nkSetOffert()" style="border:2px solid var(--s2);border-radius:10px;padding:10px;cursor:pointer;background:white;transition:all .15s;">';
-  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">\uD83D\uDCDD</span> Offert</p>';
+  h+='<div id="nk-typ-offert" onclick="nkSetOffert()" style="border:2px solid var(--s2);border-radius:10px;padding:10px;cursor:pointer;background:white;">';
+  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">&gt;&gt;</span> Offert</p>';
   h+='<p style="font-size:11px;color:var(--s5);line-height:1.4;">Visas under Offerter. Ej bekrattad kund.</p></div>';
-  h+='<div id="nk-typ-aktiv" onclick="nkSetAktiv()" style="border:2px solid var(--g);border-radius:10px;padding:10px;cursor:pointer;background:var(--gl);transition:all .15s;">';
-  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">\u2705</span> Aktiv kund</p>';
-  h+='<p style="font-size:11px;color:var(--s5);line-height:1.4;">Visas under Intakter. Pagaende uppdrag.</p></div>';
-  h+='</div>';
-  h+=lbl('Startposition i pipeline');
-  h+='<select id="nk-steg" class="ri" style="margin-bottom:12px;">';
+  h+='<div id="nk-typ-aktiv" onclick="nkSetAktiv()" style="border:2px solid var(--g);border-radius:10px;padding:10px;cursor:pointer;background:var(--gl);">';
+  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">OK</span> Aktiv kund</p>';
+  h+='<p style="font-size:11px;color:var(--s5);line-height:1.4;">Visas under Intakter. Pagaende uppdrag.</p></div></div>';
+  h+=lbl('Startposition i pipeline')+'<select id="nk-steg" class="ri" style="margin-bottom:12px;">';
   PST.forEach(function(s,i){h+='<option value="'+i+'">'+(i+1)+'. '+s+'</option>';});
   h+='</select>';
   h+=lbl('Farg');
   h+='<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">';
   NKCOLORS.forEach(function(c,i){
-    h+='<div class="nk-cd" onclick="nkSetCI('+i+')" style="width:28px;height:28px;border-radius:50%;background:'+c+';cursor:pointer;border:3px solid '+(i===nyKundCI?'var(--s9)':c)+';transition:border-color .15s;"></div>';
+    h+='<div class="nk-cd" onclick="nkSetCI('+i+')" style="width:28px;height:28px;border-radius:50%;background:'+c+';cursor:pointer;border:3px solid '+(i===nyKundCI?'var(--s9)':c)+';"></div>';
   });
   h+='</div>';
   h+=mfooter('omNyKundSave()','Lagg till kund');
@@ -951,32 +981,91 @@ function leadTillKund(lid){var l=leads.find(function(x){return x.id===lid;});if(
 // EKONOMI
 // ---------------------------------------------------------
 function pgIntakter(){
-  var akt=kunder.filter(function(k){return !k.ark;});var arkK=kunder.filter(function(k){return k.ark;});var tot=kunder.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
-  var h=phdr('Intäkter','Intäkter','','');
+  var akt=kunder.filter(function(k){return !k.ark&&k.fak!=='offert';});
+  var offerter=kunder.filter(function(k){return !k.ark&&k.fak==='offert';});
+  var arkK=kunder.filter(function(k){return k.ark;});
+  // Real revenue: fast pris + logged hours for non-offert
+  var totAkt=akt.reduce(function(s,k){
+    if(k.fak==='fast')return s+k.fp;
+    return s+k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0);
+  },0);
+  var totArk=arkK.reduce(function(s,k){
+    if(k.fak==='fast')return s+k.fp;
+    return s+k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0);
+  },0);
+  var totAll=totAkt+totArk;
+  // Offer potential
+  var totOff=offerter.reduce(function(s,k){return s+(k.offsum||k.fp||0);},0);
+  var h=phdr('Intakter','Intakter','','');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+
+  // Confirmed
   h+='<div style="border:2px solid var(--g);border-radius:12px;padding:14px;background:white;">';
-  h+='<p style="font-size:11px;font-weight:600;color:var(--g);margin-bottom:10px;">Bekräftade intäkter</p>';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--g);margin-bottom:10px;">Bekraftade intakter</p>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  [['Fakturerat ex. moms',kr(tot),'var(--g)'],['Moms (25%)',kr(tot*.25),'var(--a)'],['Inkl. moms',kr(tot*1.25),'var(--g)'],['Aktiva kunder',akt.length+' st','var(--s8)']].forEach(function(k){
-    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  [['Fakturerat ex. moms',kr(totAll),'var(--g)'],['Moms (25%)',kr(totAll*.25),'var(--a)'],['Inkl. moms',kr(totAll*1.25),'var(--g)'],['Aktiva kunder',akt.length+' st','var(--s7)']].forEach(function(k){
+    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
+    h+='<p style="font-size:18px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
   });
   h+='</div></div>';
+
+  // Offers
   h+='<div style="border:2px solid var(--a);border-radius:12px;padding:14px;background:white;">';
-  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter -- potentiella</p>';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter &mdash; potentiella</p>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  [['Projekterat',kr(154080),'var(--a)'],['Moms (25%)',kr(38520),'var(--a)'],['Inkl. moms',kr(192600),'var(--a)'],['Leads',leads.length+' st','var(--s8)']].forEach(function(k){
-    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  [['Projekterat ex. moms',kr(totOff),'var(--a)'],['Moms (25%)',kr(totOff*.25),'var(--a)'],['Inkl. moms',kr(totOff*1.25),'var(--a)'],['Offerter',offerter.length+' st','var(--s7)']].forEach(function(k){
+    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
+    h+='<p style="font-size:18px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
   });
-  h+='</div></div></div>';
-  h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);"><p style="font-size:12px;font-weight:600;color:var(--s8);">Bekräftade kunder</p></div>';
-  akt.forEach(function(k){var fk=k.fak==='fast'?k.fp:k.h*k.tx;
-    h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
-    h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p><p style="font-size:10px;color:var(--s4);">'+k.t+'</p></div>';
-    h+='<span class="bdg" style="background:'+(k.fak==='fast'?'var(--bl)':'var(--gl)')+';color:'+(k.fak==='fast'?'var(--b)':'var(--gd)')+';">'+(k.fak==='fast'?'Fast pris':'Per timme')+'</span>';
-    h+='<span style="font-size:12px;font-weight:700;color:var(--g);margin-left:10px;">'+kr(fk)+'</span></div>';
-  });
-  h+='</div></div>';return h;
+  h+='</div></div>';
+  h+='</div>';
+
+  // Active customers list
+  if(akt.length){
+    h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:var(--gl);">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--gd);">Bekraftade kunder</p></div>';
+    akt.forEach(function(k){
+      var fk=k.fak==='fast'?k.fp:k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
+      h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p>';
+      h+='<p style="font-size:10px;color:var(--s4);">'+k.t+'</p></div>';
+      h+='<span class="bdg" style="background:'+(k.fak==='fast'?'var(--bl)':'var(--gl)')+';color:'+(k.fak==='fast'?'var(--b)':'var(--gd)')+';">'+(k.fak==='fast'?'Fast pris':'Per timme')+'</span>';
+      h+='<span style="font-size:12px;font-weight:700;color:var(--g);margin-left:10px;">'+kr(fk)+'</span></div>';
+    });
+    h+='</div>';
+  }
+
+  // Offers list
+  if(offerter.length){
+    h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:#FEF3C7;">';
+    h+='<p style="font-size:12px;font-weight:600;color:#92400E;">Offerter</p></div>';
+    offerter.forEach(function(k){
+      var offBel=k.offsum||k.fp||0;
+      h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p>';
+      h+='<p style="font-size:10px;color:var(--s4);">'+k.t+(k.kontakt?' &middot; '+k.kontakt:'')+'</p></div>';
+      h+='<button onclick="beKraftaOffert('+k.id+')" class="btn btn-primary btn-sm" style="background:var(--g);margin-right:8px;">Bekrafta</button>';
+      h+='<span style="font-size:12px;font-weight:700;color:var(--a);">'+kr(offBel)+'</span></div>';
+    });
+    h+='</div>';
+  }
+
+  // Archived totals
+  if(arkK.length){
+    h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:var(--s0);">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s5);">Arkiverade ('+arkK.length+' st)</p>';
+    h+='<span style="font-size:12px;font-weight:700;color:var(--s5);">'+kr(totArk)+'</span></div></div>';
+    arkK.forEach(function(k){
+      var fk=k.fak==='fast'?k.fp:k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
+      h+='<div class="row" style="opacity:.7;"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;"><p style="font-size:12px;color:var(--s6);">'+k.n+'</p></div>';
+      h+='<span style="font-size:12px;font-weight:600;color:var(--s5);">'+kr(fk)+'</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';return h;
 }
 
 function pgScenario(){
@@ -2064,11 +2153,24 @@ function omNyKundSave(){
   var tmin=parseInt(document.getElementById('nk-tmin').value)||0;
   var tmax=parseInt(document.getElementById('nk-tmax').value)||0;
   var steg=parseInt(document.getElementById('nk-steg').value)||0;
-  kunder.push({id:newId(),n:n,t:kat,tx:tx,h:0,fp:0,
-    fak:nyKundTyp==='offert'?'offert':'tim',
+  var kontakt=(document.getElementById('nk-kontakt').value||'').trim();
+  var mail=(document.getElementById('nk-mail').value||'').trim();
+  var tel=(document.getElementById('nk-tel').value||'').trim();
+  var webb=(document.getElementById('nk-webb').value||'').trim();
+  var offsum=parseInt(document.getElementById('nk-offsum').value)||0;
+  var isOffert=nyKundTyp==='offert';
+  kunder.push({
+    id:newId(),n:n,t:kat,tx:tx,h:0,fp:isOffert?0:offsum,
+    fak:isOffert?'offert':(offsum>0?'fast':'tim'),
     ci:nyKundCI,ark:false,kundtyp:nyKundTyp,
-    timMin:tmin,timMax:tmax,tasks:[],notes:'',timlogs:[],startDat:'',slutDat:''});
-  if(nyKundTyp!=='offert'){prows.push({id:newId(),n:n.split(' ')[0]||n,s:kat,steg:steg,ci:nyKundCI});save('prows',prows);}
+    timMin:tmin,timMax:tmax,offsum:offsum,
+    kontakt:kontakt,mail:mail,tel:tel,webb:webb,
+    tasks:[],notes:'',timlogs:[],startDat:'',slutDat:''
+  });
+  if(nyKundTyp!=='offert'){
+    prows.push({id:newId(),n:n.split(' ')[0]||n,s:kat,steg:steg,ci:nyKundCI});
+    save('prows',prows);
+  }
   save('kunder',kunder);cm();render();
 }
 
@@ -3274,6 +3376,19 @@ function arkiveraKund(id){
 function aterstallKund(id){
   var k=kunder.find(function(x){return x.id===id;});
   if(k){k.ark=false;save('kunder',kunder);}
+  rMain();
+}
+
+function beKraftaOffert(id){
+  var k=kunder.find(function(x){return x.id===id;});
+  if(!k)return;
+  if(!confirm('Bekrafta offert for '+k.n+'? Kunden flyttas till aktiva kunder.'))return;
+  k.fak=k.offsum>0?'fast':'tim';
+  if(k.offsum>0)k.fp=k.offsum;
+  k.kundtyp='aktiv';
+  save('kunder',kunder);
+  prows.push({id:newId(),n:k.n.split(' ')[0]||k.n,s:k.t,steg:0,ci:k.ci});
+  save('prows',prows);
   rMain();
 }
 
