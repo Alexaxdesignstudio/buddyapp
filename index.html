@@ -1,0 +1,2399 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buddy — SaaS för soloföretagare v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1A9E75;--gl:#E6F7F1;--gd:#0F6B50;
+  --b:#2563EB;--bl:#EFF6FF;
+  --r:#DC2626;--a:#D97706;--p:#7C3AED;--pk:#BE185D;--br:#92400E;
+  --s0:#F9FAFB;--s1:#F3F4F6;--s2:#E5E7EB;--s3:#D1D5DB;
+  --s4:#9CA3AF;--s5:#6B7280;--s6:#4B5563;--s7:#374151;--s8:#1F2937;--s9:#111827;
+  --btn-bg:#111827; /* SVART — alla primärknappar */
+}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7eb;}
+#app{display:flex;height:100vh;background:var(--s0);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;border:none;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-weight:500;gap:4px;font-family:'Inter',sans-serif;transition:opacity .15s;}
+.btn:hover{opacity:.85;}
+.btn-primary{background:var(--btn-bg);color:white;}
+.btn-outline{background:transparent;border:1px solid var(--s2);color:var(--s6);}
+.btn-outline:hover{background:var(--s1);}
+.btn-danger{background:transparent;border:1px solid #FECACA;color:var(--r);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+
+/* ── LAYOUT ── */
+#sbw{width:215px;flex-shrink:0;background:white;border-right:1px solid var(--s1);display:flex;flex-direction:column;height:100vh;}
+#sb{flex:1;overflow-y:auto;padding:7px;}
+#mwrap{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;overflow:hidden;}
+#main{flex:1;overflow-y:auto;}
+
+/* ── MODAL ── */
+#mw{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:200;align-items:flex-start;justify-content:center;padding-top:60px;overflow-y:auto;}
+#mb{background:white;border-radius:14px;border:1px solid var(--s2);padding:1.5rem;width:420px;box-shadow:0 8px 32px rgba(0,0,0,.14);margin-bottom:60px;max-height:82vh;overflow-y:auto;}
+
+/* ── NAV ── */
+.ni{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:8px;font-size:12px;cursor:pointer;width:100%;border:none;background:transparent;text-align:left;color:var(--s5);font-family:'Inter',sans-serif;}
+.ni:hover{background:var(--s0);}
+.ni.act{background:var(--gl);color:var(--gd);font-weight:500;}
+.ns{display:flex;align-items:center;gap:6px;padding:4px 8px 4px 27px;border-radius:8px;font-size:11px;cursor:pointer;width:100%;border:none;background:transparent;text-align:left;color:var(--s4);font-family:'Inter',sans-serif;}
+.ns:hover{background:var(--s0);}
+.ns.act{font-weight:600;}
+.nlbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s3);padding:8px 8px 3px;}
+.dep-dot{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:white;flex-shrink:0;}
+
+/* ── CARDS ── */
+.card{background:white;border:1px solid var(--s2);border-radius:12px;overflow:hidden;}
+.kpi{background:white;border:1px solid var(--s2);border-radius:10px;padding:13px 15px;}
+.row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--s1);transition:background .1s;}
+.row:hover{background:var(--s0);}
+.row:last-child{border-bottom:none;}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.bdg{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500;white-space:nowrap;}
+.tgl{width:34px;height:18px;border-radius:9px;position:relative;cursor:pointer;border:none;transition:background .2s;}
+.tgl span{position:absolute;width:14px;height:14px;background:white;border-radius:50%;top:2px;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:left .15s;}
+.ri{padding:7px 9px;border-radius:7px;border:1px solid var(--s2);background:white;color:var(--s8);width:100%;outline:none;font-family:'Inter',sans-serif;font-size:13px;}
+.ri:focus{border-color:var(--g);}
+.pb{height:4px;background:var(--s1);border-radius:2px;overflow:hidden;}
+.pf{height:4px;border-radius:2px;}
+.sc{padding:4px 5px;border-radius:5px;font-size:10px;text-align:center;cursor:pointer;border:1px solid transparent;font-family:'Inter',sans-serif;}
+.sc.done{background:#DCFCE7;color:#166534;border-color:#86EFAC;}
+.sc.act2{background:#DBEAFE;color:#1E40AF;border-color:#93C5FD;font-weight:600;}
+.sc.fut{background:var(--s0);color:var(--s3);}
+.sc.fut:hover{background:var(--s1);}
+
+/* ── WEBBLÄNKAR ── */
+.wbcat{background:white;border:1px solid var(--s2);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.wbcat-h{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--s1);background:var(--s0);}
+.wblink{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--s1);}
+.wblink:hover{background:var(--s0);}
+.drag-h{cursor:grab;color:var(--s3);font-size:14px;padding:2px;flex-shrink:0;user-select:none;}
+.drag-h:hover{color:var(--s6);}
+.drag-h:active{cursor:grabbing;}
+.wblink.drag-over{border-top:2px solid var(--g);}
+.wblink.dragging{opacity:.4;}
+
+/* ── MOBILE ── */
+#mob-bar{display:none;background:white;border-bottom:1px solid var(--s1);padding:10px 14px;align-items:center;gap:10px;flex-shrink:0;}
+@media(max-width:700px){
+  #sbw{position:fixed;top:0;left:0;bottom:0;z-index:50;transform:translateX(-100%);transition:transform .25s;}
+  #sbw.open{transform:translateX(0);}
+  #mob-bar{display:flex!important;}
+  #mob-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;}
+  #mob-ov.show{display:block;}
+}
+
+@media print {
+  #sbw,#mob-bar,#print-fab,#mw{display:none!important;}
+  .btn,.btn-primary,.btn-outline,.btn-danger,button[onclick*="omEdit"],button[onclick*="ark"]{display:none!important;}
+  #mwrap{width:100%!important;}
+  body,html{background:white!important;}
+  .card{box-shadow:none!important;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  @page{margin:12mm 10mm;size:A4 landscape;}
+}
+
+#sb-loading{position:fixed;inset:0;background:white;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#sb-loading .spin{width:36px;height:36px;border:3px solid var(--s1);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#sb-status{position:fixed;bottom:8px;right:12px;font-size:10px;color:var(--s4);z-index:200;display:flex;align-items:center;gap:5px;}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--g);}
+.sb-dot.err{background:var(--r);}
+.sb-dot.sync{background:var(--a);animation:pulse .8s ease-in-out infinite alternate;}
+@keyframes pulse{to{opacity:.3}}
+
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0F6B50 0%,#1A9E75 50%,#0F6B50 100%);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#login-box{background:white;border-radius:20px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.lb-logo{width:52px;height:52px;background:var(--g);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(26,158,117,.4);}
+.lb-tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;transition:all .15s;font-family:Inter,sans-serif;border:none;background:transparent;color:var(--s5);}
+.lb-tab.act{background:white;color:var(--s9);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.lb-err{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--r);margin-bottom:12px;display:none;}
+.lb-ok{background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 13px;font-size:12px;color:#065F46;margin-bottom:12px;display:none;}
+</style>
+</head>
+<body>
+
+<div id="sb-loading">
+  <div style="width:44px;height:44px;background:var(--g);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(26,158,117,.35);">
+    <span style="color:white;font-weight:800;font-size:20px;">B</span>
+  </div>
+  <div class="spin"></div>
+  <p style="font-size:13px;color:var(--s5);">Ansluter till molnet...</p>
+</div>
+<div id="sb-status" title="Supabase-anslutning">
+  <div class="sb-dot sync" id="sb-dot"></div>
+  <span id="sb-txt">Synkar...</span>
+</div>
+
+<div id="login-screen">
+  <div id="login-box">
+    <div class="lb-logo"><span style="color:white;font-weight:800;font-size:22px;">B</span></div>
+    <h1 style="text-align:center;font-size:22px;font-weight:800;color:var(--s9);letter-spacing:-.03em;margin-bottom:4px;">Buddy</h1>
+    <p style="text-align:center;font-size:12px;color:var(--s4);margin-bottom:24px;">SaaS for soloforetagare</p>
+    <div style="display:flex;background:var(--s1);border-radius:10px;padding:3px;margin-bottom:20px;">
+      <button class="lb-tab act" id="tab-login" onclick="lbShowTab('login')">Logga in</button>
+      <button class="lb-tab" id="tab-signup" onclick="lbShowTab('signup')">Skapa konto</button>
+    </div>
+    <div id="lb-err" class="lb-err"></div>
+    <div id="lb-ok" class="lb-ok"></div>
+    <div id="lb-login-form">
+      <label style="font-size:11px;font-weight:600;color:var(--s5);display:block;margin-bottom:5px;">E-POSTADRESS</label>
+      <input id="lb-email" class="ri" type="email" placeholder="din@epost.se" style="margin-bottom:12px;font-size:14px;padding:11px 13px;">
+      <label style="font-size:11px;font-weight:600;color:var(--s5);display:block;margin-bottom:5px;">LOSENORD</label>
+      <input id="lb-pass" class="ri" type="password" placeholder="Ditt losenord" style="margin-bottom:20px;font-size:14px;padding:11px 13px;" onkeydown="if(event.key==='Enter')lbLogin()">
+      <button onclick="lbLogin()" id="lb-btn" style="width:100%;padding:13px;background:var(--btn-bg);color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Logga in</button>
+      <button onclick="lbForgot()" style="width:100%;margin-top:10px;padding:8px;background:transparent;color:var(--s4);border:none;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">Glomt losenord?</button>
+    </div>
+    <div id="lb-signup-form" style="display:none;">
+      <label style="font-size:11px;font-weight:600;color:var(--s5);display:block;margin-bottom:5px;">E-POSTADRESS</label>
+      <input id="lb-email2" class="ri" type="email" placeholder="din@epost.se" style="margin-bottom:12px;font-size:14px;padding:11px 13px;">
+      <label style="font-size:11px;font-weight:600;color:var(--s5);display:block;margin-bottom:5px;">LOSENORD (minst 6 tecken)</label>
+      <input id="lb-pass2" class="ri" type="password" placeholder="Valj ett losenord" style="margin-bottom:20px;font-size:14px;padding:11px 13px;" onkeydown="if(event.key==='Enter')lbSignup()">
+      <button onclick="lbSignup()" style="width:100%;padding:13px;background:var(--btn-bg);color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Skapa konto</button>
+    </div>
+  </div>
+</div>
+
+<div id="mob-ov" onclick="closeMob()"></div>
+<div id="app">
+  <div id="sbw">
+    <div style="padding:13px 12px 10px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--s1);">
+      <div style="width:28px;height:28px;background:var(--g);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(26,158,117,.4);flex-shrink:0;"><span style="color:white;font-weight:700;font-size:13px;">B</span></div>
+      <span style="font-weight:700;font-size:15px;color:var(--s9);letter-spacing:-.02em;">Buddy</span>
+    </div>
+    <div id="sb"></div>
+    <div style="border-top:1px solid var(--s1);padding:10px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;"><button onclick="lbLogout()" title="Logga ut" style="border:none;background:transparent;cursor:pointer;padding:3px 6px;border-radius:6px;color:var(--s3);font-size:11px;margin-right:auto;" onmouseover="this.style.color='var(--r)'" onmouseout="this.style.color='var(--s3)'">Logga ut</button>
+      <div class="av" style="width:30px;height:30px;background:var(--gl);color:var(--gd);font-size:10px;">AE</div>
+      <div><p style="font-size:12px;font-weight:500;color:var(--s8);" id="sb-name">Anna Eriksson</p><p style="font-size:10px;color:var(--s4);">Soloföretagare</p></div>
+    </div>
+  </div>
+  <div id="mwrap">
+    <div id="mob-bar">
+      <button onclick="openMob()" style="border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:4px;">
+        <span style="width:18px;height:2px;background:var(--s6);border-radius:1px;display:block;"></span>
+        <span style="width:18px;height:2px;background:var(--s6);border-radius:1px;display:block;"></span>
+        <span style="width:18px;height:2px;background:var(--s6);border-radius:1px;display:block;"></span>
+      </button>
+      <span style="font-weight:700;font-size:15px;color:var(--s9);">Buddy</span>
+    </div>
+    <div id="main"></div>
+  </div>
+</div>
+<div id="mw"><div id="mb"></div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SUPABASE CONFIG + AUTH
+// ═══════════════════════════════════════════════════════
+var SB_URL='https://rylnfdivvpsusvzyykab.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5bG5mZGl2dnBzdXN2enl5a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDE1MDksImV4cCI6MjA5MzM3NzUwOX0.ui0ftt7BIK9lHvvPRPdMzvk-XIE3DSB0_4Atf2QXGVU';
+var SB_CACHE={};
+var SB_DIRTY={};
+var SB_ONLINE=false;
+var SB_SYNC_TIMER=null;
+var SB_TOKEN=null;
+var SB_USER=null;
+
+// ── Status dot ────────────────────────────────────────
+function sbStatus(state,msg){
+  var dot=document.getElementById('sb-dot');
+  var txt=document.getElementById('sb-txt');
+  if(!dot||!txt)return;
+  if(state==='ok'){dot.style.background='var(--g)';dot.style.animation='none';}
+  else if(state==='sync'){dot.style.background='var(--a)';dot.style.animation='';}
+  else{dot.style.background='var(--r)';dot.style.animation='none';}
+  txt.textContent=msg;
+}
+
+// ── Auth headers (with token if available) ────────────
+function sbHeaders(){
+  var token=SB_TOKEN||SB_KEY;
+  return{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
+}
+
+// ── Login tab switch ──────────────────────────────────
+function lbShowTab(tab){
+  document.getElementById('tab-login').className='lb-tab'+(tab==='login'?' act':'');
+  document.getElementById('tab-signup').className='lb-tab'+(tab==='signup'?' act':'');
+  document.getElementById('lb-login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('lb-signup-form').style.display=tab==='signup'?'block':'none';
+  document.getElementById('lb-err').style.display='none';
+  document.getElementById('lb-ok').style.display='none';
+}
+function lbShowErr(msg){
+  var el=document.getElementById('lb-err');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('lb-ok').style.display='none';
+}
+function lbShowOk(msg){
+  var el=document.getElementById('lb-ok');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('lb-err').style.display='none';
+}
+function lbSetLoading(loading){
+  var btn=document.getElementById('lb-btn');
+  if(btn)btn.textContent=loading?'Loggar in...':'Logga in';
+}
+
+// ── Login ─────────────────────────────────────────────
+function lbLogin(){
+  var email=(document.getElementById('lb-email').value||'').trim();
+  var pass=document.getElementById('lb-pass').value||'';
+  if(!email||!pass){lbShowErr('Fyll i e-post och losenord.');return;}
+  lbSetLoading(true);
+  fetch(SB_URL+'/auth/v1/token?grant_type=password',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,password:pass})
+  }).then(function(r){return r.json();}).then(function(data){
+    lbSetLoading(false);
+    if(data.access_token){
+      SB_TOKEN=data.access_token;
+      SB_USER=data.user;
+      try{localStorage.setItem('sb_token',SB_TOKEN);}catch(e){}
+      document.getElementById('login-screen').style.display='none';
+      sbBoot();
+    } else {
+      lbShowErr('Fel e-post eller losenord. Forsok igen.');
+    }
+  }).catch(function(){lbSetLoading(false);lbShowErr('Anslutningsfel. Kontrollera internet.');});
+}
+
+// ── Sign up ───────────────────────────────────────────
+function lbSignup(){
+  var email=(document.getElementById('lb-email2').value||'').trim();
+  var pass=document.getElementById('lb-pass2').value||'';
+  if(!email||!pass){lbShowErr('Fyll i e-post och losenord.');return;}
+  if(pass.length<6){lbShowErr('Losenordet maste vara minst 6 tecken.');return;}
+  fetch(SB_URL+'/auth/v1/signup',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,password:pass})
+  }).then(function(r){return r.json();}).then(function(data){
+    if(data.id||data.user){
+      if(data.access_token){
+        SB_TOKEN=data.access_token;
+        SB_USER=data.user||data;
+        try{localStorage.setItem('sb_token',SB_TOKEN);}catch(e){}
+        document.getElementById('login-screen').style.display='none';
+        sbBoot();
+      } else {
+        lbShowOk('Konto skapat! Kolla din e-post och bekrafta, logga sedan in.');
+        lbShowTab('login');
+      }
+    } else {
+      lbShowErr(data.msg||data.message||'Nagonting gick fel. Forsok igen.');
+    }
+  }).catch(function(){lbShowErr('Anslutningsfel.');});
+}
+
+// ── Forgot password ───────────────────────────────────
+function lbForgot(){
+  var email=(document.getElementById('lb-email').value||'').trim();
+  if(!email){lbShowErr('Skriv din e-postadress ovan forst.');return;}
+  fetch(SB_URL+'/auth/v1/recover',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email})
+  }).then(function(){lbShowOk('Aterstallningslank skickad till '+email);}).catch(function(){lbShowErr('Kunde inte skicka mail.');});
+}
+
+// ── Logout ────────────────────────────────────────────
+function lbLogout(){
+  if(!confirm('Logga ut?'))return;
+  SB_TOKEN=null;SB_USER=null;
+  try{localStorage.removeItem('sb_token');}catch(e){}
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('sb-loading').style.display='none';
+}
+
+// ── Data helpers ──────────────────────────────────────
+function sbFetchAll(){
+  return fetch(SB_URL+'/rest/v1/buddy_data?select=id,value',{headers:sbHeaders()})
+    .then(function(r){return r.json();});
+}
+function sbUpsert(id,value){
+  return fetch(SB_URL+'/rest/v1/buddy_data',{
+    method:'POST',
+    headers:sbHeaders(),
+    body:JSON.stringify({id:id,value:value,updated_at:new Date().toISOString()})
+  });
+}
+function sbFlush(){
+  var keys=Object.keys(SB_DIRTY);
+  if(!keys.length)return;
+  sbStatus('sync','Sparar...');
+  var promises=keys.map(function(k){
+    return sbUpsert(k,SB_CACHE[k]).then(function(r){
+      if(r.ok){delete SB_DIRTY[k];}
+    }).catch(function(){});
+  });
+  Promise.all(promises).then(function(){
+    if(Object.keys(SB_DIRTY).length===0)sbStatus('ok','Sparat i molnet');
+    else sbStatus('err','Synkfel');
+  });
+}
+function save(key,val){
+  SB_CACHE['buddy_'+key]=val;
+  SB_DIRTY['buddy_'+key]=true;
+  try{localStorage.setItem('buddy_'+key,JSON.stringify(val));}catch(e){}
+  if(SB_SYNC_TIMER)clearTimeout(SB_SYNC_TIMER);
+  SB_SYNC_TIMER=setTimeout(sbFlush,800);
+}
+function load(key,def){
+  var cached=SB_CACHE['buddy_'+key];
+  if(cached!==undefined)return cached;
+  try{var v=localStorage.getItem('buddy_'+key);if(v!==null)return JSON.parse(v);}catch(e){}
+  return def;
+}
+
+// ── Boot ──────────────────────────────────────────────
+function sbBoot(){
+  document.getElementById('sb-loading').style.display='flex';
+  sbFetchAll()
+  .then(function(rows){
+    if(Array.isArray(rows)){
+      rows.forEach(function(row){SB_CACHE[row.id]=row.value;});
+      SB_ONLINE=true;
+      sbStatus('ok','Ansluten');
+    } else {
+      sbStatus('err','Fel vid laddning');
+    }
+    document.getElementById('sb-loading').style.display='none';
+    render();
+  })
+  .catch(function(e){
+    sbStatus('err','Offline - lokal data');
+    document.getElementById('sb-loading').style.display='none';
+    render();
+  });
+}
+
+// ── Auto-login if token saved ─────────────────────────
+function sbInit(){
+  try{
+    var saved=localStorage.getItem('sb_token');
+    if(saved){
+      SB_TOKEN=saved;
+      document.getElementById('login-screen').style.display='none';
+      sbBoot();
+    } else {
+      document.getElementById('sb-loading').style.display='none';
+    }
+  }catch(e){
+    document.getElementById('sb-loading').style.display='none';
+  }
+}
+
+var SB_URL='https://rylnfdivvpsusvzyykab.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5bG5mZGl2dnBzdXN2enl5a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDE1MDksImV4cCI6MjA5MzM3NzUwOX0.ui0ftt7BIK9lHvvPRPdMzvk-XIE3DSB0_4Atf2QXGVU';
+var SB_CACHE={};      // in-memory cache (same role as localStorage before)
+var SB_DIRTY={};      // keys waiting to be pushed
+var SB_ONLINE=false;
+var SB_SYNC_TIMER=null;
+
+
+
+
+// ─────────────────────────────────────────────────────────
+// LOCALS TORAGE HELPERS
+// ─────────────────────────────────────────────────────────
+function save(key,val){try{localStorage.setItem('buddy_'+key,JSON.stringify(val));}catch(e){}}
+function load(key,def){try{var v=localStorage.getItem('buddy_'+key);return v?JSON.parse(v):def;}catch(e){return def;}}
+
+// ─────────────────────────────────────────────────────────
+// NAV + STATE
+// ─────────────────────────────────────────────────────────
+var P=load('page','hem');
+var EX=load('navex',{});
+var NAV=[
+  {k:'tk',l:'Teknisk',c:'#2563EB',s:[{k:'tk_i',l:'Integrationer'},{k:'tk_s',l:'Säkerhet'},{k:'tk_a',l:'API & Webhooks'}]},
+  {k:'pr',l:'Produkt',c:'#7C3AED',s:[{k:'pr_r',l:'Roadmap'},{k:'pr_f',l:'Feedback'},{k:'pr_e',l:'Releases'}]},
+  {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'}]},
+  {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_k',l:'Kampanjer'},{k:'ma_l',l:'Leads'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'}]},
+  {k:'ek',l:'Ekonomi',c:'#166534',s:[{k:'ek_i',l:'Intäkter'},{k:'ek_s',l:'Scenario'},{k:'ek_f',l:'Fasta utgifter'},{k:'ek_u',l:'Int. & Utg.'}]},
+  {k:'hr',l:'HR',c:'#BE185D',s:[{k:'hr_t',l:'Team'},{k:'hr_o',l:'Onboarding'},{k:'hr_f',l:'Förmåner'}]},
+  {k:'in',l:'Inköp',c:'#92400E',s:[{k:'in_a',l:'Avtal'},{k:'in_t',l:'Tjänster'},{k:'in_l',l:'Leverantörer'}]},
+];
+function dof(k){for(var i=0;i<NAV.length;i++)for(var j=0;j<NAV[i].s.length;j++)if(NAV[i].s[j].k===k)return NAV[i];return null;}
+function lof(k){for(var i=0;i<NAV.length;i++)for(var j=0;j<NAV[i].s.length;j++)if(NAV[i].s[j].k===k)return NAV[i].s[j].l;return k;}
+
+// ─────────────────────────────────────────────────────────
+// DATA — allt laddas från localStorage, faller tillbaka på default
+// ─────────────────────────────────────────────────────────
+var nid=load('nid',5000);
+function newId(){nid++;save('nid',nid);return nid;}
+
+var AVC=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#BE185D','#1D9E75'];
+var AVB=['#EFF6FF','#F5F3FF','#FEF2F2','#ECFDF5','#FFFBEB','#FDF2F8','#E6F7F1'];
+
+var integr=load('integr',[{n:'Fortnox',d:'Bokföring & fakturering',k:'Ekonomi',ico:'📊',on:true},{n:'Google Drive',d:'Fillagring och dokument',k:'Produktivitet',ico:'📁',on:true},{n:'Google Kalender',d:'Kalender & möten',k:'Produktivitet',ico:'📅',on:true},{n:'Stripe',d:'Betalningar online',k:'Ekonomi',ico:'💳',on:true},{n:'Slack',d:'Teamkommunikation',k:'Kommunikation',ico:'💬',on:false},{n:'Mailchimp',d:'E-postmarknadsföring',k:'Marknad',ico:'📧',on:false},{n:'Zapier',d:'Automatisering',k:'Automation',ico:'⚡',on:true}]);
+
+var rmItems=load('rmItems',[{id:1,t:'Tidrapportering v2',d:'Förbättrad tidrapport med timer',p:'Hög',s:'Pågår'},{id:2,t:'Mobilapp iOS',d:'Native app för iPhone',p:'Hög',s:'Planerad'},{id:3,t:'AI-assistent',d:'Buddy AI för analys',p:'Medel',s:'Idé'},{id:4,t:'Fakturaintegration',d:'Skicka fakturor direkt',p:'Hög',s:'Klar'},{id:5,t:'Mörkt läge',d:'Dark mode',p:'Låg',s:'Planerad'},{id:6,t:'Team-vyer',d:'Flera användare',p:'Medel',s:'Idé'},{id:7,t:'Exportera rapporter',d:'PDF & Excel',p:'Medel',s:'Pågår'}]);
+var rmCols=['Idé','Planerad','Pågår','Klar'];
+var rmCBg={'Idé':'#F3F4F6','Planerad':'#DBEAFE','Pågår':'#FEF3C7','Klar':'#DCFCE7'};
+var rmCTc={'Idé':'#6B7280','Planerad':'#1E40AF','Pågår':'#92400E','Klar':'#166534'};
+var pBg={'Hög':'#FEF2F2','Medel':'#FEF3C7','Låg':'#EFF6FF'};
+var pTc={'Hög':'#DC2626','Medel':'#92400E','Låg':'#1D4ED8'};
+
+var fbItems=load('fbItems',[{id:1,n:'Jessica — Keolis',m:'Bättre mobilvy för tidrapporter',d:'2026-04-22',s:'Ny',p:'Hög'},{id:2,n:'Lina — Golfarenan',m:'Automatiska påminnelser',d:'2026-04-20',s:'Bearbetas',p:'Medel'},{id:3,n:'Nicke — Elcentralen',m:'Exportfunktion för rapporter',d:'2026-04-15',s:'Bearbetas',p:'Hög'},{id:4,n:'Perfect Event',m:'Flera prisnivåer per kund',d:'2026-04-10',s:'Klar',p:'Medel'}]);
+var fbSb={'Ny':'#FEF2F2','Bearbetas':'#FEF3C7','Planerad':'#EFF6FF','Klar':'#DCFCE7'};
+var fbSt={'Ny':'#DC2626','Bearbetas':'#92400E','Planerad':'#1D4ED8','Klar':'#166534'};
+
+var kunder=load('kunder',[{id:1,n:'Nicke — Elcentralen',t:'Hemsida',tx:720,h:0,fp:39600,fak:'fast',ci:0,ark:false,tasks:[{t:'Samla logotypfiler',done:false},{t:'Godkänn designutkast',done:false}],notes:'Stort projekt.',timlogs:[]},{id:2,n:'Lina — Golfarenan',t:'Uppdatering hemsida',tx:720,h:15,fp:0,fak:'tim',ci:1,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Boka uppstartsmöte',done:true},{t:'Leverera v1',done:false}],notes:'Redesign, ny navigation och mobilanpassning.',timlogs:[]},{id:3,n:'Jessica — Keolis',t:'Övrigt',tx:720,h:0,fp:108000,fak:'fast',ci:2,ark:false,tasks:[{t:'Kravspecifikation signerad',done:true},{t:'Del 1 fakturerad',done:true},{t:'Produktion klar',done:false}],notes:'Fast pris 108 000 kr. Betalas i tre delar.',timlogs:[]},{id:4,n:'Greenhouse — Fredrik',t:'Övrigt',tx:720,h:4,fp:0,fak:'tim',ci:3,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Copywriting startar v18',done:false}],notes:'Copywriting och webbdesign.',timlogs:[]},{id:5,n:'Perfect Event',t:'Event',tx:700,h:0,fp:6650,fak:'fast',ci:4,ark:false,tasks:[{t:'Samla underlag från kund',done:false},{t:'Leverera event-material',done:false}],notes:'Inväntar underlag från kund.',timlogs:[]}]);
+
+var PST=['Avtal','Produktion','Granskning','Leverans','Slutfaktura','Betald'];
+var prows=load('prows',[{id:1,n:'Jessica',s:'Keolis',steg:1,ci:2},{id:2,n:'Lina',s:'Golfarenan',steg:2,ci:1},{id:3,n:'Greenhouse',s:'Fredrik',steg:4,ci:3},{id:4,n:'Alvin',s:'Kasino',steg:2,ci:0},{id:5,n:'Perfect',s:'Ica 9 maj',steg:1,ci:4}]);
+
+// WEBBLÄNKAR — med redigering och drag-drop
+var wbcats=load('wbcats',[
+  {id:1,n:'Inspiration',l:[{id:101,n:'Awwwards',u:'https://awwwards.com',d:'Prisad design'},{id:102,n:'Dribbble',u:'https://dribbble.com',d:'Design inspo'}]},
+  {id:2,n:'Verktyg',l:[{id:103,n:'Figma',u:'https://figma.com',d:'Design & prototyp'},{id:104,n:'Notion',u:'https://notion.so',d:'Anteckningar'},{id:105,n:'Google Analytics',u:'https://analytics.google.com',d:'Webbstatistik'}]},
+  {id:3,n:'Kunder',l:[{id:106,n:'Designab AB',u:'https://designab.se',d:'Kundens sajt'}]},
+]);
+
+var kampanjer=load('kampanjer',[{id:1,n:'Vårens webb-erbjudande',kanal:'Instagram',budget:5000,spend:3200,leads:18,stat:'Aktiv'},{id:2,n:'Google Ads — hemsidor',kanal:'Google',budget:8000,spend:8000,leads:34,stat:'Avslutad'},{id:3,n:'LinkedIn B2B',kanal:'LinkedIn',budget:6000,spend:1500,leads:7,stat:'Aktiv'}]);
+
+var leads=load('leads',[{id:1,n:'Marcus Lindqvist',f:'Lindqvist Bygg',kanal:'LinkedIn',s:'Varm',d:'2026-04-23',not:'Intresserad av hemsida',uppfdat:'2026-05-05'},{id:2,n:'Sofia Berg',f:'Berg Consulting',kanal:'Google',s:'Ny',d:'2026-04-22',not:'',uppfdat:''},{id:3,n:'Emil Johansson',f:'Johansson & Co',kanal:'Referral',s:'Kvalificerad',d:'2026-04-20',not:'Refererad av Lina',uppfdat:'2026-04-30'},{id:4,n:'Peter Holm',f:'Holm Tech',kanal:'E-post',s:'Varm',d:'2026-04-17',not:'Bokat möte 28 april',uppfdat:''}]);
+
+var scens=load('scens',[{id:1,n:'Scenario april',i:[{id:1,n:'Konsultarvode',b:1000,m:true}],u:[{id:1,n:'Kontorskostnad',b:800,m:false}]},{id:2,n:'Optimistisk',i:[{id:1,n:'Konsultarvode',b:5000,m:true}],u:[{id:1,n:'Kontorskostnad',b:800,m:false}]}]);
+var scAS=load('scAS',0);
+
+var fastaU=load('fastaU',[{id:1,n:'Kontorsplats',k:'Kontorshyra',b:1500,m:true},{id:2,n:'Telefon & surf',k:'Telekom',b:800,m:true},{id:3,n:'Bokföring',k:'Bokföring',b:700,m:true},{id:4,n:'Bil',k:'Transport',b:6000,m:true},{id:5,n:'Lön',k:'Övrigt',b:20000,m:false},{id:6,n:'Arbetsgivaravgift',k:'Övrigt',b:15000,m:false}]);
+
+var MONTHS=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+var iuPosts=load('iuPosts',null);
+if(!iuPosts){
+  iuPosts={};
+  for(var mm=0;mm<6;mm++){iuPosts[mm]=[];fastaU.forEach(function(f){iuPosts[mm].push({id:nid++,typ:'u',d:f.n,b:f.b,mo:f.m,fast:true});});}
+  [{m:0,d:'Konsultarvode Q1',b:28000,mo:true},{m:1,d:'Designab AB',b:12500,mo:true},{m:2,d:'Lina — Golfarenan',b:14400,mo:true},{m:3,d:'Jessica — Keolis del 1',b:36000,mo:true},{m:3,d:'Greenhouse',b:2880,mo:true},{m:4,d:'Perfect Event',b:6650,mo:true}].forEach(function(p){if(!iuPosts[p.m])iuPosts[p.m]=[];iuPosts[p.m].push({id:nid++,typ:'i',d:p.d,b:p.b,mo:p.mo,fast:false});});
+}
+var iuExp=load('iuExp',{2:true,3:true});
+function mCalc(m){var ps=iuPosts[m]||[];var iE=0,uE=0,iMo=0,uMo=0;ps.forEach(function(p){if(p.typ==='i'){iE+=p.b;if(p.mo)iMo+=p.b*.25;}else{uE+=p.b;if(p.mo)uMo+=p.b*.2;}});return{iE:iE,uE:uE,iMo:iMo,uMo:uMo,iInkl:iE+iMo,net:iE-uE,ps:ps};}
+
+var team=load('team',[{id:1,n:'Anna Eriksson',r:'Grundare & VD',e:'anna@erikssondesign.se',tl:'070-123 45 67',s:'Heltid',ci:2},{id:2,n:'Erik Svensson',r:'Underleverantör · Design',e:'erik@freelance.se',tl:'073-456 78 90',s:'Deltid',ci:1}]);
+var onbSteps=load('onbSteps',[{t:'Skapa ditt konto',d:'Namn, företag och kontaktuppgifter',k:true},{t:'Lägg till din första kund',d:'Försäljning → Kunder',k:true},{t:'Sätt upp fasta utgifter',d:'Ekonomi → Fasta utgifter',k:true},{t:'Koppla din bokföring',d:'Integrera Fortnox eller annat',k:true},{t:'Skapa ett scenario',d:'Ekonomi → Scenario',k:false},{t:'Bjud in teammedlem',d:'HR → Team',k:false},{t:'Koppla en integration',d:'Teknisk → Integrationer',k:false}]);
+var formaner=load('formaner',[{id:1,n:'Friskvårdsbidrag',d:'1 000 kr/år per person',k:'Hälsa',a:true,ico:'💪'},{id:2,n:'Hemarbete',d:'Flexibel arbetsplats',k:'Flexibilitet',a:true,ico:'🏠'},{id:3,n:'Kompetensutveckling',d:'5 000 kr/år',k:'Utbildning',a:true,ico:'📚'},{id:4,n:'Tjänstepension',d:'4,5% av lönen',k:'Pension',a:true,ico:'🏦'},{id:5,n:'Sjukvårdsförsäkring',d:'Via Länsförsäkringar',k:'Försäkring',a:false,ico:'🏥'},{id:6,n:'Föräldralön',d:'100% i 3 månader',k:'Familj',a:false,ico:'👶'}]);
+var avtal=load('avtal',[{id:1,n:'Tre',k:'Telefoni',p:'iPhone 15',sl:'2026-09-23',ko:700,a:true},{id:2,n:'Fortnox',k:'Mjukvara',p:'Bokföring',sl:'2026-12-31',ko:399,a:true},{id:3,n:'Telia Bredband',k:'Bredband',p:'500/500',sl:'2025-06-01',ko:499,a:false}]);
+var tjKats=[{l:'Ekonomi',bg:'#ECFDF5',tc:'#166534',ico:'📊',items:[{n:'Fortnox',d:'Bokföring',b:'Populär',k:true},{n:'Visma',d:'Småföretag',b:'',k:false}]},{l:'Finansiering',bg:'#EFF6FF',tc:'#1D4ED8',ico:'🏦',items:[{n:'Krea',d:'30+ banker',b:'Rek.',k:false},{n:'Lendo',d:'Snabb finans.',b:'',k:false}]},{l:'Telekom',bg:'#FFFBEB',tc:'#92400E',ico:'📱',items:[{n:'Telia Företag',d:'Mobil & bredband',b:'',k:true},{n:'Tele2',d:'Flexibla paket',b:'',k:false}]},{l:'Försäkringar',bg:'#FEF2F2',tc:'#DC2626',ico:'🛡',items:[{n:'Länsförsäkringar',d:'Heltäckande',b:'Viktig',k:false},{n:'Trygg-Hansa',d:'Frilansare',b:'',k:false}]},{l:'Energi',bg:'#F0FDF4',tc:'#166634',ico:'⚡',items:[{n:'Vattenfall',d:'Grön el',b:'',k:false},{n:'E.ON',d:'Flexibla avtal',b:'',k:false}]},{l:'Hälsa',bg:'#F5F3FF',tc:'#7C3AED',ico:'💪',items:[{n:'Benify',d:'Förmånsplattform',b:'',k:false},{n:'Feelgood',d:'Företagshälsa',b:'',k:false}]}];
+var levs=load('levs',[{id:1,n:'Fortnox',k:'Bokföring',e:'support@fortnox.se',sl:'2026-12-31',ko:399,ci:0},{id:2,n:'Telia Företag',k:'Telekom',e:'foretagskundservice@telia.se',sl:'2027-03-01',ko:700,ci:1},{id:3,n:'Adobe CC',k:'Programvara',e:'support.adobe.com',sl:'2026-09-15',ko:599,ci:2},{id:4,n:'Hetzner Cloud',k:'Hosting',e:'support@hetzner.com',sl:'Löpande',ko:249,ci:3}]);
+var apiKeys=load('apiKeys',[{id:1,n:'Produktionsnyckel',key:'bdy_live_••••4a2f',anv:'idag'},{id:2,n:'Testnyckel',key:'bdy_test_••••8c1d',anv:'3 dagar sedan'}]);
+var wbooks=load('wbooks',[{id:1,url:'https://hooks.zapier.com/abc123',ev:'Ny kund',on:true},{id:2,url:'https://myapp.se/webhook',ev:'Ny faktura',on:true}]);
+
+// Releases
+var releases=[{v:'2.0.0',d:'2026-04-29',b:'Senaste',items:['Svarta knappar genomgående','Webblänkar — redigering + drag-och-släpp','localStorage — data sparas automatiskt','Leads med uppföljningsdatum']},{v:'1.4.0',d:'2026-04-24',b:'',items:['Gantt/Timeline med statusar','Kundkort i navigeringen','Fullständig interaktivitet']},{v:'1.0.0',d:'2026-03-01',b:'',items:['Plattformen lanserad','7 avdelningar']}];
+
+// ─────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────
+function kr(v){return Math.round(v).toLocaleString('sv-SE')+' kr';}
+function ini(n){var p=n.split(/[\s—\-]+/);return((p[0]||'')[0]||'').toUpperCase()+((p[1]||p[0]||'')[0]||'').toUpperCase();}
+function dS(d){return d.toISOString().slice(0,10);}
+var TODAY=new Date();TODAY.setHours(0,0,0,0);
+function cm(){document.getElementById('mw').style.display='none';}
+function om(h){document.getElementById('mb').innerHTML=h;document.getElementById('mw').style.display='flex';}
+function lbl(t){return'<label style="font-size:11px;color:var(--s5);display:block;margin-bottom:4px;font-weight:500;">'+t+'</label>';}
+function mhdr(t){return'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><p style="font-size:15px;font-weight:600;color:var(--s9);">'+t+'</p><button onclick="cm()" style="border:none;background:transparent;cursor:pointer;font-size:20px;color:var(--s4);padding:0;line-height:1;">×</button></div>';}
+function mfooter(fn,l){return'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;"><button class="btn btn-outline" onclick="cm()">Avbryt</button><button class="btn btn-primary" onclick="'+fn+'">'+l+'</button></div>';}
+function openMob(){document.getElementById('sbw').classList.add('open');document.getElementById('mob-ov').classList.add('show');}
+function closeMob(){document.getElementById('sbw').classList.remove('open');document.getElementById('mob-ov').classList.remove('show');}
+function go(p){P=p;save('page',p);var d=dof(p);if(d)EX[d.k]=true;save('navex',EX);closeMob();render();}
+
+// ─────────────────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────────────────
+function rSB(){
+  var h='';var iH=P==='hem';
+  h+='<button class="ni'+(iH?' act':'')+'" onclick="go(\'hem\')">Översikt</button>';
+  h+='<div class="nlbl">Avdelningar</div>';
+  NAV.forEach(function(d){
+    var op=EX[d.k];var cur=dof(P);var da=cur&&cur.k===d.k;
+    h+='<button class="ni'+(da?' act':'')+'" onclick="EX[\''+d.k+'\']=!EX[\''+d.k+'\'];save(\'navex\',EX);render()" style="'+(da?'background:#E6F7F1;color:#0F6B50;':'')+'">';
+    h+='<span class="dep-dot" style="background:'+d.c+';">'+d.l.substring(0,2).toUpperCase()+'</span>';
+    h+='<span style="flex:1;">'+d.l+'</span><span style="font-size:10px;opacity:.35;">'+(op?'▾':'▸')+'</span></button>';
+    if(op)d.s.forEach(function(s){var sA=P===s.k;
+      h+='<button class="ns'+(sA?' act':'')+'" onclick="go(\''+s.k+'\')" style="'+(sA?'background:#E6F7F1;color:'+d.c+';':'')+'">';
+      h+='<span style="width:5px;height:5px;border-radius:50%;background:'+(sA?d.c:'var(--s2)')+';flex-shrink:0;"></span>'+s.l+'</button>';
+    });
+  });
+  document.getElementById('sb').innerHTML=h;
+}
+
+// ─────────────────────────────────────────────────────────
+// PAGE HEADER
+// ─────────────────────────────────────────────────────────
+function phdr(dept,title,bl,bfn){
+  var d=dof(P);var bread=d?('<span style="color:'+d.c+';">'+d.l+'</span>'):'Buddy';
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<div><p style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">'+bread+' · '+dept+'</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--s9);">'+title+'</h2></div>';
+  if(bl)h+='<button class="btn btn-primary btn-sm" onclick="'+bfn+'">'+bl+'</button>';
+  h+='</div>';return h;
+}
+
+// ─────────────────────────────────────────────────────────
+// HEM
+// ─────────────────────────────────────────────────────────
+function pgHem(){
+  var tot=kunder.filter(function(k){return !k.ark;}).reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
+  var akt=kunder.filter(function(k){return !k.ark;}).length;
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<div><p style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Buddy · VD-vy</p><h2 style="font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--s9);">Verksamhetsöversikt</h2></div>';
+  h+='<p style="font-size:11px;color:var(--s4);">April 2026</p></div>';
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;">';
+  [['Aktiva kunder',akt,'var(--g)'],['Fakturerat',kr(tot),'var(--b)'],['Öppna uppgifter',kunder.reduce(function(s,k){return s+k.tasks.filter(function(t){return !t.done;}).length;},0),'var(--r)'],['Integrationer',integr.filter(function(x){return x.on;}).length+' aktiva','var(--g)']].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k[0]+'</p><p style="font-size:22px;font-weight:700;color:'+k[2]+';letter-spacing:-.03em;">'+k[1]+'</p></div>';
+  });
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+  [['Försäljning','fs_k',akt+' kunder','#059669'],['Ekonomi','ek_i',kr(tot),'#166634'],['Marknad','ma_k',kampanjer.filter(function(k){return k.stat==='Aktiv';}).length+' kampanjer','#B45309'],['Teknisk','tk_i',integr.filter(function(x){return x.on;}).length+' integrationer','var(--b)'],['HR','hr_t',team.length+' i teamet','var(--pk)'],['Inköp','in_a',avtal.filter(function(a){return a.a;}).length+' avtal','#92400E'],['Produkt','pr_r',rmItems.filter(function(x){return x.s==='Pågår';}).length+' pågår','var(--p)']].forEach(function(d){
+    h+='<div onclick="go(\''+d[1]+'\')" style="background:white;border:1px solid var(--s2);border-radius:10px;padding:11px 13px;cursor:pointer;border-left:3px solid '+d[3]+'">';
+    h+='<p style="font-size:12px;font-weight:600;margin-bottom:3px;color:var(--s8);">'+d[0]+'</p><p style="font-size:11px;color:var(--s4);">'+d[2]+'</p></div>';
+  });
+  h+='</div>';
+  h+='<div style="background:#E6F7F1;border:1px solid #A7F3D0;border-radius:10px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<p style="font-size:12px;color:#0F6B50;font-weight:500;">All data sparas automatiskt i din webbläsare</p>';
+  h+='<span class="bdg" style="background:#A7F3D0;color:#0F6B50;">localStorage aktiv</span></div>';
+  h+='</div>';return h;
+}
+
+// ─────────────────────────────────────────────────────────
+// INTEGRATIONER
+// ─────────────────────────────────────────────────────────
+function pgIntegrationer(){
+  var on=integr.filter(function(x){return x.on;}).length;
+  var h=phdr('Integrationer','Integrationer','+ Ny integration','alert(\'Öppnar integrationskatalog\')');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+  [['Anslutna',on,'var(--g)'],['Ej anslutna',integr.length-on,'var(--s4)'],['Tillgängliga',12,'var(--b)']].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k[0]+'</p><p style="font-size:20px;font-weight:700;color:'+k[2]+';">'+k[1]+'</p></div>';
+  });
+  h+='</div><div class="card">';
+  integr.forEach(function(ig,i){
+    h+='<div class="row"><div style="width:36px;height:36px;border-radius:9px;background:var(--s0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+ig.ico+'</div>';
+    h+='<div style="flex:1;"><p style="font-size:13px;font-weight:500;color:var(--s8);margin-bottom:1px;">'+ig.n+'</p><p style="font-size:11px;color:var(--s4);">'+ig.d+'</p></div>';
+    h+='<span class="bdg" style="background:var(--s1);color:var(--s5);margin-right:10px;">'+ig.k+'</span>';
+    h+='<button class="tgl" onclick="integr['+i+'].on=!integr['+i+'].on;save(\'integr\',integr);rMain()" style="background:'+(ig.on?'var(--g)':'var(--s3)')+';"><span style="left:'+(ig.on?'18':'2')+'px;"></span></button></div>';
+  });
+  h+='</div></div>';return h;
+}
+
+// ─────────────────────────────────────────────────────────
+// SÄKERHET
+// ─────────────────────────────────────────────────────────
+function pgSak(){
+  var h=phdr('Säkerhet','Säkerhet','','');
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  h+='<div style="display:flex;flex-direction:column;gap:8px;"><div class="card">';
+  h+='<div style="padding:9px 14px;border-bottom:1px solid var(--s1);"><p style="font-size:12px;font-weight:600;color:var(--s8);">Inloggning & autentisering</p></div>';
+  [['Lösenord','Senast ändrat 12 mars 2026','Ändra'],['Tvåfaktorsautentisering','Aktiverad via SMS','Hantera'],['Aktiva sessioner','2 enheter inloggade','Visa']].forEach(function(r){
+    h+='<div class="row"><div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);margin-bottom:1px;">'+r[0]+'</p><p style="font-size:11px;color:var(--s4);">'+r[1]+'</p></div><button class="btn btn-outline btn-sm">'+r[2]+'</button></div>';
+  });
+  h+='</div></div>';
+  h+='<div class="card" style="height:fit-content;"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);"><p style="font-size:12px;font-weight:600;color:var(--s8);">Säkerhetslogg</p></div>';
+  [['Inloggning lyckad','idag 08:14 · Chrome'],['Lösenord ändrat','12 mar · Safari'],['Ny enhet ansluten','5 mar · iPhone']].forEach(function(e){
+    h+='<div class="row"><div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+e[0]+'</p><p style="font-size:11px;color:var(--s4);">'+e[1]+'</p></div></div>';
+  });
+  h+='</div></div>';return h;
+}
+
+// ─────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────
+function pgAPI(){
+  var h=phdr('API & Webhooks','API & Webhooks','+ Ny nyckel','omNewKey()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;"><p style="font-size:12px;font-weight:600;color:var(--s8);">API-nycklar</p><button class="btn btn-outline btn-sm" onclick="omNewKey()">+ Ny nyckel</button></div>';
+  apiKeys.forEach(function(k){
+    h+='<div class="row"><div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);margin-bottom:1px;">'+k.n+'</p><code style="font-size:11px;color:var(--s4);">'+k.key+'</code></div>';
+    h+='<button class="btn btn-outline btn-sm" style="margin-right:4px;" onclick="alert(\'Kopierad!\')">Kopiera</button>';
+    h+='<button class="btn btn-danger btn-sm" onclick="if(confirm(\'Återkalla?\'))apiKeys=apiKeys.filter(function(x){return x.id!=='+k.id+'});save(\'apiKeys\',apiKeys);rMain()">Återkalla</button></div>';
+  });
+  h+='</div><div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;"><p style="font-size:12px;font-weight:600;color:var(--s8);">Webhooks</p><button class="btn btn-outline btn-sm" onclick="omNewWH()">+ Ny webhook</button></div>';
+  wbooks.forEach(function(w,i){
+    h+='<div class="row"><div style="flex:1;min-width:0;"><p style="font-size:12px;font-weight:500;color:var(--s8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.url+'</p><p style="font-size:11px;color:var(--s4);">Event: '+w.ev+'</p></div>';
+    h+='<button class="tgl" onclick="wbooks['+i+'].on=!wbooks['+i+'].on;save(\'wbooks\',wbooks);rMain()" style="background:'+(w.on?'var(--g)':'var(--s3)')+';margin-right:8px;"><span style="left:'+(w.on?'18':'2')+'px;"></span></button>';
+    h+='<button class="btn btn-danger btn-sm" onclick="wbooks=wbooks.filter(function(x){return x.id!=='+w.id+'});save(\'wbooks\',wbooks);rMain()">Ta bort</button></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNewKey(){om(mhdr('Ny API-nyckel')+lbl('Namn')+'<input id="ak-n" class="ri" placeholder="T.ex. Produktionsnyckel" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'ak-n\').value;if(n){apiKeys.push({id:newId(),n:n,key:\'bdy_live_\u2022\u2022\u2022\u2022\'+Math.random().toString(36).slice(2,6),anv:\'aldrig\'});save(\'apiKeys\',apiKeys);cm();rMain()}','Skapa nyckel'));}
+function omNewWH(){om(mhdr('Ny webhook')+lbl('URL')+'<input id="wh-u" class="ri" placeholder="https://..." style="margin-bottom:10px;">'+lbl('Event')+'<input id="wh-e" class="ri" placeholder="T.ex. Ny kund" style="margin-bottom:16px;">'+mfooter('var u=document.getElementById(\'wh-u\').value,e=document.getElementById(\'wh-e\').value;if(u&&e){wbooks.push({id:newId(),url:u,ev:e,on:true});save(\'wbooks\',wbooks);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// ROADMAP
+// ─────────────────────────────────────────────────────────
+function pgRoadmap(){
+  var h=phdr('Roadmap','Roadmap','+ Ny feature','omNewFeature()');
+  h+='<div style="padding:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;align-items:start;">';
+  rmCols.forEach(function(col){var items=rmItems.filter(function(x){return x.s===col;});
+    h+='<div class="card"><div style="padding:8px 10px;background:'+rmCBg[col]+';border-bottom:1px solid var(--s2);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<span style="font-size:12px;font-weight:600;color:'+rmCTc[col]+';">'+col+'</span><span style="font-size:10px;background:white;border-radius:99px;padding:1px 7px;color:'+rmCTc[col]+';">'+items.length+'</span></div>';
+    items.forEach(function(it){
+      h+='<div style="padding:9px 10px;border-bottom:1px solid var(--s1);"><div style="display:flex;justify-content:space-between;margin-bottom:4px;">';
+      h+='<p style="font-size:12px;font-weight:500;color:var(--s8);flex:1;margin-right:5px;">'+it.t+'</p>';
+      h+='<span class="bdg" style="background:'+pBg[it.p]+';color:'+pTc[it.p]+';flex-shrink:0;">'+it.p+'</span></div>';
+      h+='<p style="font-size:11px;color:var(--s4);margin-bottom:6px;">'+it.d+'</p>';
+      h+='<div style="display:flex;gap:3px;flex-wrap:wrap;">';
+      rmCols.filter(function(c){return c!==col;}).forEach(function(c){
+        h+='<button onclick="rmItems.find(function(x){return x.id==='+it.id+'}).s=\''+c+'\';save(\'rmItems\',rmItems);rMain()" style="font-size:9px;padding:2px 6px;border-radius:20px;cursor:pointer;border:1px solid '+rmCBg[c]+';background:'+rmCBg[c]+';color:'+rmCTc[c]+';font-family:Inter,sans-serif;">→'+c+'</button>';
+      });
+      h+='<button onclick="rmItems=rmItems.filter(function(x){return x.id!=='+it.id+'});save(\'rmItems\',rmItems);rMain()" style="font-size:9px;padding:2px 6px;border-radius:20px;cursor:pointer;border:1px solid var(--s2);background:transparent;color:var(--s3);font-family:Inter,sans-serif;">×</button></div></div>';
+    });
+    h+='<div style="padding:7px;"><button class="btn btn-outline btn-sm" style="width:100%;font-size:10px;" onclick="omNewFeature(\''+col+'\')">+ Lägg till</button></div></div>';
+  });
+  h+='</div>';return h;
+}
+function omNewFeature(s){var sv=s||'Idé';om(mhdr('Ny feature')+lbl('Titel')+'<input id="nf-t" class="ri" placeholder="T.ex. Mobilapp iOS" style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nf-d" class="ri" placeholder="Kort beskrivning" style="margin-bottom:10px;">'+lbl('Status')+'<select id="nf-s" class="ri" style="margin-bottom:16px;"><option '+(sv==='Idé'?'selected':'')+'>Idé</option><option '+(sv==='Planerad'?'selected':'')+'>Planerad</option><option '+(sv==='Pågår'?'selected':'')+'>Pågår</option><option '+(sv==='Klar'?'selected':'')+'>Klar</option></select>'+mfooter('var t=document.getElementById(\'nf-t\').value;if(t){rmItems.push({id:newId(),t:t,d:document.getElementById(\'nf-d\').value,p:\'Medel\',s:document.getElementById(\'nf-s\').value});save(\'rmItems\',rmItems);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// FEEDBACK
+// ─────────────────────────────────────────────────────────
+function pgFeedback(){
+  var h=phdr('Feedback','Feedback','+ Ny post','omNewFb()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card">';
+  fbItems.forEach(function(f){
+    h+='<div class="row"><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><p style="font-size:12px;font-weight:600;color:var(--s8);">'+f.n+'</p><span class="bdg" style="background:'+fbSb[f.s]+';color:'+fbSt[f.s]+';">'+f.s+'</span><span class="bdg" style="background:'+pBg[f.p]+';color:'+pTc[f.p]+';">'+f.p+'</span></div>';
+    h+='<p style="font-size:12px;color:var(--s7);margin-bottom:2px;">'+f.m+'</p><p style="font-size:10px;color:var(--s4);">'+f.d+'</p></div>';
+    h+='<select class="ri" style="font-size:10px;padding:3px 6px;width:auto;margin-right:6px;" onchange="fbItems.find(function(x){return x.id==='+f.id+'}).s=this.value;save(\'fbItems\',fbItems);rMain()">';
+    ['Ny','Bearbetas','Planerad','Klar'].forEach(function(s){h+='<option '+(f.s===s?'selected':'')+'>'+s+'</option>';});
+    h+='</select><button class="btn btn-danger btn-sm" onclick="fbItems=fbItems.filter(function(x){return x.id!=='+f.id+'});save(\'fbItems\',fbItems);rMain()">×</button></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNewFb(){om(mhdr('Ny feedback')+lbl('Kund / Namn')+'<input id="fb-n" class="ri" placeholder="T.ex. Anna Karlsson" style="margin-bottom:10px;">'+lbl('Feedback')+'<textarea id="fb-m" class="ri" style="height:72px;resize:none;margin-bottom:16px;font-family:Inter,sans-serif;" placeholder="Vad gäller det?"></textarea>'+mfooter('var n=document.getElementById(\'fb-n\').value,m=document.getElementById(\'fb-m\').value;if(n&&m){fbItems.unshift({id:newId(),n:n,m:m,d:new Date().toISOString().slice(0,10),s:\'Ny\',p:\'Medel\'});save(\'fbItems\',fbItems);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// RELEASES
+// ─────────────────────────────────────────────────────────
+function pgReleases(){
+  var h=phdr('Releases','Releases','','');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:8px;">';
+  releases.forEach(function(r){
+    h+='<div class="card"><div style="padding:10px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;gap:10px;">';
+    h+='<span style="font-size:14px;font-weight:700;color:var(--p);">v'+r.v+'</span>';
+    if(r.b)h+='<span class="bdg" style="background:#F5F3FF;color:var(--p);">'+r.b+'</span>';
+    h+='<span style="font-size:11px;color:var(--s4);margin-left:auto;">'+r.d+'</span></div>';
+    h+='<div style="padding:10px 14px;">';
+    r.items.forEach(function(it){h+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="color:var(--p);font-size:12px;">✦</span><p style="font-size:12px;color:var(--s7);">'+it+'</p></div>';});
+    h+='</div></div>';
+  });
+  h+='</div>';return h;
+}
+
+// ─────────────────────────────────────────────────────────
+// KUNDER
+// ─────────────────────────────────────────────────────────
+function pgKunder(){
+  if(kundOpen)return pgKundDetail(kundOpen);
+  var akt=kunder.filter(function(k){return !k.ark;});
+  var h=phdr('Kunder','Kunder','+ Ny kund','omNyKund()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card">';
+  akt.forEach(function(k){
+    var done=k.tasks.filter(function(t){return t.done;}).length;
+    var pct=k.tasks.length>0?Math.round(done/k.tasks.length*100):0;
+    var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
+    var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
+    h+='<div class="row">';
+    h+='<div class="av" style="width:35px;height:35px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:11px;border:2px solid '+AVC[k.ci%7]+'22;">'+ini(k.n)+'</div>';
+    h+='<div style="flex:1;min-width:0;cursor:pointer;" onclick="openKund('+k.id+')">';
+    h+='<p style="font-size:13px;font-weight:600;color:var(--b);margin-bottom:2px;text-decoration:underline;text-underline-offset:2px;">'+k.n+'</p>';
+    h+='<p style="font-size:11px;color:var(--s4);margin-bottom:3px;">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p>';
+    h+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+    h+='<div class="pb" style="width:60px;"><div class="pf" style="width:'+pct+'%;background:'+AVC[k.ci%7]+';"></div></div>';
+    h+='<span style="font-size:10px;color:var(--s4);">'+done+'/'+k.tasks.length+' uppgifter</span>';
+    if(totH>0)h+='<span class="bdg" style="background:var(--gl);color:var(--gd);font-size:10px;">'+Math.round(totH*10)/10+'h &middot; '+kr(totKr)+'</span>';
+    if(k.timMax>0){var pctEst=Math.min(100,Math.round(totH/k.timMax*100));h+='<span class="bdg" style="background:#EFF6FF;color:var(--b);font-size:10px;">'+(k.timMin||0)+'-'+k.timMax+'h est. ('+pctEst+'%)</span>';}
+    h+='</div></div>';
+    h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Tidlogg</button>';
+    h+='<button onclick="omEditKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Redigera</button>';
+    h+='<button onclick="kunder.find(function(x){return x.id==='+k.id+'}).ark=true;save(\'kunder\',kunder);render()" class="btn btn-outline btn-sm">Arkivera</button></div>';
+  });
+  var ark=kunder.filter(function(k){return k.ark;});
+  if(ark.length){
+    h+='<div style="padding:7px 14px;background:var(--s0);border-top:1px solid var(--s1);"><p style="font-size:11px;font-weight:500;color:var(--s4);">Arkiverade ('+ark.length+')</p></div>';
+    ark.forEach(function(k){
+      h+='<div class="row" style="opacity:.6;"><div class="av" style="width:28px;height:28px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
+      h+='<p style="font-size:12px;color:var(--s5);flex:1;">'+k.n+'</p>';
+      h+='<button onclick="kunder.find(function(x){return x.id==='+k.id+'}).ark=false;save(\'kunder\',kunder);render()" class="btn btn-outline btn-sm">Aterstall</button></div>';
+    });
+  }
+  h+='<div style="padding:9px 14px;text-align:center;border-top:1px solid var(--s1);"><button class="btn btn-outline btn-sm" onclick="omNyKund()">+ Ny kund</button></div>';
+  h+='</div></div>';return h;
+}
+function omNyKund(){
+  nyKundTyp='aktiv';
+  nyKundCI=kunder.length%NKCOLORS.length;
+  var h=mhdr('Lagg till ny kund');
+  h+=lbl('Foretagsnamn')+'<input id="nk-n" class="ri" placeholder="T.ex. Karlsson Design AB" style="margin-bottom:10px;">';
+  h+=lbl('Taxa (kr/h)')+'<input id="nk-tx" class="ri" type="number" value="720" style="margin-bottom:10px;">';
+  h+=lbl('Kategori / typ av arbete')+'<input id="nk-kat" class="ri" placeholder="Webb, App-dev, Grafik..." style="margin-bottom:10px;">';
+  h+=lbl('Projekterade timmar (intervall)');
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+  h+='<input id="nk-tmin" class="ri" type="number" min="0" placeholder="Min t.ex. 10" style="flex:1;">';
+  h+='<span style="color:var(--s4);font-size:16px;">&ndash;</span>';
+  h+='<input id="nk-tmax" class="ri" type="number" min="0" placeholder="Max t.ex. 20" style="flex:1;">';
+  h+='</div>';
+  h+=lbl('Kundtyp &mdash; var hamnar kunden?');
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+  h+='<div id="nk-typ-offert" onclick="nkSetOffert()" style="border:2px solid var(--s2);border-radius:10px;padding:10px;cursor:pointer;background:white;transition:all .15s;">';
+  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">\uD83D\uDCDD</span> Offert</p>';
+  h+='<p style="font-size:11px;color:var(--s5);line-height:1.4;">Visas under Offerter. Ej bekrattad kund.</p></div>';
+  h+='<div id="nk-typ-aktiv" onclick="nkSetAktiv()" style="border:2px solid var(--g);border-radius:10px;padding:10px;cursor:pointer;background:var(--gl);transition:all .15s;">';
+  h+='<p style="font-size:13px;font-weight:600;margin-bottom:4px;"><span class="nkti">\u2705</span> Aktiv kund</p>';
+  h+='<p style="font-size:11px;color:var(--s5);line-height:1.4;">Visas under Intakter. Pagaende uppdrag.</p></div>';
+  h+='</div>';
+  h+=lbl('Startposition i pipeline');
+  h+='<select id="nk-steg" class="ri" style="margin-bottom:12px;">';
+  PST.forEach(function(s,i){h+='<option value="'+i+'">'+(i+1)+'. '+s+'</option>';});
+  h+='</select>';
+  h+=lbl('Farg');
+  h+='<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">';
+  NKCOLORS.forEach(function(c,i){
+    h+='<div class="nk-cd" onclick="nkSetCI('+i+')" style="width:28px;height:28px;border-radius:50%;background:'+c+';cursor:pointer;border:3px solid '+(i===nyKundCI?'var(--s9)':c)+';transition:border-color .15s;"></div>';
+  });
+  h+='</div>';
+  h+=mfooter('omNyKundSave()','Lagg till kund');
+  om(h);
+}
+function omEditKund(id){var k=kunder.find(function(x){return x.id===id;});if(!k)return;om(mhdr('Redigera kund')+lbl('Namn')+'<input id="ek-n" class="ri" value="'+k.n+'" style="margin-bottom:10px;">'+lbl('Typ')+'<input id="ek-t" class="ri" value="'+k.t+'" style="margin-bottom:10px;">'+lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'" style="margin-bottom:16px;">'+mfooter('var k=kunder.find(function(x){return x.id==='+id+'});k.n=document.getElementById(\'ek-n\').value;k.t=document.getElementById(\'ek-t\').value;k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;save(\'kunder\',kunder);cm();render()','Spara'));}
+
+// ─────────────────────────────────────────────────────────
+// PIPELINE
+// ─────────────────────────────────────────────────────────
+function pgPipeline(){
+  var nc=PST.length;var gc='100px repeat('+nc+',1fr)';
+  var h=phdr('Pipeline','Aktiv pipeline','+ Kund','omNyPipe()');
+  h+='<div style="padding:14px;overflow-x:auto;"><div class="card" style="min-width:500px;">';
+  h+='<div style="display:grid;grid-template-columns:'+gc+';border-bottom:1px solid var(--s1);background:var(--s0);">';
+  h+='<div style="padding:7px 11px;font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-right:1px solid var(--s1);">Kund</div>';
+  PST.forEach(function(s){h+='<div style="font-size:10px;font-weight:600;color:var(--s5);padding:7px 5px;text-align:center;border-right:1px solid var(--s1);">'+s+'</div>';});
+  h+='</div>';
+  prows.forEach(function(r){
+    h+='<div style="display:grid;grid-template-columns:'+gc+';border-bottom:1px solid var(--s1);align-items:center;">';
+    h+='<div style="padding:7px 9px;border-right:1px solid var(--s1);display:flex;align-items:center;gap:6px;">';
+    h+='<div class="av" style="width:24px;height:24px;background:'+AVB[r.ci%7]+';color:'+AVC[r.ci%7]+';font-size:8px;">'+ini(r.n)+'</div>';
+    h+='<div><p style="font-size:11px;font-weight:600;color:var(--s8);">'+r.n+'</p><p style="font-size:9px;color:var(--s4);">'+r.s+'</p></div></div>';
+    PST.forEach(function(s,si){var cls=si<r.steg?'done':si===r.steg?'act2':'fut';
+      h+='<div style="padding:4px;border-right:1px solid var(--s1);"><div class="sc '+cls+'" onclick="prows.find(function(x){return x.id==='+r.id+'}).steg='+si+';save(\'prows\',prows);rMain()">'+s+'</div></div>';
+    });
+    h+='</div>';
+  });
+  h+='<div style="padding:9px;text-align:center;"><button class="btn btn-outline btn-sm" onclick="omNyPipe()">+ Lägg till kund</button></div>';
+  h+='</div></div>';return h;
+}
+function omNyPipe(){om(mhdr('Ny kund i pipeline')+lbl('Namn')+'<input id="np-n" class="ri" placeholder="T.ex. Anna" style="margin-bottom:10px;">'+lbl('Projekt')+'<input id="np-s" class="ri" placeholder="T.ex. Hemsida" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'np-n\').value;if(n){prows.push({id:newId(),n:n,s:document.getElementById(\'np-s\').value,steg:0,ci:prows.length%7});save(\'prows\',prows);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// WEBBLÄNKAR — med redigering + drag-drop
+// ─────────────────────────────────────────────────────────
+var wbDragLink=null;var wbDragCat=null;
+
+function pgWebb(){
+  var h=phdr('Webblänkar','Webblänkar','+ Ny kategori','omNyWbKat()');
+  h+='<div style="padding:14px;">';
+  wbcats.forEach(function(c){
+    h+='<div class="wbcat" id="wbcat-'+c.id+'" ondragover="event.preventDefault();wbCatOver('+c.id+')" ondrop="wbDrop('+c.id+')">';
+    h+='<div class="wbcat-h">';
+    // Editable category name
+    h+='<input value="'+c.n+'" onchange="wbcats.find(function(x){return x.id==='+c.id+'}).n=this.value;save(\'wbcats\',wbcats)" style="font-size:13px;font-weight:600;color:var(--s8);border:none;background:transparent;outline:none;font-family:Inter,sans-serif;flex:1;" onfocus="this.style.background=\'white\';this.style.border=\'1px solid var(--s2)\';this.style.borderRadius=\'5px\';this.style.padding=\'2px 5px\'" onblur="this.style.background=\'transparent\';this.style.border=\'none\';this.style.padding=\'0\'">';
+    h+='<div style="display:flex;gap:4px;">';
+    h+='<button onclick="omNyWbLink('+c.id+')" style="width:24px;height:24px;border:1px solid var(--s2);background:white;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--s6);">+</button>';
+    h+='<button onclick="if(confirm(\'Ta bort kategori?\'))wbcats=wbcats.filter(function(x){return x.id!=='+c.id+'});save(\'wbcats\',wbcats);rMain()" style="width:24px;height:24px;border:none;background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--s3);">×</button>';
+    h+='</div></div>';
+    c.l.forEach(function(l,li){
+      h+='<div class="wblink" id="wbl-'+l.id+'" draggable="true" ondragstart="wbDragStart('+c.id+','+l.id+')" ondragover="event.preventDefault();wbLinkOver(this)" ondragleave="this.classList.remove(\'drag-over\')" ondrop="event.preventDefault();wbDropOnLink('+c.id+','+l.id+')">';
+      // Drag handle
+      h+='<span class="drag-h" title="Dra för att flytta">⠿</span>';
+      // Editable link name
+      h+='<div style="flex:1;min-width:0;">';
+      h+='<input value="'+l.n+'" onchange="var c=wbcats.find(function(x){return x.id==='+c.id+'});c.l.find(function(x){return x.id==='+l.id+'}).n=this.value;save(\'wbcats\',wbcats)" style="font-size:12px;font-weight:500;color:var(--s8);border:none;background:transparent;outline:none;font-family:Inter,sans-serif;width:100%;" onfocus="this.style.background=\'var(--s0)\';this.style.border=\'1px solid var(--s2)\';this.style.borderRadius=\'4px\';this.style.padding=\'1px 5px\'" onblur="this.style.background=\'transparent\';this.style.border=\'none\';this.style.padding=\'0\'">';
+      h+='<input value="'+l.d+'" onchange="var c=wbcats.find(function(x){return x.id==='+c.id+'});c.l.find(function(x){return x.id==='+l.id+'}).d=this.value;save(\'wbcats\',wbcats)" placeholder="Beskrivning..." style="font-size:10px;color:var(--s4);border:none;background:transparent;outline:none;font-family:Inter,sans-serif;width:100%;margin-top:1px;" onfocus="this.style.background=\'var(--s0)\';this.style.border=\'1px solid var(--s2)\';this.style.borderRadius=\'4px\';this.style.padding=\'1px 5px\'" onblur="this.style.background=\'transparent\';this.style.border=\'none\';this.style.padding=\'0\'">';
+      h+='</div>';
+      h+='<a href="'+l.u+'" target="_blank" style="font-size:10px;color:var(--b);text-decoration:none;padding:3px 6px;border-radius:5px;border:1px solid #BFDBFE;background:#EFF6FF;flex-shrink:0;white-space:nowrap;">Öppna</a>';
+      h+='<button onclick="var c=wbcats.find(function(x){return x.id==='+c.id+'});c.l=c.l.filter(function(x){return x.id!=='+l.id+'});save(\'wbcats\',wbcats);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);flex-shrink:0;">×</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';return h;
+}
+
+// Drag-drop webblänkar
+function wbDragStart(catId,linkId){wbDragLink=linkId;wbDragCat=catId;}
+function wbCatOver(catId){}
+function wbLinkOver(el){el.classList.add('drag-over');}
+function wbDropOnLink(toCatId,toLinkId){
+  document.querySelectorAll('.wblink').forEach(function(el){el.classList.remove('drag-over');});
+  if(!wbDragLink||!wbDragCat)return;
+  var fromCat=wbcats.find(function(c){return c.id===wbDragCat;});
+  var toCat=wbcats.find(function(c){return c.id===toCatId;});
+  if(!fromCat||!toCat)return;
+  var link=fromCat.l.find(function(l){return l.id===wbDragLink;});
+  if(!link)return;
+  fromCat.l=fromCat.l.filter(function(l){return l.id!==wbDragLink;});
+  var toIdx=toCat.l.findIndex(function(l){return l.id===toLinkId;});
+  if(toIdx<0)toCat.l.push(link);else toCat.l.splice(toIdx,0,link);
+  save('wbcats',wbcats);wbDragLink=null;wbDragCat=null;rMain();
+}
+function wbDrop(toCatId){
+  if(!wbDragLink||!wbDragCat)return;
+  var fromCat=wbcats.find(function(c){return c.id===wbDragCat;});
+  var toCat=wbcats.find(function(c){return c.id===toCatId;});
+  if(!fromCat||!toCat)return;
+  var link=fromCat.l.find(function(l){return l.id===wbDragLink;});
+  if(!link)return;
+  fromCat.l=fromCat.l.filter(function(l){return l.id!==wbDragLink;});
+  toCat.l.push(link);
+  save('wbcats',wbcats);wbDragLink=null;wbDragCat=null;rMain();
+}
+
+function omNyWbKat(){om(mhdr('Ny kategori')+lbl('Kategorinamn')+'<input id="nwk" class="ri" placeholder="T.ex. Design, Kunder..." style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nwk\').value;if(n){wbcats.push({id:newId(),n:n,l:[]});save(\'wbcats\',wbcats);cm();rMain()}','Skapa'));}
+function omNyWbLink(cid){om(mhdr('Ny länk')+lbl('Namn')+'<input id="nwl-n" class="ri" placeholder="T.ex. Figma" style="margin-bottom:10px;">'+lbl('URL')+'<input id="nwl-u" class="ri" placeholder="https://..." style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nwl-d" class="ri" placeholder="Kort beskrivning (valfritt)" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nwl-n\').value,u=document.getElementById(\'nwl-u\').value;if(n&&u){var c=wbcats.find(function(x){return x.id==='+cid+'});c.l.push({id:newId(),n:n,u:u.startsWith(\'http\')?u:\'https://\'+u,d:document.getElementById(\'nwl-d\').value});save(\'wbcats\',wbcats);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// KAMPANJER
+// ─────────────────────────────────────────────────────────
+function pgKampanjer(){
+  var h=phdr('Kampanjer','Kampanjer','+ Ny kampanj','omNyKamp()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card">';
+  kampanjer.forEach(function(k){var pct=Math.min(100,Math.round(k.spend/k.budget*100));
+    h+='<div class="row"><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">'+k.n+'</p>';
+    h+='<span class="bdg" style="background:var(--s1);color:var(--s5);">'+k.kanal+'</span>';
+    h+='<span class="bdg" style="background:'+(k.stat==='Aktiv'?'#DCFCE7':'var(--s1)')+';color:'+(k.stat==='Aktiv'?'#166534':'var(--s5)')+';">'+k.stat+'</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:7px;"><div class="pb" style="flex:1;max-width:150px;"><div class="pf" style="width:'+pct+'%;background:'+(pct>=100?'var(--r)':'var(--g)')+';"></div></div>';
+    h+='<span style="font-size:10px;color:var(--s4);">'+kr(k.spend)+' / '+kr(k.budget)+' · '+k.leads+' leads</span></div></div>';
+    h+='<button class="btn btn-danger btn-sm" onclick="if(confirm(\'Ta bort?\'))kampanjer=kampanjer.filter(function(x){return x.id!=='+k.id+'});save(\'kampanjer\',kampanjer);rMain()">×</button></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNyKamp(){om(mhdr('Ny kampanj')+lbl('Namn')+'<input id="nka-n" class="ri" placeholder="T.ex. Vårens erbjudande" style="margin-bottom:10px;">'+lbl('Kanal')+'<select id="nka-k" class="ri" style="margin-bottom:10px;"><option>Instagram</option><option>Google</option><option>LinkedIn</option><option>E-post</option></select>'+lbl('Budget (kr)')+'<input id="nka-b" class="ri" type="number" value="5000" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nka-n\').value;if(n){kampanjer.push({id:newId(),n:n,kanal:document.getElementById(\'nka-k\').value,budget:parseInt(document.getElementById(\'nka-b\').value)||0,spend:0,leads:0,stat:\'Aktiv\'});save(\'kampanjer\',kampanjer);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// LEADS
+// ─────────────────────────────────────────────────────────
+var ldBg={'Ny':'#EFF6FF','Varm':'#FEF3C7','Kvalificerad':'#DCFCE7','Kall':'#F3F4F6'};
+var ldTc={'Ny':'#1D4ED8','Varm':'#92400E','Kvalificerad':'#166534','Kall':'#6B7280'};
+function pgLeads(){
+  var h=phdr('Leads','Leads','+ Ny lead','omNyLead()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+  [['Totala leads',leads.length,'var(--s8)'],['Varma',leads.filter(function(x){return x.s==='Varm';}).length,'var(--a)'],['Kvalificerade',leads.filter(function(x){return x.s==='Kvalificerad';}).length,'var(--g)'],['Uppföljning idag',leads.filter(function(l){return l.uppfdat===dS(TODAY);}).length,'var(--r)']].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k[0]+'</p><p style="font-size:20px;font-weight:700;color:'+k[2]+';">'+k[1]+'</p></div>';
+  });
+  h+='</div><div class="card">';
+  leads.forEach(function(l){
+    var hasUppf=l.uppfdat&&l.uppfdat!=='';var pastDue=hasUppf&&l.uppfdat<dS(TODAY);var todayDue=hasUppf&&l.uppfdat===dS(TODAY);
+    h+='<div class="row" style="flex-wrap:wrap;gap:8px;">';
+    h+='<div class="av" style="width:32px;height:32px;background:#FFFBEB;color:#B45309;font-size:10px;flex-shrink:0;">'+ini(l.n)+'</div>';
+    h+='<div style="flex:1;min-width:160px;">';
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;"><p style="font-size:12px;font-weight:600;color:var(--s8);">'+l.n+'</p><span style="font-size:10px;color:var(--s4);">'+l.f+'</span></div>';
+    h+='<p style="font-size:10px;color:var(--s4);">'+l.kanal+' · '+l.d+'</p></div>';
+    // Status
+    h+='<select class="ri" style="font-size:10px;padding:3px 6px;width:auto;" onchange="leads.find(function(x){return x.id==='+l.id+'}).s=this.value;save(\'leads\',leads);rMain()">';
+    ['Ny','Varm','Kvalificerad','Kall'].forEach(function(s){h+='<option '+(l.s===s?'selected':'')+'>'+s+'</option>';});
+    h+='</select>';
+    // Uppföljning
+    h+='<div style="display:flex;align-items:center;gap:4px;">';
+    if(hasUppf){
+      h+='<span class="bdg" style="background:'+(pastDue?'#FEF2F2':todayDue?'#FEF3C7':'#F3F4F6')+';color:'+(pastDue?'var(--r)':todayDue?'var(--a)':'var(--s5)')+';">'+l.uppfdat+'</span>';
+      h+='<button onclick="leads.find(function(x){return x.id==='+l.id+'}).uppfdat=\'\';save(\'leads\',leads);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--s3);">×</button>';
+    } else {
+      h+='<button onclick="openUppfDatum('+l.id+')" class="btn btn-outline btn-sm" style="font-size:10px;white-space:nowrap;">+ Uppföljning</button>';
+    }
+    h+='</div>';
+    // Anteckning inline
+    h+='<input class="ri" style="font-size:11px;padding:4px 6px;width:130px;" value="'+(l.not||'')+'" placeholder="Anteckning..." onchange="leads.find(function(x){return x.id==='+l.id+'}).not=this.value;save(\'leads\',leads)">';
+    // Gör till kund
+    h+='<button onclick="leadTillKund('+l.id+')" class="btn btn-outline btn-sm" style="font-size:10px;">Kund</button>';
+    h+='<button onclick="leads=leads.filter(function(x){return x.id!=='+l.id+'});save(\'leads\',leads);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s3);">×</button>';
+    h+='</div>';
+  });
+  h+='</div></div>';return h;
+}
+function openUppfDatum(lid){
+  om(mhdr('Uppföljningsdatum')
+  +lbl('Datum för uppföljning')+'<input id="ud-d" class="ri" type="date" value="'+dS(new Date(TODAY.getTime()+7*864e5))+'" style="margin-bottom:10px;">'
+  +lbl('Anteckning (valfritt)')+'<input id="ud-n" class="ri" placeholder="T.ex. Boka möte, Skicka offert..." style="margin-bottom:16px;">'
+  +mfooter('var l=leads.find(function(x){return x.id==='+lid+'});l.uppfdat=document.getElementById(\'ud-d\').value;var an=document.getElementById(\'ud-n\').value;if(an)l.not=an;save(\'leads\',leads);cm();rMain()','Spara datum'));
+}
+function omNyLead(){om(mhdr('Ny lead')+lbl('Namn')+'<input id="nl-n" class="ri" placeholder="T.ex. Anna Karlsson" style="margin-bottom:10px;">'+lbl('Företag')+'<input id="nl-f" class="ri" placeholder="T.ex. Karlsson Design" style="margin-bottom:10px;">'+lbl('Kanal')+'<select id="nl-k" class="ri" style="margin-bottom:10px;"><option>Instagram</option><option>Google</option><option>LinkedIn</option><option>Referral</option><option>E-post</option></select>'+lbl('Uppföljningsdatum (valfritt)')+'<input id="nl-ud" class="ri" type="date" style="margin-bottom:10px;">'+lbl('Anteckning')+'<input id="nl-a" class="ri" placeholder="Valfri info..." style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nl-n\').value;if(n){leads.unshift({id:newId(),n:n,f:document.getElementById(\'nl-f\').value,kanal:document.getElementById(\'nl-k\').value,s:\'Ny\',d:new Date().toISOString().slice(0,10),not:document.getElementById(\'nl-a\').value,uppfdat:document.getElementById(\'nl-ud\').value});save(\'leads\',leads);cm();rMain()}','Lägg till lead'));}
+function leadTillKund(lid){var l=leads.find(function(x){return x.id===lid;});if(!l)return;kunder.push({id:newId(),n:l.n,t:l.f,tx:720,h:0,fp:0,fak:'tim',ci:kunder.length%7,ark:false,tasks:[],notes:'',timlogs:[]});leads=leads.filter(function(x){return x.id!==lid;});save('kunder',kunder);save('leads',leads);alert(l.n+' är nu en kund!');rMain();}
+
+// ─────────────────────────────────────────────────────────
+// EKONOMI
+// ─────────────────────────────────────────────────────────
+function pgIntakter(){
+  var akt=kunder.filter(function(k){return !k.ark;});var tot=akt.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
+  var h=phdr('Intäkter','Intäkter','','');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  h+='<div style="border:2px solid var(--g);border-radius:12px;padding:14px;background:white;">';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--g);margin-bottom:10px;">Bekräftade intäkter</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  [['Fakturerat ex. moms',kr(tot),'var(--g)'],['Moms (25%)',kr(tot*.25),'var(--a)'],['Inkl. moms',kr(tot*1.25),'var(--g)'],['Aktiva kunder',akt.length+' st','var(--s8)']].forEach(function(k){
+    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  });
+  h+='</div></div>';
+  h+='<div style="border:2px solid var(--a);border-radius:12px;padding:14px;background:white;">';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter — potentiella</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  [['Projekterat',kr(154080),'var(--a)'],['Moms (25%)',kr(38520),'var(--a)'],['Inkl. moms',kr(192600),'var(--a)'],['Leads',leads.length+' st','var(--s8)']].forEach(function(k){
+    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  });
+  h+='</div></div></div>';
+  h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);"><p style="font-size:12px;font-weight:600;color:var(--s8);">Bekräftade kunder</p></div>';
+  akt.forEach(function(k){var fk=k.fak==='fast'?k.fp:k.h*k.tx;
+    h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
+    h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p><p style="font-size:10px;color:var(--s4);">'+k.t+'</p></div>';
+    h+='<span class="bdg" style="background:'+(k.fak==='fast'?'var(--bl)':'var(--gl)')+';color:'+(k.fak==='fast'?'var(--b)':'var(--gd)')+';">'+(k.fak==='fast'?'Fast pris':'Per timme')+'</span>';
+    h+='<span style="font-size:12px;font-weight:700;color:var(--g);margin-left:10px;">'+kr(fk)+'</span></div>';
+  });
+  h+='</div></div>';return h;
+}
+
+function pgScenario(){
+  var s=scens[scAS];var totI=s.i.reduce(function(t,x){return t+x.b;},0);var totIM=s.i.filter(function(x){return x.m;}).reduce(function(t,x){return t+x.b*.25;},0);
+  var totU=s.u.reduce(function(t,x){return t+x.b;},0);var kE=totI-totU;var kI=totI+totIM-totU;
+  var h=phdr('Scenario','Scenario','+ Nytt scenario','omNyScen()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:flex;gap:6px;align-items:center;">';
+  scens.forEach(function(sc,i){h+='<button onclick="scAS='+i+';save(\'scAS\',scAS);rMain()" style="padding:4px 12px;border-radius:99px;font-size:11px;cursor:pointer;font-weight:'+(i===scAS?'600':'400')+';border:1px solid '+(i===scAS?'var(--s9)':'var(--s2)')+';background:'+(i===scAS?'var(--s9)':'white')+';color:'+(i===scAS?'white':'var(--s6)')+';font-family:Inter,sans-serif;">'+sc.n+'</button>';});
+  if(scens.length>1)h+='<button onclick="if(confirm(\'Ta bort?\'))scens.splice(scAS,1);scAS=Math.max(0,scAS-1);save(\'scens\',scens);save(\'scAS\',scAS);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s3);">×</button>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);background:white;border:1px solid var(--s2);border-radius:12px;overflow:hidden;">';
+  [['Int. ex. moms',kr(totI),'var(--g)'],['Inkl. moms',kr(totI+totIM),'var(--g)'],['Utg. moms',kr(totIM),'var(--a)'],['Totala utgifter',kr(totU),'var(--r)'],['Kvar ex. moms',kr(kE),kE>=0?'var(--g)':'var(--r)'],['Kvar inkl. moms',kr(kI),kI>=0?'var(--g)':'var(--r)']].forEach(function(k,i){
+    h+='<div style="padding:11px 13px;border-right:'+(i%3<2?'1px solid var(--s1)':'none')+';border-bottom:'+(i<3?'1px solid var(--s1)':'none')+'">';
+    h+='<p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
+    h+='<p style="font-size:15px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  });
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  h+='<div class="card"><div style="padding:8px 11px;background:#ECFDF5;border-bottom:1px solid #D1FAE5;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;color:#166534;">Intäkter</span><button class="btn btn-primary btn-sm" onclick="scens[scAS].i.push({id:newId(),n:\'Ny intäkt\',b:0,m:true});save(\'scens\',scens);rMain()">+ Lägg till</button></div>';
+  s.i.forEach(function(it,i){
+    h+='<div style="padding:7px 11px;border-bottom:1px solid var(--s1);display:flex;gap:6px;align-items:center;">';
+    h+='<input class="ri" style="flex:1;font-size:12px;padding:5px 7px;" value="'+it.n+'" onchange="scens[scAS].i['+i+'].n=this.value;save(\'scens\',scens)">';
+    h+='<input type="number" class="ri" style="width:80px;font-size:12px;padding:5px 7px;text-align:right;" value="'+it.b+'" onchange=\"scens[scAS].i['+i+'].b=parseFloat(this.value)||0;save(\'scens\',scens);rMain()">';
+    h+='<input type="checkbox" '+(it.m?'checked':'')+' onchange="scens[scAS].i['+i+'].m=this.checked;save(\'scens\',scens);rMain()" title="Moms 25%" style="accent-color:var(--g);">';
+    h+='<button onclick="scens[scAS].i.splice('+i+',1);save(\'scens\',scens);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);">×</button></div>';
+  });
+  h+='<div style="padding:7px 11px;display:flex;justify-content:space-between;"><span style="font-size:11px;font-weight:600;color:var(--g);">Totalt inkl. moms</span><span style="font-size:11px;font-weight:700;color:var(--g);">'+kr(totI+totIM)+'</span></div></div>';
+  h+='<div class="card"><div style="padding:8px 11px;background:#FEF2F2;border-bottom:1px solid #FECACA;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;color:var(--r);">Utgifter</span><button class="btn btn-primary btn-sm" onclick="scens[scAS].u.push({id:newId(),n:\'Ny utgift\',b:0,m:false});save(\'scens\',scens);rMain()">+ Lägg till</button></div>';
+  s.u.forEach(function(ut,i){
+    h+='<div style="padding:7px 11px;border-bottom:1px solid var(--s1);display:flex;gap:6px;align-items:center;">';
+    h+='<input class="ri" style="flex:1;font-size:12px;padding:5px 7px;" value="'+ut.n+'" onchange="scens[scAS].u['+i+'].n=this.value;save(\'scens\',scens)">';
+    h+='<input type="number" class="ri" style="width:80px;font-size:12px;padding:5px 7px;text-align:right;" value="'+ut.b+'" onchange=\"scens[scAS].u['+i+'].b=parseFloat(this.value)||0;save(\'scens\',scens);rMain()">';
+    h+='<input type="checkbox" '+(ut.m?'checked':'')+' onchange="scens[scAS].u['+i+'].m=this.checked;save(\'scens\',scens);rMain()" title="Moms" style="accent-color:var(--g);">';
+    h+='<button onclick="scens[scAS].u.splice('+i+',1);save(\'scens\',scens);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);">×</button></div>';
+  });
+  h+='<div style="padding:7px 11px;display:flex;justify-content:space-between;"><span style="font-size:11px;font-weight:600;color:var(--g);">Kvar totalt</span><span style="font-size:11px;font-weight:700;color:'+(kI>=0?'var(--g)':'var(--r)')+';">'+kr(kI)+'</span></div></div>';
+  h+='</div></div>';return h;
+}
+function omNyScen(){om(mhdr('Nytt scenario')+lbl('Namn')+'<input id="ns-n" class="ri" placeholder="T.ex. Optimistisk Q2" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'ns-n\').value;if(n){scens.push({id:newId(),n:n,i:[{id:newId(),n:\'Intäkt 1\',b:0,m:true}],u:[{id:newId(),n:\'Utgift 1\',b:0,m:false}]});scAS=scens.length-1;save(\'scens\',scens);save(\'scAS\',scAS);cm();rMain()}','Skapa'));}
+
+function pgFasta(){
+  var tot=fastaU.reduce(function(s,u){return s+u.b;},0);var mav=fastaU.filter(function(u){return u.m;}).reduce(function(s,u){return s+u.b*.2;},0);
+  var h=phdr('Fasta utgifter','Fasta utgifter','+ Ny utgift','omNyFast()');
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 230px;gap:11px;align-items:start;">';
+  h+='<div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">';
+  [['Totala utgifter',kr(tot),'var(--r)'],['Ingående moms',kr(mav),'var(--b)'],['Nettokostnad',kr(tot-mav),'var(--a)']].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  });
+  h+='</div><div class="card">';
+  fastaU.forEach(function(u,i){
+    h+='<div class="row"><div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+u.n+'</p><p style="font-size:10px;color:var(--s4);">'+u.k+'</p></div>';
+    h+='<input type="checkbox" '+(u.m?'checked':'')+' onchange="fastaU['+i+'].m=this.checked;save(\'fastaU\',fastaU);rMain()" title="Moms avdragsgill" style="accent-color:var(--b);margin-right:8px;">';
+    h+='<span style="font-size:12px;font-weight:700;color:var(--r);">'+kr(u.b)+'</span>';
+    h+='<button onclick="omEditFast('+u.id+')" style="border:1px solid var(--s2);background:transparent;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:10px;color:var(--s4);margin-left:7px;">✎</button>';
+    h+='<button onclick="fastaU=fastaU.filter(function(x){return x.id!=='+u.id+'});save(\'fastaU\',fastaU);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);margin-left:2px;">×</button></div>';
+  });
+  h+='</div></div>';
+  h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+  h+='<div class="card" style="padding:13px;"><p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:9px;">Momsöversikt</p>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:11px;color:var(--s5);">Totala utgifter</span><span style="font-size:11px;font-weight:600;color:var(--r);">'+kr(tot)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--s1);"><span style="font-size:11px;color:var(--s5);">Avdragsgill moms</span><span style="font-size:11px;font-weight:600;color:var(--b);">−'+kr(mav)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:var(--s8);">Nettokostnad</span><span style="font-size:12px;font-weight:700;color:var(--a);">'+kr(tot-mav)+'</span></div></div>';
+  h+='<div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:11px 13px;">';
+  h+='<p style="font-size:11px;color:#166534;margin-bottom:7px;">Kopplas till <b>Int. & Utg.</b></p>';
+  h+='<button class="btn btn-primary" style="width:100%;font-size:11px;padding:7px;" onclick="alert(\'Fasta utgifter skickade!\')">Skicka till Int. & Utg.</button></div></div></div>';
+  return h;
+}
+function omNyFast(){om(mhdr('Ny fast utgift')+lbl('Namn')+'<input id="nfast-n" class="ri" placeholder="T.ex. Hyra" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nfast-k" class="ri" placeholder="T.ex. Kontorshyra" style="margin-bottom:10px;">'+lbl('Belopp (kr/mån)')+'<input id="nfast-b" class="ri" type="number" value="0" style="margin-bottom:10px;"><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:16px;"><input type="checkbox" id="nfast-m" checked style="accent-color:var(--b);"> Moms avdragsgill</label>'+mfooter('var n=document.getElementById(\'nfast-n\').value;if(n){fastaU.push({id:newId(),n:n,k:document.getElementById(\'nfast-k\').value||\'Övrigt\',b:parseFloat(document.getElementById(\'nfast-b\').value)||0,m:document.getElementById(\'nfast-m\').checked});save(\'fastaU\',fastaU);cm();rMain()}','Lägg till'));}
+function omEditFast(id){var u=fastaU.find(function(x){return x.id===id;});if(!u)return;om(mhdr('Redigera utgift')+lbl('Namn')+'<input id="efast-n" class="ri" value="'+u.n+'" style="margin-bottom:10px;">'+lbl('Belopp (kr/mån)')+'<input id="efast-b" class="ri" type="number" value="'+u.b+'" style="margin-bottom:16px;">'+mfooter('var u=fastaU.find(function(x){return x.id==='+id+'});u.n=document.getElementById(\'efast-n\').value;u.b=parseFloat(document.getElementById(\'efast-b\').value)||0;save(\'fastaU\',fastaU);cm();rMain()','Spara'));}
+
+function pgIU(){
+  var tI=0,tU=0,tIM=0,tuMo=0;for(var m=0;m<12;m++){var c=mCalc(m);tI+=c.iE;tU+=c.uE;tIM+=c.iMo;tuMo+=c.uMo;}
+  var iuNewTyp='i';
+  var h=phdr('Int. & Utg.','Intäkter & Utgifter','+ Lägg till post','omNyIU()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="background:var(--bl);border:1px solid #BFDBFE;border-radius:8px;padding:8px 13px;font-size:11px;color:#1D4ED8;font-weight:500;">Moms 25% · Utg. moms = intäkter × 25% · Ing. moms = kostnader × 20%</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(5,1fr);background:white;border:1px solid var(--s2);border-radius:12px;overflow:hidden;">';
+  [['Int. ex. moms',kr(tI),'var(--g)'],['Inkl. moms',kr(tI+tIM),'var(--g)'],['Utg. moms',kr(tIM),'var(--a)'],['Ing. moms',kr(tuMo),'var(--b)'],['Netto',kr(tI-tU),tI-tU>=0?'var(--g)':'var(--r)']].forEach(function(k,i){
+    h+='<div style="padding:9px 11px;border-right:'+(i<4?'1px solid var(--s1)':'none')+'">';
+    h+='<p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
+    h+='<p style="font-size:14px;font-weight:700;color:'+k[2]+';letter-spacing:-.01em;">'+k[1]+'</p></div>';
+  });
+  h+='</div><div class="card">';
+  MONTHS.forEach(function(mn,m){var c=mCalc(m);var hd=c.ps.length>0;var open=iuExp[m];
+    h+='<div onclick="iuExp['+m+']=!iuExp['+m+'];save(\'iuExp\',iuExp);rMain()" style="display:grid;grid-template-columns:60px 1fr 1fr 75px 75px 18px;padding:8px 13px;border-bottom:1px solid var(--s1);align-items:center;cursor:pointer;'+(open?'background:var(--s0);border-left:3px solid var(--g);':'')+'">';
+    h+='<span style="font-size:12px;font-weight:'+(hd?'600':'400')+';color:'+(hd?'var(--s8)':'var(--s2)')+';">'+mn+'</span>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iE):'—')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iInkl):'—')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--a)':'var(--s2)')+';">'+(hd?kr(c.iMo):'—')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;font-weight:600;color:'+(c.net>=0&&hd?'var(--g)':c.net<0?'var(--r)':'var(--s2)')+';">'+(hd?kr(c.net):'—')+'</span>';
+    h+='<span style="font-size:10px;text-align:center;color:var(--s2);">'+(hd?(open?'▲':'▽'):'')+'</span></div>';
+    if(open){
+      var ip=c.ps.filter(function(p){return p.typ==='i';});var fp2=c.ps.filter(function(p){return p.fast;});
+      h+='<div style="padding:8px 13px 10px;border-bottom:1px solid var(--s1);background:var(--s0);">';
+      if(ip.length){h+='<p style="font-size:9px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Intäkter</p>';
+        ip.forEach(function(p){h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;margin-bottom:2px;background:white;"><span style="width:14px;height:14px;border-radius:50%;background:#DCFCE7;color:#166534;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;">+</span><span style="flex:1;font-size:11px;color:var(--s7);">'+p.d+'</span><span style="font-size:11px;font-weight:600;color:var(--g);">'+kr(p.b)+'</span></div>';});}
+      if(fp2.length){h+='<p style="font-size:9px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin:7px 0 4px;">Fasta kostnader</p>';
+        fp2.slice(0,3).forEach(function(p){h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;margin-bottom:2px;background:white;"><span style="width:14px;height:14px;border-radius:50%;background:#FEF2F2;color:var(--r);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;">−</span><span style="flex:1;font-size:11px;color:var(--s7);">'+p.d+'</span><span class="bdg" style="background:var(--s1);color:var(--s5);">fast</span><span style="font-size:11px;font-weight:600;color:var(--r);">−'+kr(p.b)+'</span></div>';});
+        if(fp2.length>3)h+='<p style="font-size:10px;color:var(--s4);margin-left:8px;">...och '+(fp2.length-3)+' till</p>';}
+      h+='<button onclick="event.stopPropagation();omNyIU('+m+')" style="margin-top:7px;border:1px solid var(--s2);background:white;border-radius:7px;padding:4px 11px;font-size:11px;cursor:pointer;color:var(--s6);font-family:Inter,sans-serif;">+ Lägg till post för '+mn+'</button></div>';
+    }
+  });
+  h+='</div></div>';return h;
+}
+var iuNewTyp='i';
+function omNyIU(defM){var mi=defM!==undefined?defM:3;
+  om(mhdr('Lägg till post')+'<div style="display:grid;grid-template-columns:1fr 1fr;margin-bottom:12px;border:1px solid var(--s2);border-radius:8px;overflow:hidden;"><button id="bt-i" onclick="iuNewTyp=\'i\';document.getElementById(\'bt-i\').style.background=\'#ECFDF5\';document.getElementById(\'bt-i\').style.color=\'#166534\';document.getElementById(\'bt-u\').style.background=\'white\';document.getElementById(\'bt-u\').style.color=\'var(--s5)\';" style="padding:8px;font-size:13px;cursor:pointer;background:#ECFDF5;color:#166534;border:none;font-weight:500;font-family:Inter,sans-serif;">Intäkt</button><button id="bt-u" onclick="iuNewTyp=\'u\';document.getElementById(\'bt-u\').style.background=\'#FEF2F2\';document.getElementById(\'bt-u\').style.color=\'var(--r)\';document.getElementById(\'bt-i\').style.background=\'white\';document.getElementById(\'bt-i\').style.color=\'var(--s5)\';" style="padding:8px;font-size:13px;cursor:pointer;background:white;color:var(--s5);border:none;border-left:1px solid var(--s2);font-family:Inter,sans-serif;">Utgift</button></div>'
+  +lbl('Månad')+'<select id="iu-m" class="ri" style="margin-bottom:10px;">'+MONTHS.map(function(mn,i){return'<option value="'+i+'"'+(i===mi?' selected':'')+'>'+mn+'</option>';}).join('')+'</select>'
+  +lbl('Beskrivning')+'<input id="iu-d" class="ri" placeholder="T.ex. Konsultarvode" style="margin-bottom:10px;">'
+  +lbl('Belopp ex. moms (kr)')+'<input id="iu-b" class="ri" type="number" value="0" style="margin-bottom:10px;">'
+  +'<label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:16px;"><input type="checkbox" id="iu-mo" checked style="accent-color:var(--g);"> Moms (25%)</label>'
+  +mfooter('var m2=parseInt(document.getElementById(\'iu-m\').value),d=document.getElementById(\'iu-d\').value;if(d){if(!iuPosts[m2])iuPosts[m2]=[];iuPosts[m2].push({id:newId(),typ:iuNewTyp,d:d,b:parseFloat(document.getElementById(\'iu-b\').value)||0,mo:document.getElementById(\'iu-mo\').checked,fast:false});iuExp[m2]=true;save(\'iuPosts\',iuPosts);save(\'iuExp\',iuExp);cm();rMain()}','Lägg till'));
+}
+
+// ─────────────────────────────────────────────────────────
+// HR
+// ─────────────────────────────────────────────────────────
+function pgTeam(){
+  var h=phdr('Team','Team','+ Bjud in','omNyTeam()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:grid;gap:9px;">';
+  team.forEach(function(m){
+    h+='<div class="card"><div class="row"><div class="av" style="width:42px;height:42px;background:'+AVB[m.ci%7]+';color:'+AVC[m.ci%7]+';font-size:13px;border:2px solid '+AVC[m.ci%7]+'22;">'+ini(m.n)+'</div>';
+    h+='<div style="flex:1;"><p style="font-size:14px;font-weight:600;color:var(--s8);margin-bottom:2px;">'+m.n+'</p><p style="font-size:12px;color:var(--s5);margin-bottom:1px;">'+m.r+'</p><p style="font-size:11px;color:var(--s4);">'+m.e+' · '+m.tl+'</p></div>';
+    h+='<span class="bdg" style="background:'+(m.s==='Heltid'?'#DCFCE7':'#FEF3C7')+';color:'+(m.s==='Heltid'?'#166534':'#92400E')+';">'+m.s+'</span>';
+    h+='<button onclick="omEditTeam('+m.id+')" class="btn btn-outline btn-sm" style="margin-left:8px;">Redigera</button>';
+    h+='<button onclick="if(confirm(\'Ta bort?\'))team=team.filter(function(x){return x.id!=='+m.id+'});save(\'team\',team);rMain()" class="btn btn-danger btn-sm" style="margin-left:4px;">×</button></div></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNyTeam(){om(mhdr('Bjud in teammedlem')+lbl('Namn')+'<input id="nt-n" class="ri" placeholder="T.ex. Sara Svensson" style="margin-bottom:10px;">'+lbl('Roll')+'<input id="nt-r" class="ri" placeholder="T.ex. Designer" style="margin-bottom:10px;">'+lbl('E-post')+'<input id="nt-e" class="ri" type="email" placeholder="sara@example.com" style="margin-bottom:10px;">'+lbl('Anställningstyp')+'<select id="nt-s" class="ri" style="margin-bottom:16px;"><option>Heltid</option><option>Deltid</option><option>Konsult</option></select>'+mfooter('var n=document.getElementById(\'nt-n\').value;if(n){team.push({id:newId(),n:n,r:document.getElementById(\'nt-r\').value,e:document.getElementById(\'nt-e\').value,tl:\'\',s:document.getElementById(\'nt-s\').value,ci:team.length%7});save(\'team\',team);cm();rMain()}','Bjud in'));}
+function omEditTeam(id){var m=team.find(function(x){return x.id===id;});if(!m)return;om(mhdr('Redigera')+lbl('Namn')+'<input id="et-n" class="ri" value="'+m.n+'" style="margin-bottom:10px;">'+lbl('Roll')+'<input id="et-r" class="ri" value="'+m.r+'" style="margin-bottom:10px;">'+lbl('Anst. typ')+'<select id="et-s" class="ri" style="margin-bottom:16px;"><option '+(m.s==='Heltid'?'selected':'')+'>Heltid</option><option '+(m.s==='Deltid'?'selected':'')+'>Deltid</option><option '+(m.s==='Konsult'?'selected':'')+'>Konsult</option></select>'+mfooter('var m=team.find(function(x){return x.id==='+id+'});m.n=document.getElementById(\'et-n\').value;m.r=document.getElementById(\'et-r\').value;m.s=document.getElementById(\'et-s\').value;save(\'team\',team);cm();rMain()','Spara'));}
+
+function pgOnboarding(){
+  var done=onbSteps.filter(function(s){return s.k;}).length;var pct=Math.round(done/onbSteps.length*100);
+  var h=phdr('Onboarding','Onboarding','','');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:15px;">';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:9px;"><p style="font-size:13px;font-weight:600;color:var(--s8);">Kom igång med Buddy</p><span style="font-size:13px;font-weight:700;color:var(--pk);">'+done+'/'+onbSteps.length+'</span></div>';
+  h+='<div class="pb"><div class="pf" style="width:'+pct+'%;background:var(--pk);"></div></div>';
+  h+='<p style="font-size:11px;color:var(--s4);margin-top:5px;">'+pct+'% klart</p></div>';
+  h+='<div class="card">';
+  onbSteps.forEach(function(s,i){
+    h+='<div class="row"><div onclick="onbSteps['+i+'].k=!onbSteps['+i+'].k;save(\'onbSteps\',onbSteps);rMain()" style="width:22px;height:22px;border-radius:50%;background:'+(s.k?'var(--pk)':'var(--s1)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">';
+    h+=(s.k?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6L5 8.5L9.5 4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>':'<span style="font-size:10px;font-weight:600;color:var(--s4);">'+(i+1)+'</span>')+'</div>';
+    h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;text-decoration:'+(s.k?'line-through':'none')+';color:'+(s.k?'var(--s3)':'var(--s8)')+';">'+s.t+'</p><p style="font-size:11px;color:var(--s4);">'+s.d+'</p></div>';
+    if(!s.k)h+='<button class="btn btn-outline btn-sm" onclick="onbSteps['+i+'].k=true;save(\'onbSteps\',onbSteps);rMain()">Markera klar</button>';
+    h+='</div>';
+  });
+  h+='</div></div>';return h;
+}
+
+function pgFormaner(){
+  var h=phdr('Förmåner','Förmåner','+ Ny förmån','omNyForman()');
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  formaner.forEach(function(f,i){
+    h+='<div class="card"><div style="padding:11px 13px;display:flex;align-items:center;gap:9px;">';
+    h+='<div style="width:36px;height:36px;border-radius:9px;background:'+(f.a?'#FDF2F8':'var(--s0)')+';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+f.ico+'</div>';
+    h+='<div style="flex:1;"><p style="font-size:12px;font-weight:600;margin-bottom:2px;color:var(--s8);">'+f.n+'</p><p style="font-size:11px;color:var(--s5);">'+f.d+'</p></div>';
+    h+='<button class="tgl" onclick="formaner['+i+'].a=!formaner['+i+'].a;save(\'formaner\',formaner);rMain()" style="background:'+(f.a?'var(--pk)':'var(--s3)')+';"><span style="left:'+(f.a?'18':'2')+'px;"></span></button></div></div>';
+  });
+  h+='</div>';return h;
+}
+function omNyForman(){om(mhdr('Ny förmån')+lbl('Namn')+'<input id="nfo-n" class="ri" placeholder="T.ex. Cykelförmån" style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nfo-d" class="ri" placeholder="T.ex. 3 000 kr/år" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nfo-k" class="ri" placeholder="T.ex. Transport" style="margin-bottom:10px;">'+lbl('Ikon (emoji)')+'<input id="nfo-i" class="ri" value="🎁" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nfo-n\').value;if(n){formaner.push({id:newId(),n:n,d:document.getElementById(\'nfo-d\').value,k:document.getElementById(\'nfo-k\').value,a:false,ico:document.getElementById(\'nfo-i\').value||\'🎁\'});save(\'formaner\',formaner);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// INKÖP
+// ─────────────────────────────────────────────────────────
+function pgAvtal(){
+  var tot=avtal.reduce(function(s,a){return s+a.ko;},0);var akt=avtal.filter(function(a){return a.a;}).length;
+  var h=phdr('Avtal','Avtal & Abonnemang','+ Nytt avtal','omNyAvtal()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+  [['Totalt',avtal.length+' st','var(--s8)'],['Aktiva',akt+' st','var(--g)'],['Löper ut snart','1 st','var(--a)'],['Månadskostnad',kr(tot),'var(--r)']].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
+  });
+  h+='</div><div class="card">';
+  avtal.forEach(function(a){
+    var days=Math.ceil((new Date(a.sl)-new Date())/864e5);var dc=days<90?'var(--r)':days<180?'var(--a)':'var(--g)';
+    h+='<div class="row"><div style="width:34px;height:34px;border-radius:8px;background:var(--s0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+({'Telefoni':'📱','Bredband':'🌐','Mjukvara':'💻'}[a.k]||'📄')+'</div>';
+    h+='<div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><span style="font-size:13px;font-weight:600;color:var(--s8);">'+a.n+'</span><span class="bdg" style="background:'+(a.a?'#DCFCE7':'var(--s1)')+';color:'+(a.a?'#166534':'var(--s5)')+';">'+(a.a?'Aktiv':'Utgången')+'</span></div>';
+    h+='<p style="font-size:11px;color:var(--s4);">'+a.p+'</p></div>';
+    h+='<div style="text-align:right;"><p style="font-size:12px;font-weight:600;color:'+dc+';margin-bottom:1px;">'+days+' dagar</p><p style="font-size:10px;color:var(--s4);margin-bottom:2px;">'+a.sl+'</p><p style="font-size:12px;font-weight:700;color:var(--r);">'+kr(a.ko)+'/mån</p></div></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNyAvtal(){om(mhdr('Nytt avtal')+lbl('Namn')+'<input id="na-n" class="ri" placeholder="T.ex. Fortnox" style="margin-bottom:10px;">'+lbl('Kategori')+'<select id="na-k" class="ri" style="margin-bottom:10px;"><option>Mjukvara</option><option>Telefoni</option><option>Bredband</option><option>Övrigt</option></select>'+lbl('Produkt')+'<input id="na-p" class="ri" placeholder="T.ex. Bokföring Pro" style="margin-bottom:10px;">'+lbl('Slutdatum')+'<input id="na-sl" class="ri" type="date" style="margin-bottom:10px;">'+lbl('Månadskostnad (kr)')+'<input id="na-ko" class="ri" type="number" value="0" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'na-n\').value;if(n){avtal.push({id:newId(),n:n,k:document.getElementById(\'na-k\').value,p:document.getElementById(\'na-p\').value,sl:document.getElementById(\'na-sl\').value||\'Löpande\',ko:parseFloat(document.getElementById(\'na-ko\').value)||0,a:true});save(\'avtal\',avtal);cm();rMain()}','Lägg till'));}
+
+function pgTjanster(){
+  var h=phdr('Tjänster','Tjänster & Affiliates','','');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px;"><p style="font-size:12px;font-weight:600;color:#92400E;margin-bottom:2px;">Rekommenderade tjänster</p><p style="font-size:11px;color:var(--a);">Buddy tjänar provision när du väljer via plattformen</p></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;">';
+  tjKats.forEach(function(kat){
+    h+='<div class="card"><div style="padding:8px 11px;background:'+kat.bg+';border-bottom:1px solid var(--s2);display:flex;align-items:center;gap:6px;">';
+    h+='<span style="font-size:14px;">'+kat.ico+'</span><span style="font-size:12px;font-weight:600;color:'+kat.tc+';">'+kat.l+'</span></div>';
+    kat.items.forEach(function(svc){
+      h+='<div style="padding:8px 11px;border-bottom:1px solid var(--s1);display:flex;align-items:center;gap:7px;">';
+      h+='<div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:5px;margin-bottom:1px;"><span style="font-size:12px;font-weight:500;color:var(--s8);">'+svc.n+'</span>';
+      if(svc.b)h+='<span class="bdg" style="background:'+kat.bg+';color:'+kat.tc+';">'+svc.b+'</span>';
+      h+='</div><p style="font-size:10px;color:var(--s4);">'+svc.d+'</p></div>';
+      h+='<button onclick="svc.k=!svc.k;rMain()" style="font-size:10px;padding:3px 9px;border-radius:99px;cursor:pointer;border:1px solid '+(svc.k?'var(--g)':'var(--s2)')+';background:'+(svc.k?'#DCFCE7':'transparent')+';color:'+(svc.k?'#166534':'var(--s5)')+';font-family:Inter,sans-serif;">'+(svc.k?'Kopplad':'Koppla på')+'</button></div>';
+    });
+    h+='</div>';
+  });
+  h+='</div></div>';return h;
+}
+
+function pgLev(){
+  var tot=levs.reduce(function(s,l){return s+l.ko;},0);
+  var h=phdr('Leverantörer','Leverantörer','+ Ny leverantör','omNyLev()');
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card">';
+  h+='<div style="display:grid;grid-template-columns:1.5fr 90px 1fr 100px 80px;padding:7px 14px;border-bottom:1px solid var(--s1);background:var(--s0);">';
+  ['Leverantör','Kategori','Kontakt','Avtal till','Kr/mån'].forEach(function(th,i){h+='<span style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.06em;font-weight:600;text-align:'+(i>1?'right':'left')+';">'+th+'</span>';});
+  h+='</div>';
+  levs.forEach(function(l){
+    h+='<div style="display:grid;grid-template-columns:1.5fr 90px 1fr 100px 80px;padding:10px 14px;border-bottom:1px solid var(--s1);align-items:center;">';
+    h+='<div style="display:flex;align-items:center;gap:8px;"><div class="av" style="width:28px;height:28px;background:'+AVB[l.ci%7]+';color:'+AVC[l.ci%7]+';font-size:9px;">'+ini(l.n)+'</div>';
+    h+='<p style="font-size:12px;font-weight:500;color:var(--s8);">'+l.n+'</p></div>';
+    h+='<span class="bdg" style="background:var(--s1);color:var(--s5);">'+l.k+'</span>';
+    h+='<span style="font-size:11px;color:var(--s4);text-align:right;">'+l.e.split('@')[0]+'...</span>';
+    h+='<span style="font-size:11px;text-align:right;color:var(--s4);">'+l.sl+'</span>';
+    h+='<span style="font-size:12px;text-align:right;font-weight:700;color:var(--r);">'+kr(l.ko)+'</span></div>';
+  });
+  h+='</div></div>';return h;
+}
+function omNyLev(){om(mhdr('Ny leverantör')+lbl('Namn')+'<input id="nl2-n" class="ri" placeholder="T.ex. Fortnox" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nl2-k" class="ri" placeholder="T.ex. Bokföring" style="margin-bottom:10px;">'+lbl('E-post')+'<input id="nl2-e" class="ri" placeholder="support@example.com" style="margin-bottom:10px;">'+lbl('Avtal till')+'<input id="nl2-sl" class="ri" placeholder="T.ex. 2026-12-31 eller Löpande" style="margin-bottom:10px;">'+lbl('Månadskostnad (kr)')+'<input id="nl2-ko" class="ri" type="number" value="0" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nl2-n\').value;if(n){levs.push({id:newId(),n:n,k:document.getElementById(\'nl2-k\').value,e:document.getElementById(\'nl2-e\').value,sl:document.getElementById(\'nl2-sl\').value||\'Löpande\',ko:parseFloat(document.getElementById(\'nl2-ko\').value)||0,ci:levs.length%7});save(\'levs\',levs);cm();rMain()}','Lägg till'));}
+
+// ─────────────────────────────────────────────────────────
+// ROUTER
+// ─────────────────────────────────────────────────────────
+// === GANTT INFO ===
+function pgGanttInfo(){
+  var days=ganttDays();
+  var startD=new Date(TODAY.getTime()+ganttOff*864e5);
+  var MN=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+  var colW=Math.max(8,Math.min(18,Math.floor(540/days)));
+  var totalW=days*colW;var LKOL=162;
+  var todayS=dS(TODAY);
+  var todayPx=Math.floor((TODAY.getTime()-startD.getTime())/864e5)*colW;
+  var h=phdr('Forsaljning','Gantt / Timeline','+ Ledigt','omNyLedigt()');
+  h+='<div style="padding:8px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;gap:5px;flex-wrap:wrap;">';
+  ['4v','8v','16v','Kvartal','Halvar','Helar'].forEach(function(p){
+    var a=p===ganttP;
+    h+='<button onclick="ganttSetP(\''+p+'\')" style="padding:3px 11px;border-radius:99px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;border:1px solid '+(a?'var(--s9)':'var(--s2)')+';background:'+(a?'var(--s9)':'white')+';color:'+(a?'white':'var(--s6)')+';">'+p+'</button>';
+  });
+  h+='<div style="flex:1"></div>';
+  h+='<button onclick="ganttNav(-7)" class="btn btn-outline btn-sm">&larr; Bakat</button>';
+  h+='<button onclick="ganttNav(0)" class="btn btn-outline btn-sm">Idag</button>';
+  h+='<button onclick="ganttNav(7)" class="btn btn-outline btn-sm">Framat &rarr;</button>';
+  h+='</div>';
+  var dates=[];
+  for(var i=0;i<days;i++)dates.push(new Date(startD.getTime()+i*864e5));
+  h+='<div style="overflow-x:auto;padding:10px 14px;">';
+  h+='<div style="min-width:'+(totalW+LKOL+16)+'px;">';
+  h+='<div style="display:flex;height:15px;margin-left:'+LKOL+'px;">';
+  var lastM=-1;
+  dates.forEach(function(d){
+    var m=d.getMonth();var isNew=m!==lastM;
+    if(isNew)lastM=m;
+    h+='<div style="width:'+colW+'px;font-size:8px;color:var(--s5);overflow:hidden;white-space:nowrap;font-weight:'+(isNew?'600':'400')+';">'+(isNew?MN[m]:'')+'</div>';
+  });
+  h+='</div>';
+  h+='<div style="display:flex;height:14px;margin-left:'+LKOL+'px;margin-bottom:8px;border-bottom:1px solid var(--s1);padding-bottom:2px;">';
+  dates.forEach(function(d){
+    var isT=dS(d)===todayS;var isW=d.getDay()===0||d.getDay()===6;
+    h+='<div style="width:'+colW+'px;font-size:8px;text-align:center;color:'+(isT?'var(--g)':isW?'var(--s2)':'var(--s3)')+';font-weight:'+(isT?'700':'400')+';">'+d.getDate()+'</div>';
+  });
+  h+='</div>';
+  function mkBar(label,color,sd,ed,onclk,pct,badge){
+    var s2=sd?new Date(sd):null;var e2=ed?new Date(ed):null;
+    var bsP=0,bwP=0;
+    if(s2&&e2){
+      var bs=Math.max(0,Math.floor((s2.getTime()-startD.getTime())/864e5));
+      var be=Math.min(days,Math.ceil((e2.getTime()-startD.getTime())/864e5));
+      bsP=bs*colW;bwP=Math.max(0,be-bs)*colW;
+    }
+    var r='<div style="display:flex;align-items:center;height:26px;margin-bottom:2px;">';
+    r+='<div style="width:'+LKOL+'px;flex-shrink:0;display:flex;align-items:center;gap:4px;padding-right:6px;">';
+    if(onclk)r+='<span onclick="'+onclk+'" style="font-size:11px;font-weight:500;color:var(--b);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;" title="'+label+'">'+label+'</span>';
+    else r+='<span style="font-size:11px;color:var(--s6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">'+label+'</span>';
+    if(badge)r+='<span style="font-size:9px;color:var(--s4);flex-shrink:0;margin-left:2px;">'+badge+'</span>';
+    r+='</div>';
+    r+='<div style="position:relative;width:'+totalW+'px;height:16px;background:var(--s0);border-radius:2px;">';
+    if(todayPx>=0&&todayPx<totalW)r+='<div style="position:absolute;left:'+todayPx+'px;top:0;width:1px;height:16px;background:var(--g);opacity:.55;z-index:2;pointer-events:none;"></div>';
+    if(bwP>0){
+      r+='<div '+(onclk?'onclick="'+onclk+'"':'')+' style="position:absolute;left:'+bsP+'px;width:'+bwP+'px;height:12px;background:'+color+';border-radius:3px;top:2px;z-index:1;overflow:hidden;cursor:'+(onclk?'pointer':'default')+';"><div style="width:'+pct+'%;height:100%;background:rgba(255,255,255,.25);"></div></div>';
+    }
+    r+='</div></div>';
+    return r;
+  }
+  var akt=kunder.filter(function(k){return !k.ark;});
+  akt.forEach(function(k){
+    var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
+    var sd2=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
+    var ed2=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
+    var nm=k.n.indexOf(' ')>=0?k.n.split('—')[0].trim():k.n;
+    var tH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
+    var badge=tH>0?(Math.round(tH*10)/10)+'h':'';
+    h+=mkBar(nm,AVC[k.ci%7],sd2,ed2,'openKund('+k.id+')',pct,badge);
+  });
+  var hasLed=ledigtRows.some(function(l){return l.start&&l.end;});
+  if(hasLed){
+    h+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--s2);">';
+    ledigtRows.forEach(function(lv){if(lv.start&&lv.end)h+=mkBar(lv.label,lv.color||'#D97706',lv.start,lv.end,'',0,'');});
+    h+='</div>';
+  }
+  h+='<button onclick="omNyLedigt()" class="btn btn-outline btn-sm" style="margin-top:8px;">+ Lagg till ledigt</button>';
+  h+='</div></div>';return h;
+}
+
+// === TEXTER ===
+var texter=load('texter',[
+  {id:2001,namn:'Presentationstext',rubrik:'Vi skapar digitala upplevelser som sticker ut',brodtext:'Med fokus pa design och anvandarvanlighet bygger vi webbplatser som hjalper ditt foretag att vaxa.',skapad:'2026-04-29'},
+  {id:2002,namn:'Hemsida - tjanstebeskrivning',rubrik:'En hemsida som jobbar for dig',brodtext:'Din hemsida ar ditt viktigaste skyltfonster. Vi designar hemsidor som konverterar besokare till kunder.',skapad:'2026-04-29'}
+]);
+
+function pgTexter(){
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<div><p style="font-size:9px;color:#059669;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Forsaljning &middot; Texter</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Textbank</h2></div>';
+  h+='<button class="btn btn-primary btn-sm" onclick="omNyText()">+ Ny text</button></div>';
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">';
+  if(!texter.length){
+    h+='<div style="text-align:center;padding:40px;background:white;border:1px solid var(--s2);border-radius:12px;">';
+    h+='<p style="font-size:14px;font-weight:500;color:var(--s8);margin-bottom:6px;">Inga texter annu</p>';
+    h+='<p style="font-size:12px;color:var(--s4);">Klicka + Ny text for att lagga till</p></div></div>';
+    return h;
+  }
+  texter.forEach(function(t){
+    h+='<div class="card">';
+    h+='<div style="padding:11px 16px;background:var(--s0);border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:13px;font-weight:600;color:var(--s8);">'+t.namn+'</p>';
+    h+='<div style="display:flex;gap:6px;">';
+    h+='<button onclick="omEditText('+t.id+')" class="btn btn-outline btn-sm">Redigera</button>';
+    h+='<button onclick="delText('+t.id+')" class="btn btn-danger btn-sm">Ta bort</button>';
+    h+='</div></div>';
+    h+='<div style="padding:12px 16px;border-bottom:1px solid var(--s1);">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">';
+    h+='<span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--s4);">Rubrik</span>';
+    h+='<button onclick="txCopyEl('+t.id+',0)" class="btn btn-outline btn-sm" style="font-size:10px;">Kopiera rubrik</button>';
+    h+='</div>';
+    h+='<p id="txr'+t.id+'" style="font-size:15px;font-weight:600;color:var(--s8);line-height:1.4;">'+t.rubrik+'</p>';
+    h+='</div>';
+    h+='<div style="padding:12px 16px;">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">';
+    h+='<span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--s4);">Brodtext</span>';
+    h+='<button onclick="txCopyEl('+t.id+',1)" class="btn btn-outline btn-sm" style="font-size:10px;">Kopiera brodtext</button>';
+    h+='</div>';
+    h+='<div id="txb'+t.id+'" style="font-size:13px;color:var(--s7);line-height:1.7;">'+t.brodtext+'</div>';
+    h+='</div></div>';
+  });
+  h+='</div>';return h;
+}
+
+function delText(id){
+  if(!confirm('Ta bort texten?'))return;
+  texter=texter.filter(function(x){return x.id!==id;});
+  save('texter',texter);rMain();
+}
+
+function txCopyEl(tid,type){
+  var elId=type===0?'txr'+tid:'txb'+tid;
+  var el=document.getElementById(elId);
+  if(!el)return;
+  var txt=el.innerText||el.textContent||'';
+  function flash(btn){var o=btn.textContent;btn.textContent='Kopierad!';btn.style.background='var(--gl)';btn.style.color='var(--gd)';btn.style.borderColor='var(--g)';setTimeout(function(){btn.textContent=o;btn.style.background='';btn.style.color='';btn.style.borderColor='';},1500);}
+  var btns=document.querySelectorAll('button');
+  var cb=null;
+  btns.forEach(function(b){if(b.getAttribute('onclick')==='txCopyEl('+tid+','+type+')')cb=b;});
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){if(cb)flash(cb);}).catch(function(){txFallback(el,cb,flash);});}
+  else{txFallback(el,cb,flash);}
+}
+function txFallback(el,btn,flash){
+  var r=document.createRange();r.selectNodeContents(el);
+  var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+  try{document.execCommand('copy');if(btn)flash(btn);}catch(e){}
+  s.removeAllRanges();
+}
+
+function txToolbar(){
+  return '<div style="padding:6px 8px;background:var(--s0);border-bottom:1px solid var(--s1);display:flex;gap:5px;flex-wrap:wrap;">'
+    +'<button type="button" onclick="document.execCommand(\'bold\')" style="border:1px solid var(--s2);background:white;border-radius:4px;padding:3px 10px;cursor:pointer;font-weight:700;font-size:12px;">B</button>'
+    +'<button type="button" onclick="document.execCommand(\'italic\')" style="border:1px solid var(--s2);background:white;border-radius:4px;padding:3px 10px;cursor:pointer;font-style:italic;font-size:12px;">I</button>'
+    +'<button type="button" onclick="document.execCommand(\'underline\')" style="border:1px solid var(--s2);background:white;border-radius:4px;padding:3px 10px;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>'
+    +'<span style="width:1px;background:var(--s2);margin:0 4px;display:inline-block;"></span>'
+    +'<button type="button" id="tx-link-btn" onclick="txAddLink()" style="border:1px solid #BFDBFE;background:#EFF6FF;color:#1D4ED8;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;">Lank</button>'
+    +'<button type="button" onclick="document.execCommand(\'unlink\')" style="border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;">Ta bort lank</button>'
+    +'</div>';
+}
+function txAddLink(){
+  var url=window.prompt('Ange URL (t.ex. https://example.se):');
+  if(url){
+    if(url.indexOf('http')<0)url='https://'+url;
+    document.execCommand('createLink',false,url);
+    var ed=document.getElementById('tx-ed');
+    if(ed)ed.querySelectorAll('a').forEach(function(a){a.target='_blank';a.style.color='var(--b)';a.style.textDecoration='underline';});
+  }
+}
+function txEditorDiv(initHtml){
+  return '<div style="border:1px solid var(--s2);border-radius:8px;overflow:hidden;">'+txToolbar()
+    +'<div id="tx-ed" contenteditable="true" style="min-height:120px;padding:10px 12px;font-family:Inter,sans-serif;font-size:13px;color:var(--s8);line-height:1.7;outline:none;">'+initHtml+'</div>'
+    +'</div><p style="font-size:11px;color:var(--s4);margin-top:5px;">Markera text och klicka Lank for att skapa en hyperlank.</p>';
+}
+
+function omNyText(){
+  om(mhdr('Ny text')
+  +lbl('Namn pa texten')+'<input id="tx-namn" class="ri" placeholder="T.ex. Om oss, Tjanstebeskrivning..." style="margin-bottom:10px;">'
+  +lbl('Rubrik')+'<input id="tx-rubrik" class="ri" placeholder="Din rubrik har..." style="margin-bottom:10px;">'
+  +lbl('Brodtext')+txEditorDiv('')
+  +mfooter('txSaveNy()','Spara text'));
+}
+function txSaveNy(){
+  var namn=(document.getElementById('tx-namn').value||'').trim();
+  var rubrik=(document.getElementById('tx-rubrik').value||'').trim();
+  var ed=document.getElementById('tx-ed');
+  var brodtext=ed?ed.innerHTML.trim():'';
+  if(!namn){alert('Ange ett namn pa texten.');return;}
+  if(!rubrik){alert('Ange en rubrik.');return;}
+  texter.push({id:newId(),namn:namn,rubrik:rubrik,brodtext:brodtext,skapad:new Date().toISOString().slice(0,10)});
+  save('texter',texter);cm();rMain();
+}
+function omEditText(id){
+  var t=texter.find(function(x){return x.id===id;});if(!t)return;
+  om(mhdr('Redigera text')
+  +lbl('Namn pa texten')+'<input id="tx-namn" class="ri" value="'+t.namn.replace(/"/g,'&quot;')+'" style="margin-bottom:10px;">'
+  +lbl('Rubrik')+'<input id="tx-rubrik" class="ri" value="'+t.rubrik.replace(/"/g,'&quot;')+'" style="margin-bottom:10px;">'
+  +lbl('Brodtext')+txEditorDiv(t.brodtext)
+  +mfooter('txSaveEdit('+id+')','Spara andringar'));
+  setTimeout(function(){
+    var ed=document.getElementById('tx-ed');
+    if(ed)ed.querySelectorAll('a').forEach(function(a){a.target='_blank';a.style.color='var(--b)';a.style.textDecoration='underline';});
+  },50);
+}
+function txSaveEdit(id){
+  var t=texter.find(function(x){return x.id===id;});if(!t)return;
+  var namn=(document.getElementById('tx-namn').value||'').trim();
+  var rubrik=(document.getElementById('tx-rubrik').value||'').trim();
+  var ed=document.getElementById('tx-ed');
+  var brodtext=ed?ed.innerHTML.trim():'';
+  if(!namn){alert('Ange ett namn.');return;}
+  if(!rubrik){alert('Ange en rubrik.');return;}
+  t.namn=namn;t.rubrik=rubrik;t.brodtext=brodtext;
+  save('texter',texter);cm();rMain();
+}
+
+// === KANBAN / UPPFOLJNING ===
+var kbCols=load('kbCols',[{id:1,n:'Att gora',color:'#6B7280'},{id:2,n:'Pagar',color:'#2563EB'},{id:3,n:'Klart',color:'#1A9E75'},{id:4,n:'Kunder',color:'#D97706'}]);
+var kbCards=load('kbCards',[
+  {id:2010,colId:1,titel:'Michael - Decksafe',typ:'lead',etiketter:['#EF4444'],datum:'',beskrivning:'Potentiell kund.',checklista:[{t:'Skicka offert',done:false},{t:'Boka mote',done:false}]},
+  {id:2011,colId:1,titel:'Frida - Pigello',typ:'lead',etiketter:['#F59E0B'],datum:'2026-05-01',beskrivning:'',checklista:[]},
+  {id:2012,colId:1,titel:'Lukas - Svartklubben',typ:'lead',etiketter:[],datum:'',beskrivning:'',checklista:[]},
+  {id:2013,colId:4,titel:'Nicke - Elcentralen',typ:'kund',etiketter:['#22C55E'],datum:'',beskrivning:'Hemsida i produktion.',checklista:[{t:'Samla logotypfiler',done:false}]}
+]);
+var kbOpen=null;
+
+function pgKanban(){
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<div><p style="font-size:9px;color:#B45309;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Marknad &middot; Uppfoljning</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Uppfoljningstavla</h2></div>';
+  h+='<div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="kbNyKol()">+ Ny kolumn</button>';
+  h+='<button class="btn btn-primary btn-sm" onclick="kbNyKort()">+ Nytt kort</button></div></div>';
+  if(kbOpen){h+=kbDetail(kbOpen);}
+  h+='<div style="overflow-x:auto;padding:14px;"><div style="display:flex;gap:10px;align-items:flex-start;min-height:460px;">';
+  kbCols.forEach(function(col){
+    var cards=kbCards.filter(function(c){return c.colId===col.id;});
+    h+='<div style="flex-shrink:0;width:255px;background:var(--s1);border-radius:12px;">';
+    h+='<div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-top:3px solid '+col.color+';border-radius:9px 9px 0 0;">';
+    h+='<div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13px;font-weight:600;color:var(--s8);">'+col.n+'</span>';
+    h+='<span style="font-size:10px;background:white;border-radius:99px;padding:1px 7px;color:var(--s5);">'+cards.length+'</span></div>';
+    h+='<button onclick="kbDelKol('+col.id+')" style="border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--s3);line-height:1;">&#215;</button></div>';
+    h+='<div style="padding:0 8px 8px;">';
+    cards.forEach(function(c){
+      var chkD=c.checklista.filter(function(x){return x.done;}).length;
+      h+='<div onclick="kbOpen='+c.id+';rMain()" style="background:white;border:1px solid var(--s2);border-radius:9px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:box-shadow .15s;" onmouseover="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,.1)\'" onmouseout="this.style.boxShadow=\'none\'">';
+      if(c.etiketter.length){h+='<div style="margin-bottom:6px;">';c.etiketter.forEach(function(e){h+='<span style="display:inline-block;width:32px;height:6px;border-radius:3px;background:'+e+';margin-right:3px;"></span>';});h+='</div>';}
+      h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:5px;line-height:1.4;">'+c.titel+'</p>';
+      var meta=[];
+      if(c.typ==='kund')meta.push('<span class="bdg" style="background:#DCFCE7;color:#166534;">kund</span>');
+      else if(c.typ==='lead')meta.push('<span class="bdg" style="background:#EFF6FF;color:#1D4ED8;">lead</span>');
+      if(c.datum)meta.push('<span class="bdg" style="background:#FEF3C7;color:#92400E;">'+c.datum+'</span>');
+      if(c.checklista.length)meta.push('<span style="font-size:10px;color:var(--s4);">'+chkD+'/'+c.checklista.length+'</span>');
+      if(meta.length)h+='<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'+meta.join('')+'</div>';
+      h+='</div>';
+    });
+    h+='<button onclick="kbNyKortIKol('+col.id+')" style="width:100%;border:1px dashed var(--s2);background:transparent;border-radius:8px;padding:7px;font-size:11px;cursor:pointer;color:var(--s5);font-family:Inter,sans-serif;">+ Lagg till ett kort</button>';
+    h+='</div></div>';
+  });
+  h+='</div></div>';return h;
+}
+
+function kbDelKol(id){
+  if(kbCards.find(function(c){return c.colId===id;})){alert('Flytta korten forst.');return;}
+  if(!confirm('Ta bort kolumnen?'))return;
+  kbCols=kbCols.filter(function(x){return x.id!==id;});save('kbCols',kbCols);rMain();
+}
+
+function kbDetail(cid){
+  var c=kbCards.find(function(x){return x.id===cid;});if(!c)return'';
+  var col=kbCols.find(function(x){return x.id===c.colId;});
+  var chkD=c.checklista.filter(function(x){return x.done;}).length;
+  var pct=c.checklista.length?Math.round(chkD/c.checklista.length*100):0;
+  var h='<div onclick="kbOpen=null;rMain()" style="position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto;">';
+  h+='<div onclick="event.stopPropagation()" style="background:white;border-radius:14px;width:480px;max-width:96vw;box-shadow:0 8px 32px rgba(0,0,0,.14);margin-bottom:40px;max-height:80vh;overflow-y:auto;">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--s1);display:flex;align-items:flex-start;justify-content:space-between;">';
+  h+='<div style="flex:1;margin-right:12px;"><input value="'+c.titel+'" onchange="kbCards.find(function(x){return x.id==='+cid+'}).titel=this.value;save(\'kbCards\',kbCards)" style="font-size:16px;font-weight:600;color:var(--s9);border:none;background:transparent;outline:none;width:100%;font-family:Inter,sans-serif;">';
+  if(col)h+='<p style="font-size:11px;color:var(--s4);margin-top:3px;">i kolumnen <b style="color:var(--s7);">'+col.n+'</b></p>';
+  h+='</div><button onclick="kbOpen=null;rMain()" style="border:none;background:transparent;cursor:pointer;font-size:22px;color:var(--s4);padding:0;line-height:1;flex-shrink:0;">&#215;</button></div>';
+  h+='<div style="padding:12px 18px;border-bottom:1px solid var(--s1);display:flex;gap:6px;flex-wrap:wrap;">';
+  h+='<button onclick="kbEtiketterDlg('+cid+')" class="btn btn-outline btn-sm">Etiketter</button>';
+  h+='<button onclick="kbDatumDlg('+cid+')" class="btn btn-outline btn-sm">Datum</button>';
+  h+='<button onclick="kbChkDlg('+cid+')" class="btn btn-outline btn-sm">+ Checklista</button>';
+  h+='<select onchange="kbCards.find(function(x){return x.id==='+cid+'}).colId=parseInt(this.value);save(\'kbCards\',kbCards);rMain()" class="ri" style="font-size:11px;padding:3px 8px;width:auto;">';
+  kbCols.forEach(function(kl){h+='<option value="'+kl.id+'"'+(c.colId===kl.id?' selected':'')+'>'+kl.n+'</option>';});
+  h+='</select></div>';
+  h+='<div style="padding:16px 18px;">';
+  if(c.etiketter.length){
+    h+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:6px;">Etiketter</p><div style="display:flex;gap:6px;flex-wrap:wrap;">';
+    c.etiketter.forEach(function(e,i){h+='<span onclick="kbRmLbl('+cid+','+i+')" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:'+e+';color:white;font-size:11px;font-weight:600;cursor:pointer;">'+e+' &#215;</span>';});
+    h+='</div></div>';
+  }
+  if(c.datum){
+    h+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:5px;">Datum</p>';
+    h+='<span class="bdg" style="background:#FEF3C7;color:#92400E;font-size:12px;">'+c.datum+'</span> ';
+    h+='<button onclick="kbCards.find(function(x){return x.id==='+cid+'}).datum=\'\';save(\'kbCards\',kbCards);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--s4);font-family:Inter,sans-serif;">Ta bort</button></div>';
+  }
+  h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:5px;">Beskrivning</p>';
+  h+='<textarea class="ri" style="min-height:80px;resize:none;line-height:1.5;margin-bottom:14px;" placeholder="Lagg till en beskrivning..." onchange="kbCards.find(function(x){return x.id==='+cid+'}).beskrivning=this.value;save(\'kbCards\',kbCards)">'+c.beskrivning+'</textarea>';
+  if(c.checklista.length){
+    h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:6px;">Checklista <span style="font-weight:400;color:var(--s4);">'+chkD+'/'+c.checklista.length+'</span></p>';
+    h+='<div style="height:4px;background:var(--s1);border-radius:2px;margin-bottom:8px;"><div style="height:4px;width:'+pct+'%;background:var(--g);border-radius:2px;"></div></div>';
+    c.checklista.forEach(function(ci,i){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--s1);">';
+      h+='<input type="checkbox" '+(ci.done?'checked':'')+' style="accent-color:var(--g);width:15px;height:15px;cursor:pointer;" onchange="kbCards.find(function(x){return x.id==='+cid+'}).checklista['+i+'].done=this.checked;save(\'kbCards\',kbCards);rMain()">';
+      h+='<span style="font-size:12px;flex:1;color:'+(ci.done?'var(--s3)':'var(--s7)')+';text-decoration:'+(ci.done?'line-through':'none')+';">'+ci.t+'</span>';
+      h+='<button onclick="kbCards.find(function(x){return x.id==='+cid+'}).checklista.splice('+i+',1);save(\'kbCards\',kbCards);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--s3);">&#215;</button></div>';
+    });
+  }
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--s1);margin-top:10px;">';
+  h+='<button onclick="kbDelKort('+cid+')" style="font-size:11px;color:var(--r);border:none;background:transparent;cursor:pointer;font-family:Inter,sans-serif;">Ta bort kort</button>';
+  h+='<button onclick="kbOpen=null;rMain()" class="btn btn-primary btn-sm">Stang</button></div>';
+  h+='</div></div></div>';return h;
+}
+
+function kbDelKort(id){
+  if(!confirm('Ta bort kortet?'))return;
+  kbCards=kbCards.filter(function(x){return x.id!==id;});
+  save('kbCards',kbCards);kbOpen=null;rMain();
+}
+function kbRmLbl(cid,idx){
+  var c=kbCards.find(function(x){return x.id===cid;});
+  if(c){c.etiketter.splice(idx,1);save('kbCards',kbCards);rMain();}
+}
+function kbEtiketterDlg(cid){
+  var c=kbCards.find(function(x){return x.id===cid;});
+  var colors=['#EF4444','#F59E0B','#22C55E','#2563EB','#7C3AED','#EC4899','#6B7280','#14B8A6'];
+  var h=mhdr('Etiketter')+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">';
+  colors.forEach(function(lc){
+    var has=c.etiketter.indexOf(lc)>=0;
+    h+='<div onclick="kbTogLbl('+cid+',\''+lc+'\')" style="width:36px;height:36px;border-radius:8px;background:'+lc+';cursor:pointer;display:flex;align-items:center;justify-content:center;border:'+(has?'3px solid var(--s9)':'3px solid transparent')+';"><span style="color:white;font-size:15px;">'+(has?'&#10003;':'')+'</span></div>';
+  });
+  h+='</div>'+mfooter('kbOpen='+cid+';cm();rMain()','Klar');
+  om(h);
+}
+function kbTogLbl(cid,lc){
+  var c=kbCards.find(function(x){return x.id===cid;});
+  var idx=c.etiketter.indexOf(lc);
+  if(idx>=0)c.etiketter.splice(idx,1);else c.etiketter.push(lc);
+  save('kbCards',kbCards);kbEtiketterDlg(cid);
+}
+function kbDatumDlg(cid){
+  var c=kbCards.find(function(x){return x.id===cid;});
+  var h=mhdr('Datum')+lbl('Datum')+'<input id="kb-dat" class="ri" type="date" value="'+(c.datum||new Date().toISOString().slice(0,10))+'" style="margin-bottom:16px;">';
+  h+=mfooter('kbSaveDatum('+cid+')','Spara');om(h);
+}
+function kbSaveDatum(cid){
+  var v=document.getElementById('kb-dat').value;
+  kbCards.find(function(x){return x.id===cid;}).datum=v;
+  save('kbCards',kbCards);kbOpen=cid;cm();rMain();
+}
+function kbChkDlg(cid){
+  var h=mhdr('Ny checklistepunkt')+lbl('Uppgift')+'<input id="kb-chk" class="ri" placeholder="T.ex. Skicka offert" style="margin-bottom:16px;">';
+  h+=mfooter('kbSaveChk('+cid+')','Lagg till');om(h);
+}
+function kbSaveChk(cid){
+  var t=(document.getElementById('kb-chk').value||'').trim();
+  if(!t){alert('Ange en uppgift.');return;}
+  kbCards.find(function(x){return x.id===cid;}).checklista.push({t:t,done:false});
+  save('kbCards',kbCards);kbOpen=cid;cm();rMain();
+}
+function kbNyKol(){
+  var h=mhdr('Ny kolumn')+lbl('Namn')+'<input id="kb-kol-n" class="ri" placeholder="T.ex. Vantar pa svar" style="margin-bottom:10px;">';
+  h+=lbl('Farg')+'<input id="kb-kol-c" class="ri" type="color" value="#2563EB" style="margin-bottom:16px;height:38px;">';
+  h+=mfooter('kbSaveKol()','Skapa kolumn');om(h);
+}
+function kbSaveKol(){
+  var n=(document.getElementById('kb-kol-n').value||'').trim();
+  if(!n){alert('Ange ett namn.');return;}
+  kbCols.push({id:newId(),n:n,color:document.getElementById('kb-kol-c').value});
+  save('kbCols',kbCols);cm();rMain();
+}
+function kbNyKort(){
+  var h=mhdr('Nytt kort')+lbl('Titel')+'<input id="kb-t" class="ri" placeholder="T.ex. Anna - Karlsson Design" style="margin-bottom:10px;">';
+  h+=lbl('Kolumn')+'<select id="kb-c" class="ri" style="margin-bottom:10px;">'+kbCols.map(function(c){return'<option value="'+c.id+'">'+c.n+'</option>';}).join('')+'</select>';
+  h+=lbl('Datum (valfritt)')+'<input id="kb-d" class="ri" type="date" style="margin-bottom:16px;">';
+  h+=mfooter('kbSaveKort()','Lagg till kort');om(h);
+}
+function kbSaveKort(){
+  var t=(document.getElementById('kb-t').value||'').trim();
+  if(!t){alert('Ange en titel.');return;}
+  var colId=parseInt(document.getElementById('kb-c').value);
+  var datum=document.getElementById('kb-d').value;
+  kbCards.push({id:newId(),colId:colId,titel:t,typ:'manuell',etiketter:[],datum:datum,beskrivning:'',checklista:[]});
+  save('kbCards',kbCards);cm();rMain();
+}
+function kbNyKortIKol(colId){
+  var h=mhdr('Nytt kort')+lbl('Titel')+'<input id="kb-ik-t" class="ri" placeholder="T.ex. Anna - Karlsson Design" style="margin-bottom:16px;">';
+  h+=mfooter('kbSaveKortIKol('+colId+')','Lagg till');om(h);
+}
+function kbSaveKortIKol(colId){
+  var t=(document.getElementById('kb-ik-t').value||'').trim();
+  if(!t){alert('Ange en titel.');return;}
+  kbCards.push({id:newId(),colId:colId,titel:t,typ:'manuell',etiketter:[],datum:'',beskrivning:'',checklista:[]});
+  save('kbCards',kbCards);cm();rMain();
+}
+
+
+// === GANTT + KUNDKORT + TIDLOGGAR ===
+var ganttP=load('ganttP','8v');
+var ganttOff=load('ganttOff',0);
+var kundOpen=null;
+var ledigtRows=load('ganttLedigt',[{id:9001,label:'Semester',start:'',end:'',color:'#D97706'}]);
+
+function ganttDays(){return {'4v':28,'8v':56,'16v':112,'Kvartal':91,'Halvar':182,'Helar':365}[ganttP]||56;}
+function ganttSetP(p){ganttP=p;save('ganttP',ganttP);rMain();}
+function ganttNav(n){if(n===0)ganttOff=0;else ganttOff+=n;save('ganttOff',ganttOff);rMain();}
+function openKund(id){kundOpen=id;go('fs_k');}
+function setKundDat(id,type,val){var k=kunder.find(function(x){return x.id===id;});if(!k)return;if(type===0)k.startDat=val;else k.slutDat=val;save('kunder',kunder);}
+function tlPrev(id){var hv=parseFloat(document.getElementById('tl-h').value)||0;var mv=parseFloat(document.getElementById('tl-m').value)||0;var k=kunder.find(function(x){return x.id===id;});if(!k)return;var tot=hv+mv/60;var bel=Math.round(tot*k.tx);var pr=document.getElementById('tl-prev');if(pr){if(tot>0){pr.style.display='block';pr.textContent=hv+'t '+mv+'m \xd7 '+k.tx+' kr/h = '+bel.toLocaleString('sv-SE')+' kr';}else pr.style.display='none';}}
+function tlSave(id){var hv=parseInt(document.getElementById('tl-h').value)||0;var mv=parseInt(document.getElementById('tl-m').value)||0;var d=document.getElementById('tl-d').value||dS(TODAY);var n=(document.getElementById('tl-n').value||'').trim();if(hv===0&&mv===0){alert('Ange minst 1 minut.');return;}var k=kunder.find(function(x){return x.id===id;});if(!k)return;if(!k.timlogs)k.timlogs=[];var belopp=Math.round((hv+mv/60)*k.tx);k.timlogs.push({id:newId(),h:hv,m:mv,datum:d,not:n,belopp:belopp});save('kunder',kunder);rMain();}
+function tlDel(id,idx){var k=kunder.find(function(x){return x.id===id;});if(k&&k.timlogs){k.timlogs.splice(idx,1);save('kunder',kunder);rMain();}}
+function tlAddTask(id){var inp=document.getElementById('task-inp');if(!inp)return;var t=(inp.value||'').trim();if(!t)return;var k=kunder.find(function(x){return x.id===id;});if(!k)return;k.tasks.push({t:t,done:false});save('kunder',kunder);inp.value='';rMain();}
+function tlTogTask(id,i){var k=kunder.find(function(x){return x.id===id;});if(k&&k.tasks[i]!==undefined){k.tasks[i].done=!k.tasks[i].done;save('kunder',kunder);rMain();}}
+function tlDelTask(id,i){var k=kunder.find(function(x){return x.id===id;});if(k){k.tasks.splice(i,1);save('kunder',kunder);rMain();}}
+function saveLedigt(){var n=(document.getElementById('led-n').value||'').trim();var s=document.getElementById('led-s').value;var e=document.getElementById('led-e').value;if(!n||!s||!e){alert('Fyll i alla falt.');return;}ledigtRows.push({id:newId(),label:n,start:s,end:e,color:'#D97706'});save('ganttLedigt',ledigtRows);cm();rMain();}
+function omNyLedigt(){om(mhdr('Lagg till ledigt')+lbl('Rubrik')+'<input id="led-n" class="ri" placeholder="T.ex. Semester, Kurs" style="margin-bottom:10px;">'+lbl('Startdatum')+'<input id="led-s" class="ri" type="date" style="margin-bottom:10px;">'+lbl('Slutdatum')+'<input id="led-e" class="ri" type="date" style="margin-bottom:16px;">'+mfooter('saveLedigt()','Lagg till'));}
+
+
+function pgKundDetail(id){
+  var k=kunder.find(function(x){return x.id===id;});
+  if(!k){kundOpen=null;return pgKunder();}
+  if(!k.timlogs)k.timlogs=[];
+  var totH=k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0);
+  var totKr=k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
+  var sd=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
+  var ed=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+  h+='<button onclick="kundOpen=null;rMain()" class="btn btn-outline btn-sm">&larr; Alla kunder</button>';
+  h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;">'+ini(k.n)+'</div>';
+  h+='<div><p style="font-size:15px;font-weight:700;color:var(--s9);">'+k.n+'</p>';
+  h+='<p style="font-size:11px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p></div>';
+  h+='<div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">';
+  h+='<span class="bdg" style="background:var(--gl);color:var(--gd);">'+Math.round(totH*10)/10+' timmar loggade</span>';
+  if(totKr>0)h+='<span class="bdg" style="background:#ECFDF5;color:#166534;">'+kr(totKr)+' fakturerbart</span>';
+  if(k.timMin||k.timMax){var te=(k.timMin||0)+'-'+(k.timMax||0)+'h';var pctEst=k.timMax>0?Math.min(100,Math.round(totH/k.timMax*100)):0;h+='<span class="bdg" style="background:#EFF6FF;color:var(--b);">'+te+' estimerat'+(pctEst>0?' ('+pctEst+'% klar)':'')+'</span>';}
+  h+='</div></div>';
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start;">';
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">';
+  h+='<p style="font-size:13px;font-weight:600;color:var(--s8);">Tidloggar kopplade till kund</p>';
+  h+='<button onclick="kundOpen=null;rMain()" class="btn btn-outline btn-sm">Avbryt</button></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">';
+  h+='<div>'+lbl('Timmar')+'<input id="tl-h" class="ri" type="number" min="0" max="99" value="0" oninput="tlPrev('+id+')" style="font-size:22px;padding:10px;text-align:center;"></div>';
+  h+='<div>'+lbl('Minuter')+'<input id="tl-m" class="ri" type="number" min="0" max="59" value="0" oninput="tlPrev('+id+')" style="font-size:22px;padding:10px;text-align:center;"></div>';
+  h+='</div>';
+  h+=lbl('Datum')+'<input id="tl-d" class="ri" type="date" value="'+dS(TODAY)+'" style="margin-bottom:8px;">';
+  h+=lbl('Notering')+'<input id="tl-n" class="ri" placeholder="Vad jobbade du med?" style="margin-bottom:8px;">';
+  h+='<div id="tl-prev" style="background:var(--gl);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--gd);margin-bottom:12px;display:none;">-</div>';
+  h+='<button onclick="tlSave('+id+')" class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;">Spara tidlogg</button>';
+  h+='</div>';
+  if(k.timlogs.length){
+    h+='<div class="card">';
+    h+='<div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">Tidrapport</p>';
+    h+='<span style="font-size:11px;color:var(--g);font-weight:700;">'+kr(totKr)+' totalt</span></div>';
+    k.timlogs.slice().reverse().forEach(function(l,ri){
+      var realIdx=k.timlogs.length-1-ri;
+      h+='<div class="row"><div style="flex:1;min-width:0;">';
+      h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">'+l.h+'t '+(l.m||0)+'m'+(l.not?' &mdash; '+l.not:'')+'</p>';
+      h+='<p style="font-size:10px;color:var(--s4);">'+l.datum+'</p></div>';
+      h+='<span style="font-size:12px;font-weight:700;color:var(--g);margin-right:8px;">'+kr(l.belopp||0)+'</span>';
+      h+='<button onclick="tlDel('+id+','+realIdx+')" style="border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--s2);">&#215;</button></div>';
+    });
+    h+='<div style="padding:9px 14px;background:var(--gl);border-top:1px solid #A7F3D0;display:flex;align-items:center;justify-content:space-between;">';
+    h+='<span style="font-size:11px;font-weight:600;color:var(--gd);">'+Math.round(totH*10)/10+' h loggade</span>';
+    h+='<span style="font-size:14px;font-weight:700;color:var(--gd);">'+kr(totKr)+'</span></div>';
+    h+='</div>';
+  }
+  h+='<div class="card" style="padding:12px 14px;">';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:8px;">Projektperiod (visas i Gantt)</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  h+='<div>'+lbl('Startdatum')+'<input class="ri" type="date" value="'+sd+'" onchange="setKundDat('+id+',0,this.value)"></div>';
+  h+='<div>'+lbl('Slutdatum')+'<input class="ri" type="date" value="'+ed+'" onchange="setKundDat('+id+',1,this.value)"></div>';
+  h+='</div></div>';
+  h+='</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Uppgifter &amp; anteckningar</p>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:8px;">';
+  h+='<input id="task-inp" class="ri" placeholder="Lagg till uppgift... (Enter)" onkeydown="if(event.key===\'Enter\')tlAddTask('+id+')" style="flex:1;font-size:12px;">';
+  h+='<button onclick="tlAddTask('+id+')" class="btn btn-primary" style="width:36px;height:36px;padding:0;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">+</button>';
+  h+='</div>';
+  if(k.tasks.length){
+    k.tasks.forEach(function(t,i){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--s1);">';
+      h+='<input type="checkbox" '+(t.done?'checked':'')+' onchange="tlTogTask('+id+','+i+')" style="accent-color:var(--g);width:15px;height:15px;cursor:pointer;flex-shrink:0;">';
+      h+='<span style="font-size:12px;flex:1;color:'+(t.done?'var(--s3)':'var(--s7)')+';text-decoration:'+(t.done?'line-through':'none')+';">'+t.t+'</span>';
+      h+='<button onclick="tlDelTask('+id+','+i+')" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s3);flex-shrink:0;">&#215;</button></div>';
+    });
+  } else {
+    h+='<p style="font-size:11px;color:var(--s4);text-align:center;padding:10px 0;">Inga uppgifter annu</p>';
+  }
+  h+='<p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s3);margin-top:12px;margin-bottom:5px;">Anteckningar</p>';
+  h+='<textarea class="ri" style="min-height:90px;resize:none;font-size:12px;line-height:1.5;" placeholder="Klicka for att lagga till anteckningar..." onchange="kunder.find(function(x){return x.id==='+id+'}).notes=this.value;save(\'kunder\',kunder)">'+k.notes+'</textarea>';
+  h+='</div></div>';
+  h+='</div>';return h;
+}
+
+// === NY KUND - FORBATTRAT MODAL ===
+var NKCOLORS=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#BE185D','#14B8A6','#92400E'];
+var nyKundTyp='aktiv';
+var nyKundCI=0;
+
+function nkSetTyp(t){
+  nyKundTyp=t;
+  ['offert','aktiv'].forEach(function(tp){
+    var el=document.getElementById('nk-typ-'+tp);if(!el)return;
+    var a=tp===t;
+    el.style.border='2px solid '+(a?'var(--g)':'var(--s2)');
+    el.style.background=a?'var(--gl)':'white';
+    var icon=el.querySelector('.nkti');
+    if(icon)icon.textContent=a?'OK':(tp==='offert'?'>>':'[]');
+  });
+}
+function nkSetOffert(){nkSetTyp('offert');}
+function nkSetAktiv(){nkSetTyp('aktiv');}
+function nkSetCI(i){
+  nyKundCI=i;
+  document.querySelectorAll('.nk-cd').forEach(function(el,j){
+    el.style.border='3px solid '+(j===i?'var(--s9)':NKCOLORS[j]);
+  });
+}
+function omNyKundSave(){
+  var n=(document.getElementById('nk-n').value||'').trim();
+  if(!n){alert('Ange ett foretagsnamn.');return;}
+  var tx=parseInt(document.getElementById('nk-tx').value)||720;
+  var kat=(document.getElementById('nk-kat').value||'Ovrigt').trim();
+  var tmin=parseInt(document.getElementById('nk-tmin').value)||0;
+  var tmax=parseInt(document.getElementById('nk-tmax').value)||0;
+  var steg=parseInt(document.getElementById('nk-steg').value)||0;
+  kunder.push({id:newId(),n:n,t:kat,tx:tx,h:0,fp:0,
+    fak:nyKundTyp==='offert'?'offert':'tim',
+    ci:nyKundCI,ark:false,kundtyp:nyKundTyp,
+    timMin:tmin,timMax:tmax,tasks:[],notes:'',timlogs:[],startDat:'',slutDat:''});
+  if(nyKundTyp!=='offert'){prows.push({id:newId(),n:n.split(' ')[0]||n,s:kat,steg:steg,ci:nyKundCI});save('prows',prows);}
+  save('kunder',kunder);cm();render();
+}
+
+
+// ============================================================
+// CRM
+// ============================================================
+var crmFaser=['Kall','Kontaktad','Intresserad','Mote bokat','Offert skickad','Kund','Avslagen'];
+var crmFasBg={'Kall':'#F1F5F9','Kontaktad':'#DBEAFE','Intresserad':'#FEF3C7','Mote bokat':'#EDE9FE','Offert skickad':'#DCFCE7','Kund':'#A7F3D0','Avslagen':'#FEE2E2'};
+var crmFasTc={'Kall':'#475569','Kontaktad':'#1D4ED8','Intresserad':'#92400E','Mote bokat':'#5B21B6','Offert skickad':'#166534','Kund':'#065F46','Avslagen':'#991B1B'};
+var crmPaket=load('crmPaket',['Hemsida Basic','Hemsida Pro','App-utveckling','Grafisk profil','SEO & Content','Ovrigt']);
+var crmLeads=load('crmLeads',[
+  {id:3001,foretag:'Bergstrom & Partners',kontakt:'Johan Bergstrom',email:'johan@bergstrom.se',tel:'070-111 22 33',paket:'Hemsida Pro',fas:'Intresserad',uppfoljning:'2026-05-07',anteckningar:[{id:1,tid:'2026-05-01T09:15:00',text:'Ringde och presenterade oss. Intresserade av ny hemsida. Ater om en vecka.'}]},
+  {id:3002,foretag:'Lindqvist Bygg AB',kontakt:'Marcus Lindqvist',email:'marcus@lindqvistbygg.se',tel:'073-444 55 66',paket:'Hemsida Basic',fas:'Kall',uppfoljning:'2026-05-10',anteckningar:[]},
+  {id:3003,foretag:'Sofia Berg Consulting',kontakt:'Sofia Berg',email:'sofia@bergconsulting.se',tel:'076-777 88 99',paket:'Grafisk profil',fas:'Offert skickad',uppfoljning:'2026-05-03',anteckningar:[{id:2,tid:'2026-04-28T14:30:00',text:'Skickade offert 28 000 kr. Vill ha svar senast fredag.'}]}
+]);
+var crmOpen=null;
+var crmFasFilter='Alla';
+
+function crmDelLead(id){
+  if(!confirm('Ta bort lead?'))return;
+  crmLeads=crmLeads.filter(function(x){return x.id!==id;});
+  save('crmLeads',crmLeads);crmOpen=null;rMain();
+}
+function crmSaveNote(id){
+  var el=document.getElementById('crm-note-inp');
+  var txt=(el?el.value:'').trim();
+  if(!txt){alert('Skriv en anteckning forst.');return;}
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  if(!lead.anteckningar)lead.anteckningar=[];
+  lead.anteckningar.unshift({id:newId(),tid:new Date().toISOString(),text:txt});
+  save('crmLeads',crmLeads);crmOpen=id;rMain();
+}
+function crmSetFas(id,fas){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(lead){lead.fas=fas;save('crmLeads',crmLeads);rMain();}
+}
+function crmSetPaket(id,paket){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(lead){lead.paket=paket;save('crmLeads',crmLeads);}
+}
+function crmSetUppf(id,dat){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(lead){lead.uppfoljning=dat;save('crmLeads',crmLeads);}
+}
+function crmSaveLead(){
+  var foretag=(document.getElementById('crmn-f').value||'').trim();
+  if(!foretag){alert('Ange foretagsnamn.');return;}
+  var kontakt=(document.getElementById('crmn-k').value||'').trim();
+  var email=(document.getElementById('crmn-e').value||'').trim();
+  var tel=(document.getElementById('crmn-t').value||'').trim();
+  var paket=document.getElementById('crmn-p').value;
+  var fas=document.getElementById('crmn-fas').value;
+  var uppf=document.getElementById('crmn-u').value;
+  crmLeads.unshift({id:newId(),foretag:foretag,kontakt:kontakt,email:email,tel:tel,paket:paket,fas:fas,uppfoljning:uppf,anteckningar:[]});
+  save('crmLeads',crmLeads);cm();rMain();
+}
+function crmSaveEdit(id){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  var foretag=(document.getElementById('crme-f').value||'').trim();
+  if(!foretag){alert('Ange foretagsnamn.');return;}
+  lead.foretag=foretag;
+  lead.kontakt=(document.getElementById('crme-k').value||'').trim();
+  lead.email=(document.getElementById('crme-e').value||'').trim();
+  lead.tel=(document.getElementById('crme-t').value||'').trim();
+  save('crmLeads',crmLeads);cm();rMain();
+}
+function omNyCRMLead(){
+  var h=mhdr('Ny lead');
+  h+=lbl('Foretagsnamn')+'<input id="crmn-f" class="ri" placeholder="T.ex. Karlsson Design AB" style="margin-bottom:10px;">';
+  h+=lbl('Kontaktperson')+'<input id="crmn-k" class="ri" placeholder="Namn..." style="margin-bottom:10px;">';
+  h+=lbl('E-post')+'<input id="crmn-e" class="ri" type="email" placeholder="kontakt@foretag.se" style="margin-bottom:10px;">';
+  h+=lbl('Telefon')+'<input id="crmn-t" class="ri" placeholder="070-..." style="margin-bottom:10px;">';
+  h+=lbl('Paket')+'<select id="crmn-p" class="ri" style="margin-bottom:10px;">';
+  crmPaket.forEach(function(p){h+='<option>'+p+'</option>';});
+  h+='</select>';
+  h+=lbl('Fas')+'<select id="crmn-fas" class="ri" style="margin-bottom:10px;">';
+  crmFaser.forEach(function(f){h+='<option>'+f+'</option>';});
+  h+='</select>';
+  h+=lbl('Uppfoljningsdatum')+'<input id="crmn-u" class="ri" type="date" value="'+dS(new Date(TODAY.getTime()+7*864e5))+'" style="margin-bottom:16px;">';
+  h+=mfooter('crmSaveLead()','Lagg till lead');
+  om(h);
+}
+function omEditCRMLead(id){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  var h=mhdr('Redigera lead');
+  h+=lbl('Foretagsnamn')+'<input id="crme-f" class="ri" value="'+lead.foretag.replace(/"/g,'&quot;')+'" style="margin-bottom:10px;">';
+  h+=lbl('Kontaktperson')+'<input id="crme-k" class="ri" value="'+(lead.kontakt||'').replace(/"/g,'&quot;')+'" style="margin-bottom:10px;">';
+  h+=lbl('E-post')+'<input id="crme-e" class="ri" type="email" value="'+(lead.email||'')+'" style="margin-bottom:10px;">';
+  h+=lbl('Telefon')+'<input id="crme-t" class="ri" value="'+(lead.tel||'')+'" style="margin-bottom:16px;">';
+  h+=mfooter('crmSaveEdit('+id+')','Spara');
+  om(h);
+}
+
+function fmtTid(isoStr){
+  try{
+    var d=new Date(isoStr);
+    var date=d.toLocaleDateString('sv-SE');
+    var time=d.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+    return date+' kl. '+time;
+  }catch(e){return isoStr||'';}
+}
+
+function pgCRMLeads(){
+  if(crmOpen)return pgCRMDetail(crmOpen);
+  var today=dS(TODAY);
+  var filtered=crmFasFilter==='Alla'?crmLeads:crmLeads.filter(function(l){return l.fas===crmFasFilter;});
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">';
+  h+='<div><p style="font-size:9px;color:#0891B2;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">CRM &middot; Leads</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Leadhantering</h2></div>';
+  h+='<button class="btn btn-primary btn-sm" onclick="omNyCRMLead()">+ Ny lead</button></div>';
+
+  // Stats row
+  h+='<div style="padding:10px 14px;display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">';
+  var fasAll=['Alla'].concat(crmFaser);
+  fasAll.forEach(function(fas){
+    var cnt=fas==='Alla'?crmLeads.length:crmLeads.filter(function(l){return l.fas===fas;}).length;
+    var active=crmFasFilter===fas;
+    var bg=fas==='Alla'?'#F8FAFC':(crmFasBg[fas]||'#F1F5F9');
+    var tc=fas==='Alla'?'#334155':(crmFasTc[fas]||'#475569');
+    h+='<div onclick="crmFasFilter=\''+fas+'\';rMain()" style="background:'+bg+';border:2px solid '+(active?tc:'transparent')+';border-radius:9px;padding:6px 5px;text-align:center;cursor:pointer;">';
+    h+='<p style="font-size:14px;font-weight:700;color:'+tc+';">'+cnt+'</p>';
+    h+='<p style="font-size:9px;color:'+tc+';font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+fas+'</p></div>';
+  });
+  h+='</div>';
+
+  // Lead table
+  h+='<div style="padding:0 14px 14px;"><div class="card">';
+  if(!filtered.length){
+    h+='<div style="padding:32px;text-align:center;"><p style="font-size:13px;color:var(--s4);">Inga leads i denna fas.</p></div>';
+  } else {
+    // Header
+    h+='<div style="display:grid;grid-template-columns:2fr 1.5fr 1fr 120px 110px 70px;padding:7px 14px;background:var(--s0);border-bottom:1px solid var(--s1);gap:8px;">';
+    ['Foretag / Kontakt','E-post & Tel','Paket','Fas','Uppfoljning',''].forEach(function(th){
+      h+='<span style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+th+'</span>';
+    });
+    h+='</div>';
+    filtered.forEach(function(lead){
+      var overdue=lead.uppfoljning&&lead.uppfoljning<today;
+      var todayDue=lead.uppfoljning&&lead.uppfoljning===today;
+      var noteCount=lead.anteckningar?lead.anteckningar.length:0;
+      h+='<div style="display:grid;grid-template-columns:2fr 1.5fr 1fr 120px 110px 70px;padding:10px 14px;border-bottom:1px solid var(--s1);align-items:center;gap:8px;transition:background .1s;" onmouseover="this.style.background=\'var(--s0)\'" onmouseout="this.style.background=\'white\'">';
+
+      // Col 1: company + contact
+      h+='<div><p onclick="crmOpen='+lead.id+';rMain()" style="font-size:13px;font-weight:600;color:var(--b);cursor:pointer;text-decoration:underline;text-underline-offset:2px;margin-bottom:2px;">'+lead.foretag+'</p>';
+      if(lead.kontakt)h+='<p style="font-size:11px;color:var(--s4);">'+lead.kontakt+'</p>';
+      if(noteCount)h+='<span style="font-size:10px;background:#F5F3FF;color:#5B21B6;border-radius:99px;padding:1px 7px;margin-top:2px;display:inline-block;">'+noteCount+' anteckn.</span>';
+      h+='</div>';
+
+      // Col 2: email + phone
+      h+='<div>';
+      if(lead.email)h+='<a href="mailto:'+lead.email+'" style="font-size:11px;color:var(--b);text-decoration:none;display:block;">'+lead.email+'</a>';
+      if(lead.tel)h+='<p style="font-size:11px;color:var(--s4);">'+lead.tel+'</p>';
+      h+='</div>';
+
+      // Col 3: paket
+      h+='<p style="font-size:11px;color:var(--s6);">'+lead.paket+'</p>';
+
+      // Col 4: fas dropdown
+      h+='<select onchange="crmSetFas('+lead.id+',this.value)" class="ri" style="font-size:11px;padding:4px 6px;background:'+(crmFasBg[lead.fas]||'white')+';color:'+(crmFasTc[lead.fas]||'var(--s8)')+';font-weight:600;border-color:'+(crmFasTc[lead.fas]||'var(--s2)')+';cursor:pointer;">';
+      crmFaser.forEach(function(f){h+='<option value="'+f+'"'+(lead.fas===f?' selected':'')+'>'+f+'</option>';});
+      h+='</select>';
+
+      // Col 5: uppfoljning
+      h+='<span class="bdg" style="background:'+(overdue?'#FEE2E2':todayDue?'#FEF3C7':'#F1F5F9')+';color:'+(overdue?'#991B1B':todayDue?'#92400E':'#475569')+';">'+(lead.uppfoljning||'—')+'</span>';
+
+      // Col 6: actions
+      h+='<div style="display:flex;gap:4px;">';
+      h+='<button onclick="crmOpen='+lead.id+';rMain()" class="btn btn-outline btn-sm" style="font-size:10px;padding:3px 7px;">Oppna</button>';
+      h+='</div>';
+      h+='</div>';
+    });
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function pgCRMDetail(id){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead){crmOpen=null;return pgCRMLeads();}
+  if(!lead.anteckningar)lead.anteckningar=[];
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+  h+='<button onclick="crmOpen=null;rMain()" class="btn btn-outline btn-sm">&larr; Alla leads</button>';
+  h+='<div style="width:32px;height:32px;border-radius:50%;background:#E0F2FE;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#0891B2;flex-shrink:0;">'+lead.foretag.substring(0,2).toUpperCase()+'</div>';
+  h+='<div style="flex:1;"><p style="font-size:15px;font-weight:700;color:var(--s9);">'+lead.foretag+'</p>';
+  if(lead.kontakt)h+='<p style="font-size:11px;color:var(--s4);">'+lead.kontakt+'</p>';
+  h+='</div>';
+  h+='<button onclick="omEditCRMLead('+lead.id+')" class="btn btn-outline btn-sm">Redigera</button>';
+  h+='<button onclick="crmDelLead('+lead.id+')" class="btn btn-danger btn-sm">Ta bort</button>';
+  h+='</div>';
+
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start;">';
+
+  // LEFT: notes
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+
+  // Log new note
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Logga anteckning</p>';
+  h+='<textarea id="crm-note-inp" class="ri" style="min-height:80px;resize:none;line-height:1.5;margin-bottom:10px;font-size:13px;" placeholder="T.ex. Ringde, intresserade av offert..."></textarea>';
+  h+='<button onclick="crmSaveNote('+id+')" class="btn btn-primary" style="width:100%;padding:10px;font-size:13px;">Logga anteckning</button>';
+  h+='</div>';
+
+  // Note history
+  if(lead.anteckningar.length){
+    h+='<div class="card">';
+    h+='<div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">Anteckningslogg</p>';
+    h+='<span style="font-size:11px;color:var(--s4);">'+lead.anteckningar.length+' anteckningar &mdash; senaste forst</span></div>';
+    lead.anteckningar.forEach(function(n,i){
+      h+='<div style="padding:11px 14px;border-bottom:1px solid var(--s1);">';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">';
+      h+='<div style="display:flex;align-items:center;gap:6px;">';
+      h+='<div style="width:6px;height:6px;border-radius:50%;background:#0891B2;flex-shrink:0;"></div>';
+      h+='<span style="font-size:10px;font-weight:600;color:var(--s5);">'+fmtTid(n.tid)+'</span></div>';
+      h+='<button onclick="crmLeads.find(function(x){return x.id==='+id+'}).anteckningar.splice('+i+',1);save(\'crmLeads\',crmLeads);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s3);">&#215;</button>';
+      h+='</div>';
+      h+='<p style="font-size:13px;color:var(--s7);line-height:1.6;margin-left:12px;">'+n.text+'</p>';
+      h+='</div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div class="card" style="padding:20px;text-align:center;"><p style="font-size:12px;color:var(--s4);">Inga anteckningar an. Logga din forsta ovan.</p></div>';
+  }
+  h+='</div>';
+
+  // RIGHT: info + settings
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Kontaktuppgifter</p>';
+  if(lead.email){
+    h+='<p style="font-size:10px;color:var(--s4);font-weight:600;text-transform:uppercase;margin-bottom:2px;">E-post</p>';
+    h+='<a href="mailto:'+lead.email+'" style="font-size:13px;color:var(--b);text-decoration:none;display:block;margin-bottom:8px;">'+lead.email+'</a>';
+  }
+  if(lead.tel){
+    h+='<p style="font-size:10px;color:var(--s4);font-weight:600;text-transform:uppercase;margin-bottom:2px;">Telefon</p>';
+    h+='<a href="tel:'+lead.tel.replace(/\s/g,'')+'" style="font-size:13px;color:var(--b);text-decoration:none;display:block;margin-bottom:8px;">'+lead.tel+'</a>';
+  }
+  if(lead.kontakt){
+    h+='<p style="font-size:10px;color:var(--s4);font-weight:600;text-transform:uppercase;margin-bottom:2px;">Kontaktperson</p>';
+    h+='<p style="font-size:13px;color:var(--s8);margin-bottom:8px;">'+lead.kontakt+'</p>';
+  }
+  h+='</div>';
+
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Status & Paket</p>';
+  h+=lbl('Fas');
+  h+='<select onchange="crmSetFas('+id+',this.value);rMain()" class="ri" style="margin-bottom:10px;font-weight:600;">';
+  crmFaser.forEach(function(f){h+='<option value="'+f+'"'+(lead.fas===f?' selected':'')+'>'+f+'</option>';});
+  h+='</select>';
+  h+=lbl('Paket');
+  h+='<select onchange="crmSetPaket('+id+',this.value)" class="ri" style="margin-bottom:10px;">';
+  crmPaket.forEach(function(p){h+='<option value="'+p+'"'+(lead.paket===p?' selected':'')+'>'+p+'</option>';});
+  h+='</select>';
+  h+=lbl('Uppfoljningsdatum');
+  h+='<input class="ri" type="date" value="'+(lead.uppfoljning||'')+'" onchange="crmSetUppf('+id+',this.value)">';
+  h+='</div>';
+
+  // Mini timeline - last 3 notes as timeline
+  if(lead.anteckningar.length>0){
+    h+='<div class="card" style="padding:14px;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Senaste aktivitet</p>';
+    lead.anteckningar.slice(0,3).forEach(function(n){
+      h+='<div style="display:flex;gap:8px;margin-bottom:8px;">';
+      h+='<div style="width:6px;height:6px;border-radius:50%;background:#0891B2;flex-shrink:0;margin-top:5px;"></div>';
+      h+='<div><p style="font-size:10px;color:var(--s4);">'+fmtTid(n.tid)+'</p>';
+      h+='<p style="font-size:12px;color:var(--s7);line-height:1.4;">'+n.text.substring(0,80)+(n.text.length>80?'...':'')+'</p></div></div>';
+    });
+    h+='</div>';
+  }
+
+  h+='</div>'; // right col
+  h+='</div>'; // grid
+  return h;
+}
+
+function pgCRMKal(){
+  var today=dS(TODAY);
+  var upcoming=crmLeads.filter(function(l){return l.uppfoljning;}).slice();
+  upcoming.sort(function(a,b){return (a.uppfoljning||'').localeCompare(b.uppfoljning||'');});
+  var past=upcoming.filter(function(l){return l.uppfoljning<today;});
+  var todayL=upcoming.filter(function(l){return l.uppfoljning===today;});
+  var future=upcoming.filter(function(l){return l.uppfoljning>today;});
+
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;">';
+  h+='<p style="font-size:9px;color:#0891B2;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">CRM &middot; Kalender</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Uppfoljningskalender</h2></div>';
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">';
+
+  function mkKalSection(title,leads,accentColor,bgColor){
+    if(!leads.length)return'';
+    var r='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:'+bgColor+';display:flex;align-items:center;gap:8px;">';
+    r+='<div style="width:8px;height:8px;border-radius:50%;background:'+accentColor+';"></div>';
+    r+='<p style="font-size:12px;font-weight:600;color:'+accentColor+';">'+title+'</p>';
+    r+='<span style="font-size:11px;background:white;border-radius:99px;padding:1px 7px;color:'+accentColor+';">'+leads.length+'</span>';
+    r+='</div>';
+    leads.forEach(function(lead){
+      var noteCount=lead.anteckningar?lead.anteckningar.length:0;
+      r+='<div class="row"><div style="flex:1;">';
+      r+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">';
+      r+='<p onclick="crmOpen='+lead.id+';go(\'crm_l\')" style="font-size:13px;font-weight:600;color:var(--b);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">'+lead.foretag+'</p>';
+      r+='<span class="bdg" style="background:'+(crmFasBg[lead.fas]||'#F1F5F9')+';color:'+(crmFasTc[lead.fas]||'#475569')+';">'+lead.fas+'</span>';
+      r+='</div>';
+      r+='<p style="font-size:11px;color:var(--s4);">'+(lead.kontakt||'')+(lead.kontakt&&lead.paket?' &middot; ':'')+(lead.paket||'')+(noteCount?' &middot; '+noteCount+' anteckn.':'')+'</p>';
+      r+='</div>';
+      r+='<div style="text-align:right;">';
+      r+='<p style="font-size:12px;font-weight:600;color:'+accentColor+';">'+lead.uppfoljning+'</p>';
+      r+='<input type="date" value="'+lead.uppfoljning+'" onchange="crmSetUppf('+lead.id+',this.value);rMain()" class="ri" style="font-size:10px;padding:3px 6px;width:130px;margin-top:3px;">';
+      r+='</div></div>';
+    });
+    r+='</div>';return r;
+  }
+
+  h+=mkKalSection('Forfallna uppfoljningar',past,'#DC2626','#FEF2F2');
+  h+=mkKalSection('Idag',todayL,'#D97706','#FFFBEB');
+  h+=mkKalSection('Kommande',future,'#0891B2','#E0F2FE');
+
+  if(!upcoming.length){
+    h+='<div class="card" style="padding:32px;text-align:center;"><p style="font-size:13px;color:var(--s4);">Inga uppfoljningar inlagda. Lagg till leads med datum.</p></div>';
+  }
+  h+='</div>';return h;
+}
+
+
+// === CRM / KALLA LEADS ===
+var CRM_PAKET=[
+  'Paket 1 - 15 000 kr',
+  'Paket 2 - 20 000 kr',
+  'Paket 3 - 25 000 kr',
+  'Paket 4 - 30 000 kr',
+  'Paket Ovrigt - 35 000-60 000 kr'
+];
+var CRM_FASER=[
+  'Kall','Kontaktad','Intresserad','Offert skickad',
+  'Forhandling','Vunnen','Forlorad','Pausad'
+];
+var CRM_FARG={
+  'Kall':'#6B7280','Kontaktad':'#2563EB','Intresserad':'#D97706',
+  'Offert skickad':'#7C3AED','Forhandling':'#EC4899',
+  'Vunnen':'#059669','Forlorad':'#DC2626','Pausad':'#9CA3AF'
+};
+var crmLeads=load('crmLeads',[
+  {id:3001,foretag:'Bergstrom Bygg AB',kontakt:'Lars Bergstrom',mail:'lars@bergstrombygg.se',tel:'070-111 22 33',webb:'www.bergstrombygg.se',paket:'Paket 2 - 20 000 kr',fas:'Kall',uppfdat:'',skapad:'2026-04-30',logs:[{ts:'2026-04-30 09:15',text:'Hittat via Google. Ser ut att ha en gammal sajt.'}]},
+  {id:3002,foretag:'Janssons Redovisning',kontakt:'Eva Jansson',mail:'eva@janssonsredo.se',tel:'073-444 55 66',webb:'',paket:'Paket 1 - 15 000 kr',fas:'Kontaktad',uppfdat:'2026-05-07',skapad:'2026-04-29',logs:[{ts:'2026-04-29 14:30',text:'Skickade inledande mail. Vantar pa svar.'},{ts:'2026-04-30 10:00',text:'Ringde - hon ar intresserad men vill prata nasta vecka.'}]},
+  {id:3003,foretag:'Pettersson Fastigheter',kontakt:'Mikael Pettersson',mail:'mikael@pfab.se',tel:'',webb:'www.pfab.se',paket:'Paket 3 - 25 000 kr',fas:'Intresserad',uppfdat:'2026-05-03',skapad:'2026-04-28',logs:[{ts:'2026-04-28 11:00',text:'Hittade via LinkedIn. Skickade kontaktforfragan.'},{ts:'2026-04-30 08:45',text:'Svarade! Vill ha offert pa webb + SEO-paket.'}]}
+]);
+var crmOpen=null;
+var crmFilter='';
+var crmFasFilter='';
+
+function crmFmtTs(ts){return ts||'';}
+function crmNowTs(){var d=new Date();var pad=function(n){return n<10?'0'+n:n;};return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function crmSave(){save('crmLeads',crmLeads);}
+
+function crmDelLead(id){
+  if(!confirm('Ta bort kontakten?'))return;
+  crmLeads=crmLeads.filter(function(x){return x.id!==id;});
+  crmSave();crmOpen=null;rMain();
+}
+function crmLogNote(id){
+  var el=document.getElementById('crm-note-inp');
+  if(!el)return;
+  var txt=(el.value||'').trim();
+  if(!txt){alert('Skriv en anteckning forst.');return;}
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  if(!lead.logs)lead.logs=[];
+  lead.logs.unshift({ts:crmNowTs(),text:txt});
+  crmSave();
+  el.value='';
+  crmOpen=id;
+  rMain();
+}
+function crmSetFas(id,fas){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  lead.fas=fas;
+  crmSave();
+  crmOpen=id;
+  rMain();
+}
+function crmSetPaket(id,p){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  lead.paket=p;
+  crmSave();
+}
+function crmSetUppf(id,d){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  lead.uppfdat=d;
+  crmSave();
+}
+function crmSaveField(id,field){
+  var el=document.getElementById('crm-'+field+'-'+id);
+  if(!el)return;
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  lead[field]=el.value;
+  crmSave();
+}
+function crmSaveNyLead(){
+  var foretag=(document.getElementById('crm-ny-foretag').value||'').trim();
+  if(!foretag){alert('Ange ett foretagsnamn.');return;}
+  var kontakt=(document.getElementById('crm-ny-kontakt').value||'').trim();
+  var mail=(document.getElementById('crm-ny-mail').value||'').trim();
+  var tel=(document.getElementById('crm-ny-tel').value||'').trim();
+  var webb=(document.getElementById('crm-ny-webb').value||'').trim();
+  var paket=document.getElementById('crm-ny-paket').value||CRM_PAKET[0];
+  var fas=document.getElementById('crm-ny-fas').value||'Kall';
+  var uppf=document.getElementById('crm-ny-uppf').value||'';
+  var nyId=newId();
+  crmLeads.unshift({id:nyId,foretag:foretag,kontakt:kontakt,mail:mail,tel:tel,webb:webb,paket:paket,fas:fas,uppfdat:uppf,skapad:new Date().toISOString().slice(0,10),logs:[]});
+  crmSave();cm();crmOpen=nyId;rMain();
+}
+function omNyCRMLead(){
+  var h=mhdr('Ny kontakt / kall lead');
+  h+=lbl('Foretagsnamn')+'<input id="crm-ny-foretag" class="ri" placeholder="T.ex. Bergstrom Bygg AB" style="margin-bottom:10px;">';
+  h+=lbl('Kontaktperson')+'<input id="crm-ny-kontakt" class="ri" placeholder="Fornamn Efternamn" style="margin-bottom:10px;">';
+  h+=lbl('E-postadress')+'<input id="crm-ny-mail" class="ri" type="email" placeholder="kontakt@foretag.se" style="margin-bottom:10px;">';
+  h+=lbl('Telefonnummer')+'<input id="crm-ny-tel" class="ri" placeholder="07X-XXX XX XX" style="margin-bottom:10px;">';
+  h+=lbl('Webbsida')+'<input id="crm-ny-webb" class="ri" placeholder="www.foretaget.se" style="margin-bottom:10px;">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  h+='<div>'+lbl('Paket')+'<select id="crm-ny-paket" class="ri">';
+  CRM_PAKET.forEach(function(p){h+='<option>'+p+'</option>';});
+  h+='</select></div>';
+  h+='<div>'+lbl('Fas')+'<select id="crm-ny-fas" class="ri">';
+  CRM_FASER.forEach(function(f){h+='<option>'+f+'</option>';});
+  h+='</select></div></div>';
+  h+=lbl('Uppfoljningsdatum')+'<input id="crm-ny-uppf" class="ri" type="date" style="margin-bottom:16px;">';
+  h+=mfooter('crmSaveNyLead()','Lagg till kontakt');
+  om(h);
+}
+
+function pgCRM(){
+  if(crmOpen){return pgCRMDetail(crmOpen);}
+  var todayS=dS(TODAY);
+  var filtered=crmLeads.filter(function(l){
+    var matchF=!crmFasFilter||l.fas===crmFasFilter;
+    var matchS=!crmFilter||l.foretag.toLowerCase().indexOf(crmFilter.toLowerCase())>=0||l.kontakt.toLowerCase().indexOf(crmFilter.toLowerCase())>=0;
+    return matchF&&matchS;
+  });
+
+  // Stats
+  var total=crmLeads.length;
+  var uppfIdag=crmLeads.filter(function(l){return l.uppfdat===todayS;}).length;
+  var uppfForsenad=crmLeads.filter(function(l){return l.uppfdat&&l.uppfdat<todayS;}).length;
+  var vunna=crmLeads.filter(function(l){return l.fas==='Vunnen';}).length;
+
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
+  h+='<div><p style="font-size:9px;color:#B45309;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Marknad &middot; CRM</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">CRM / Kalla leads</h2></div>';
+  h+='<button class="btn btn-primary btn-sm" onclick="omNyCRMLead()">+ Ny kontakt</button></div>';
+
+  // KPI row
+  h+='<div style="padding:12px 14px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+  [{l:'Totalt',v:total,c:'var(--s8)'},{l:'Uppfoljning idag',v:uppfIdag,c:'var(--a)'},{l:'Forsenade',v:uppfForsenad,c:'var(--r)'},{l:'Vunna',v:vunna,c:'var(--g)'}].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k.l+'</p>';
+    h+='<p style="font-size:22px;font-weight:700;color:'+k.c+';letter-spacing:-.03em;">'+k.v+'</p></div>';
+  });
+  h+='</div>';
+
+  // Filter bar
+  h+='<div style="padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+  h+='<input class="ri" placeholder="Sok foretag eller kontakt..." value="'+crmFilter+'" oninput="crmFilter=this.value;rMain()" style="flex:1;min-width:160px;font-size:12px;padding:6px 10px;">';
+  h+='<select class="ri" style="font-size:11px;padding:5px 8px;width:auto;" onchange="crmFasFilter=this.value;rMain()">';
+  h+='<option value="">Alla faser</option>';
+  CRM_FASER.forEach(function(f){h+='<option '+(crmFasFilter===f?'selected':'')+'>'+f+'</option>';});
+  h+='</select></div>';
+
+  // Pipeline view - columns by phase
+  h+='<div style="padding:0 14px 14px;overflow-x:auto;">';
+  h+='<div style="display:flex;gap:9px;min-width:800px;align-items:flex-start;">';
+  var visibleFaser=crmFasFilter?[crmFasFilter]:CRM_FASER;
+  visibleFaser.forEach(function(fas){
+    var items=filtered.filter(function(l){return l.fas===fas;});
+    var col=CRM_FARG[fas]||'#6B7280';
+    h+='<div style="flex:1;min-width:155px;background:var(--s1);border-radius:12px;border-top:3px solid '+col+';">';
+    h+='<div style="padding:8px 10px;display:flex;align-items:center;gap:6px;">';
+    h+='<span style="font-size:12px;font-weight:600;color:var(--s8);">'+fas+'</span>';
+    h+='<span style="font-size:10px;background:white;border-radius:99px;padding:1px 6px;color:var(--s5);">'+items.length+'</span></div>';
+    h+='<div style="padding:0 7px 8px;">';
+    items.forEach(function(l){
+      var hasUppf=l.uppfdat&&l.uppfdat!=='';
+      var isPast=hasUppf&&l.uppfdat<todayS;
+      var isToday=hasUppf&&l.uppfdat===todayS;
+      var lastLog=l.logs&&l.logs.length?l.logs[0]:null;
+      h+='<div onclick="crmOpen='+l.id+';rMain()" style="background:white;border:1px solid var(--s2);border-radius:9px;padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:box-shadow .15s;" onmouseover="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,.09)\'" onmouseout="this.style.boxShadow=\'none\'">';
+      h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:2px;line-height:1.3;">'+l.foretag+'</p>';
+      if(l.kontakt)h+='<p style="font-size:10px;color:var(--s5);margin-bottom:4px;">'+l.kontakt+'</p>';
+      if(l.webb)h+='<p style="font-size:10px;color:var(--b);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+l.webb+'</p>';
+      if(l.paket)h+='<span class="bdg" style="background:var(--s1);color:var(--s5);font-size:9px;margin-bottom:4px;display:inline-flex;">'+l.paket+'</span>';
+      if(hasUppf){
+        h+='<div style="display:flex;align-items:center;gap:3px;margin-top:4px;">';
+        h+='<span style="font-size:9px;padding:2px 6px;border-radius:99px;background:'+(isPast?'#FEF2F2':isToday?'#FEF3C7':'#F3F4F6')+';color:'+(isPast?'var(--r)':isToday?'var(--a)':'var(--s5)')+';font-weight:600;">&#128197; '+l.uppfdat+'</span>';
+        h+='</div>';
+      }
+      if(lastLog){
+        h+='<p style="font-size:10px;color:var(--s4);margin-top:4px;border-top:1px solid var(--s1);padding-top:4px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">'+lastLog.text+'</p>';
+      }
+      h+='</div>';
+    });
+    h+='<button onclick="crmFasFilter=\''+fas+'\';omNyCRMLead()" style="width:100%;border:1px dashed var(--s2);background:transparent;border-radius:8px;padding:6px;font-size:11px;cursor:pointer;color:var(--s5);font-family:Inter,sans-serif;">+</button>';
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+
+  // Uppföljningskalender - kommande 7 dagar
+  var kommande=crmLeads.filter(function(l){return l.uppfdat>=todayS;}).sort(function(a,b){return a.uppfdat.localeCompare(b.uppfdat);}).slice(0,8);
+  if(kommande.length){
+    h+='<div style="padding:0 14px 14px;">';
+    h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:8px;">&#128197; Uppfoljningskalender</p>';
+    h+='<div style="display:flex;flex-direction:column;gap:4px;">';
+    kommande.forEach(function(l){
+      var isToday=l.uppfdat===todayS;
+      h+='<div onclick="crmOpen='+l.id+';rMain()" style="display:flex;align-items:center;gap:10px;padding:7px 12px;background:white;border:1px solid '+(isToday?'var(--a)':'var(--s2)')+';border-radius:8px;cursor:pointer;">';
+      h+='<span style="font-size:11px;font-weight:700;color:'+(isToday?'var(--a)':'var(--s6)')+';width:85px;flex-shrink:0;">'+l.uppfdat+'</span>';
+      h+='<span style="font-size:12px;font-weight:500;color:var(--s8);flex:1;">'+l.foretag+'</span>';
+      h+='<span class="bdg" style="background:'+CRM_FARG[l.fas]+';color:white;font-size:10px;">'+l.fas+'</span>';
+      h+='</div>';
+    });
+    h+='</div></div>';
+  }
+  return h;
+}
+
+function pgCRMDetail(id){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead){crmOpen=null;return pgCRM();}
+  var todayS=dS(TODAY);
+  var hasUppf=lead.uppfdat&&lead.uppfdat!=='';
+  var isPast=hasUppf&&lead.uppfdat<todayS;
+  var isToday=hasUppf&&lead.uppfdat===todayS;
+  var fasColor=CRM_FARG[lead.fas]||'#6B7280';
+
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+  h+='<button onclick="crmOpen=null;rMain()" class="btn btn-outline btn-sm">&larr; CRM</button>';
+  h+='<div style="flex:1;">';
+  h+='<p style="font-size:16px;font-weight:700;color:var(--s9);">'+lead.foretag+'</p>';
+  if(lead.kontakt)h+='<p style="font-size:11px;color:var(--s5);">'+lead.kontakt+'</p>';
+  h+='</div>';
+  h+='<span style="padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;background:'+fasColor+';color:white;">'+lead.fas+'</span>';
+  h+='<button onclick="crmDelLead('+id+')" class="btn btn-danger btn-sm">Ta bort</button>';
+  h+='</div>';
+
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 340px;gap:12px;align-items:start;">';
+
+  // LEFT: anteckningar
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Logga anteckning</p>';
+  h+='<textarea id="crm-note-inp" class="ri" style="min-height:90px;resize:none;line-height:1.6;font-size:13px;margin-bottom:10px;" placeholder="Vad hande? Vad sa de? Nasta steg..."></textarea>';
+  h+='<div style="display:flex;gap:8px;align-items:center;">';
+  h+='<button onclick="crmLogNote('+id+')" class="btn btn-primary" style="flex:1;padding:10px;">Spara anteckning</button>';
+  h+='<span style="font-size:10px;color:var(--s4);">Sparas med tid &amp; datum automatiskt</span></div></div>';
+
+  // Logs
+  if(lead.logs&&lead.logs.length){
+    h+='<div class="card">';
+    h+='<div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">Anteckningar ('+lead.logs.length+')</p>';
+    h+='<span style="font-size:10px;color:var(--s4);">Senaste forst</span></div>';
+    lead.logs.forEach(function(log,i){
+      h+='<div style="padding:11px 14px;border-bottom:1px solid var(--s1);">';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">';
+      h+='<span style="font-size:10px;font-weight:600;color:var(--s4);">'+log.ts+'</span>';
+      h+='<button onclick="var l=crmLeads.find(function(x){return x.id==='+id+'});l.logs.splice('+i+',1);crmSave();crmOpen='+id+';rMain()" style="border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--s2);">&#215;</button>';
+      h+='</div>';
+      h+='<p style="font-size:13px;color:var(--s7);line-height:1.6;">'+log.text+'</p>';
+      h+='</div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div style="text-align:center;padding:24px;background:white;border:1px solid var(--s2);border-radius:12px;color:var(--s4);">';
+    h+='<p style="font-size:13px;">Inga anteckningar an. Skriv den forsta!</p></div>';
+  }
+  h+='</div>';
+
+  // RIGHT: kontaktuppgifter + fas + uppföljning
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s7);margin-bottom:10px;">Kontaktuppgifter</p>';
+  h+=lbl('Foretagsnamn')+'<input id="crm-foretag-'+id+'" class="ri" value="'+lead.foretag+'" onblur="crmSaveField('+id+',\'foretag\')" style="margin-bottom:8px;">';
+  h+=lbl('Kontaktperson')+'<input id="crm-kontakt-'+id+'" class="ri" value="'+(lead.kontakt||'')+'" onblur="crmSaveField('+id+',\'kontakt\')" style="margin-bottom:8px;">';
+  h+=lbl('E-post')+'<input id="crm-mail-'+id+'" class="ri" type="email" value="'+(lead.mail||'')+'" onblur="crmSaveField('+id+',\'mail\')" style="margin-bottom:8px;">';
+  if(lead.mail)h+='<a href="mailto:'+lead.mail+'" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--b);text-decoration:none;margin-bottom:8px;">&#128231; Skicka mail</a>';
+  h+=lbl('Telefon')+'<input id="crm-tel-'+id+'" class="ri" value="'+(lead.tel||'')+'" onblur="crmSaveField('+id+',\'tel\')" style="margin-bottom:8px;">';
+  if(lead.tel)h+='<a href="tel:'+lead.tel+'" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--g);text-decoration:none;margin-bottom:8px;">&#128222; Ring</a>';
+  h+=lbl('Webbsida')+'<input id="crm-webb-'+id+'" class="ri" value="'+(lead.webb||'')+'" placeholder="www.foretaget.se" onblur="crmSaveWebb('+id+')" style="margin-bottom:4px;">';
+  if(lead.webb){var wu=lead.webb.indexOf('http')===0?lead.webb:'https://'+lead.webb;h+='<a href="'+wu+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--b);text-decoration:none;margin-bottom:8px;">&#127760; Oppna webbsida</a>';}
+  h+='</div>';
+
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s7);margin-bottom:10px;">Status</p>';
+  h+=lbl('Paket')+'<select class="ri" style="margin-bottom:10px;" onchange="crmSetPaket('+id+',this.value)">';
+  CRM_PAKET.forEach(function(p){h+='<option '+(lead.paket===p?'selected':'')+'>'+p+'</option>';});
+  h+='</select>';
+  h+=lbl('Fas');
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">';
+  CRM_FASER.forEach(function(fas){
+    var a=lead.fas===fas;var col=CRM_FARG[fas]||'#6B7280';
+    h+='<button onclick="crmSetFas('+id+',\''+fas+'\')" style="padding:5px 6px;border-radius:7px;font-size:10px;font-weight:'+(a?'700':'500')+';cursor:pointer;font-family:Inter,sans-serif;border:2px solid '+(a?col:'var(--s2)')+';background:'+(a?col:'white')+';color:'+(a?'white':'var(--s6)')+';">'+fas+'</button>';
+  });
+  h+='</div>';
+  h+=lbl('Uppfoljningsdatum');
+  h+='<input class="ri" type="date" value="'+(lead.uppfdat||'')+'" onchange="crmSetUppf('+id+',this.value)" style="margin-bottom:4px;">';
+  if(hasUppf){
+    h+='<p style="font-size:11px;color:'+(isPast?'var(--r)':isToday?'var(--a)':'var(--g)')+';font-weight:500;">'+(isPast?'&#9888; Forsenad!':isToday?'&#128197; Idag!':'&#10003; Planerad')+'</p>';
+  }
+  h+='</div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+
+function crmSaveWebb(id){
+  var el=document.getElementById('crm-webb-'+id);
+  if(!el)return;
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  lead.webb=el.value;
+  crmSave();
+}
+
+function rMain(){
+  var h='';
+  switch(P){
+    case'hem':h=pgHem();break;
+    case'tk_i':h=pgIntegrationer();break;
+    case'tk_s':h=pgSak();break;
+    case'tk_a':h=pgAPI();break;
+    case'pr_r':h=pgRoadmap();break;
+    case'pr_f':h=pgFeedback();break;
+    case'pr_e':h=pgReleases();break;
+    case'fs_k':h=pgKunder();break;
+    case'fs_p':h=pgPipeline();break;
+    case'fs_g':h=pgGanttInfo();break;
+    case'fs_t':h=pgTexter();break;
+    case'ma_w':h=pgWebb();break;
+    case'ma_k':h=pgKampanjer();break;
+    case'ma_l':h=pgLeads();break;
+    case'ma_kb':h=pgKanban();break;
+    case'ma_crm':h=pgCRM();break;
+    case'ek_i':h=pgIntakter();break;
+    case'ek_s':h=pgScenario();break;
+    case'ek_f':h=pgFasta();break;
+    case'ek_u':h=pgIU();break;
+    case'hr_t':h=pgTeam();break;
+    case'hr_o':h=pgOnboarding();break;
+    case'hr_f':h=pgFormaner();break;
+    case'in_a':h=pgAvtal();break;
+    case'in_t':h=pgTjanster();break;
+    case'in_l':h=pgLev();break;
+    default:h='<div style="padding:20px;text-align:center;margin-top:40px;"><p style="font-size:14px;color:var(--s4);">Välj en sida i navigeringen</p></div>';
+  }
+  document.getElementById('main').innerHTML=h;
+}
+function render(){rSB();rMain();}
+for(var _i=0;_i<NAV.length;_i++)for(var _j=0;_j<NAV[_i].s.length;_j++)if(NAV[_i].s[_j].k===P){EX[NAV[_i].k]=true;break;}
+// Check saved session and init
+sbInit();
+</script>
+<button id="print-fab" onclick="window.print()" title="Exportera som PDF" style="position:fixed;bottom:22px;right:22px;z-index:150;width:44px;height:44px;border-radius:50%;background:var(--btn-bg);color:white;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.25);" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">&#128438;</button>
+</body>
+</html>
