@@ -415,7 +415,7 @@ var NAV=[
   {k:'tk',l:'Teknisk',c:'#2563EB',s:[{k:'tk_i',l:'Integrationer'},{k:'tk_s',l:'Säkerhet'},{k:'tk_a',l:'API & Webhooks'}]},
   {k:'pr',l:'Produkt',c:'#7C3AED',s:[{k:'pr_r',l:'Roadmap'},{k:'pr_f',l:'Feedback'},{k:'pr_e',l:'Releases'}]},
   {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'}]},
-  {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'}]},
+  {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'},{k:'ma_bw',l:'Wix-leads (SE)'}]},
   {k:'ek',l:'Ekonomi',c:'#166534',s:[{k:'ek_i',l:'Intäkter'},{k:'ek_s',l:'Scenario'},{k:'ek_f',l:'Fasta utgifter'},{k:'ek_u',l:'Int. & Utg.'}]},
   {k:'hr',l:'HR',c:'#BE185D',s:[{k:'hr_t',l:'Team'},{k:'hr_o',l:'Onboarding'},{k:'hr_f',l:'Förmåner'}]},
   {k:'in',l:'Inköp',c:'#92400E',s:[{k:'in_a',l:'Avtal'},{k:'in_t',l:'Tjänster'},{k:'in_l',l:'Leverantörer'}]},
@@ -2156,6 +2156,379 @@ var crmOpen=null;
 var crmFilter='';
 var crmFasFilter='';
 
+// === BUILTWITH WIX LEADS ===
+var bwLeads=load('bwLeads',[]);
+var bwFilter={text:'',vertical:'',city:'',status:'',hasEmail:false};
+var bwPage=0;
+var BW_PAGE_SIZE=50;
+var bwDetailId=null;
+
+var BW_STATUS=['Ej kontaktad','Kontaktad','Intresserad','Offert skickad','Kund','Ej relevant'];
+var BW_STATUS_COL={
+  'Ej kontaktad':'#6B7280',
+  'Kontaktad':'#2563EB',
+  'Intresserad':'#D97706',
+  'Offert skickad':'#7C3AED',
+  'Kund':'#059669',
+  'Ej relevant':'#DC2626'
+};
+
+function bwSave(){save('bwLeads',bwLeads);}
+
+function bwImportCSV(){
+  var inp=document.getElementById('bw-csv-inp');
+  if(!inp||!inp.files||!inp.files[0])return;
+  var file=inp.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;
+    var lines=text.split('\n');
+    if(!lines.length)return;
+    // Parse header
+    var headers=lines[0].replace(/^\uFEFF/,'').split(',').map(function(h){return h.replace(/^"|"$/g,'').trim();});
+    var domIdx=headers.indexOf('Root Domain');
+    var coIdx=headers.indexOf('Company');
+    var emIdx=headers.indexOf('Emails');
+    var telIdx=headers.indexOf('Telephones');
+    var cityIdx=headers.indexOf('City');
+    var vertIdx=headers.indexOf('Vertical');
+    var fbIdx=headers.indexOf('Facebook');
+    var liIdx=headers.indexOf('LinkedIn');
+    var revIdx=headers.indexOf('Sales Revenue');
+    var imported=0;
+    var skipped=0;
+    var existingDomains={};
+    bwLeads.forEach(function(l){existingDomains[l.domain]=true;});
+    for(var i=1;i<lines.length;i++){
+      var line=lines[i].trim();
+      if(!line)continue;
+      // Simple CSV parse (handles quoted fields)
+      var cols=[];
+      var inQ=false;var cur='';
+      for(var j=0;j<line.length;j++){
+        var ch=line[j];
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+        else cur+=ch;
+      }
+      cols.push(cur.trim());
+      var domain=cols[domIdx]||'';
+      if(!domain)continue;
+      if(existingDomains[domain]){skipped++;continue;}
+      var vertical=(cols[vertIdx]||'').replace(/"/g,'');
+      var company=(cols[coIdx]||'').replace(/"/g,'');
+      var email=(cols[emIdx]||'').replace(/"/g,'');
+      var tel=(cols[telIdx]||'').replace(/"/g,'');
+      var city=(cols[cityIdx]||'').replace(/"/g,'');
+      var fb=(cols[fbIdx]||'').replace(/"/g,'');
+      var li=(cols[liIdx]||'').replace(/"/g,'');
+      var rev=(cols[revIdx]||'').replace(/"/g,'');
+      bwLeads.push({
+        id:newId(),
+        domain:domain,
+        company:company||domain,
+        email:email,
+        tel:tel,
+        city:city,
+        vertical:vertical==='Unknown'?'':vertical,
+        facebook:fb,
+        linkedin:li,
+        revenue:rev,
+        status:'Ej kontaktad',
+        anteckning:'',
+        uppfdat:'',
+        importerad:new Date().toISOString().slice(0,10)
+      });
+      existingDomains[domain]=true;
+      imported++;
+    }
+    bwSave();
+    document.getElementById('bw-import-result').textContent=imported+' leads importerade, '+skipped+' redan fanns.';
+    document.getElementById('bw-import-result').style.color=imported>0?'var(--g)':'var(--a)';
+    setTimeout(function(){cm();rMain();},1200);
+  };
+  reader.readAsText(file,'utf-8');
+}
+
+function bwSetStatus(id,s){
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  l.status=s;
+  bwSave();
+  if(bwDetailId===id)rMain();
+  else rMain();
+}
+
+function bwSaveNote(id){
+  var el=document.getElementById('bw-note-inp');
+  if(!el)return;
+  var txt=(el.value||'').trim();
+  if(!txt)return;
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  if(!l.logs)l.logs=[];
+  l.logs.unshift({ts:crmNowTs(),text:txt});
+  bwSave();
+  bwDetailId=id;
+  rMain();
+}
+
+function bwSaveUppf(id){
+  var el=document.getElementById('bw-uppf-inp');
+  if(!el)return;
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  l.uppfdat=el.value;
+  bwSave();
+}
+
+function bwUpdateField(id,field,val){
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  l[field]=val;
+  bwSave();
+}
+
+function bwNyImport(){
+  var h=mhdr('Importera BuiltWith CSV');
+  h+='<div style="background:var(--gl);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--gd);line-height:1.6;">';
+  h+='<b>Hur:</b> Ladda ned CSV fran BuiltWith, valj filen har nedan.<br>Nya leads laggs till. Befintliga hoppas over.';
+  h+='</div>';
+  h+='<input id="bw-csv-inp" type="file" accept=".csv" class="ri" style="margin-bottom:12px;padding:8px;">';
+  h+='<div id="bw-import-result" style="font-size:12px;margin-bottom:12px;min-height:18px;"></div>';
+  h+=mfooter('bwImportCSV()','Importera');
+  om(h);
+}
+
+function pgBWLeads(){
+  if(bwDetailId)return pgBWDetail(bwDetailId);
+
+  var todayS=dS(TODAY);
+
+  // Apply filters
+  var filtered=bwLeads.filter(function(l){
+    if(bwFilter.text){
+      var t=bwFilter.text.toLowerCase();
+      if(l.domain.toLowerCase().indexOf(t)<0&&
+         (l.company||'').toLowerCase().indexOf(t)<0&&
+         (l.city||'').toLowerCase().indexOf(t)<0) return false;
+    }
+    if(bwFilter.vertical&&(l.vertical||'').indexOf(bwFilter.vertical)<0)return false;
+    if(bwFilter.city&&(l.city||'').toLowerCase().indexOf(bwFilter.city.toLowerCase())<0)return false;
+    if(bwFilter.status&&l.status!==bwFilter.status)return false;
+    if(bwFilter.hasEmail&&!l.email)return false;
+    return true;
+  });
+
+  var total=bwLeads.length;
+  var kontaktade=bwLeads.filter(function(l){return l.status!=='Ej kontaktad';}).length;
+  var harEmail=bwLeads.filter(function(l){return l.email;}).length;
+  var uppfIdag=bwLeads.filter(function(l){return l.uppfdat===todayS;}).length;
+
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
+  h+='<div><p style="font-size:9px;color:#B45309;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Marknad &middot; Leads</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Wix-leads Sverige</h2></div>';
+  h+='<button class="btn btn-primary btn-sm" onclick="bwNyImport()">&#8593; Importera CSV</button></div>';
+
+  // KPIs
+  h+='<div style="padding:12px 14px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+  [{l:'Totalt importerade',v:total,c:'var(--s8)'},{l:'Kontaktade',v:kontaktade,c:'var(--b)'},{l:'Har email',v:harEmail,c:'var(--g)'},{l:'Uppfoljning idag',v:uppfIdag,c:'var(--a)'}].forEach(function(k){
+    h+='<div class="kpi"><p style="font-size:9px;color:var(--s4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">'+k.l+'</p>';
+    h+='<p style="font-size:22px;font-weight:700;color:'+k.c+';">'+k.v+'</p></div>';
+  });
+  h+='</div>';
+
+  if(!total){
+    h+='<div style="text-align:center;padding:60px;"><p style="font-size:15px;font-weight:600;color:var(--s8);margin-bottom:8px;">Inga leads importerade</p>';
+    h+='<p style="font-size:13px;color:var(--s4);margin-bottom:20px;">Klicka "Importera CSV" och valj din BuiltWith-fil</p>';
+    h+='<button class="btn btn-primary" onclick="bwNyImport()">&#8593; Importera CSV nu</button></div>';
+    return h;
+  }
+
+  // Filters
+  h+='<div style="padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--s1);">';
+  h+='<input class="ri" placeholder="Sok domän, foretag, stad..." style="flex:1;min-width:150px;font-size:12px;padding:6px 10px;" value="'+bwFilter.text+'" oninput="bwFilter.text=this.value;bwPage=0;rMain()">';
+  // Vertical filter
+  h+='<select class="ri" style="font-size:11px;padding:5px 8px;width:auto;" onchange="bwFilter.vertical=this.value;bwPage=0;rMain()">';
+  h+='<option value="">Alla branscher</option>';
+  var verticals=['Art And Entertainment','Business And Industrial','Technology And Computing','Food And Drink','Health And Fitness','Automotive And Vehicles','Sports','Style And Fashion','Finance','Travel'];
+  verticals.forEach(function(v){h+='<option '+(bwFilter.vertical===v?'selected':'')+' value="'+v+'">'+v+'</option>';});
+  h+='</select>';
+  // Status filter
+  h+='<select class="ri" style="font-size:11px;padding:5px 8px;width:auto;" onchange="bwFilter.status=this.value;bwPage=0;rMain()">';
+  h+='<option value="">Alla statusar</option>';
+  BW_STATUS.forEach(function(s){h+='<option '+(bwFilter.status===s?'selected':'')+'>'+s+'</option>';});
+  h+='</select>';
+  // Email only toggle
+  h+='<button onclick="bwFilter.hasEmail=!bwFilter.hasEmail;bwPage=0;rMain()" style="padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;border:1.5px solid '+(bwFilter.hasEmail?'var(--g)':'var(--s2)')+';background:'+(bwFilter.hasEmail?'var(--gl)':'white')+';color:'+(bwFilter.hasEmail?'var(--gd)':'var(--s6)')+';">Har email</button>';
+  h+='<span style="font-size:11px;color:var(--s4);">'+filtered.length+' träffar</span>';
+  h+='</div>';
+
+  // Lead list
+  var start=bwPage*BW_PAGE_SIZE;
+  var pageLeads=filtered.slice(start,start+BW_PAGE_SIZE);
+  var totalPages=Math.ceil(filtered.length/BW_PAGE_SIZE);
+
+  h+='<div style="padding:0 14px 14px;">';
+  h+='<div class="card">';
+  // Table header
+  h+='<div style="display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 90px 30px;padding:7px 14px;background:var(--s0);border-bottom:1px solid var(--s1);gap:8px;">';
+  ['Domän / Foretag','Bransch','Stad','Email','Status',''].forEach(function(th){
+    h+='<span style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;font-weight:600;">'+th+'</span>';
+  });
+  h+='</div>';
+
+  pageLeads.forEach(function(l){
+    var statusCol=BW_STATUS_COL[l.status]||'#6B7280';
+    var hasUppf=l.uppfdat&&l.uppfdat!=='';
+    var isPast=hasUppf&&l.uppfdat<todayS;
+    var isToday=hasUppf&&l.uppfdat===todayS;
+    h+='<div class="row" style="display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 90px 30px;gap:8px;align-items:center;cursor:pointer;" onclick="bwDetailId='+l.id+';rMain()">';
+    // Domain + company
+    h+='<div style="min-width:0;"><p style="font-size:12px;font-weight:600;color:var(--b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+l.domain+'</p>';
+    if(l.company&&l.company!==l.domain)h+='<p style="font-size:10px;color:var(--s4);">'+l.company+'</p>';
+    if(hasUppf)h+='<span style="font-size:9px;padding:1px 5px;border-radius:99px;background:'+(isPast?'#FEF2F2':isToday?'#FEF3C7':'var(--s1)')+';color:'+(isPast?'var(--r)':isToday?'var(--a)':'var(--s4)')+';">'+l.uppfdat+'</span>';
+    h+='</div>';
+    // Vertical
+    h+='<span style="font-size:11px;color:var(--s5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+((l.vertical||'-').split(' ').slice(0,2).join(' '))+'</span>';
+    // City
+    h+='<span style="font-size:11px;color:var(--s5);">'+(l.city||'-')+'</span>';
+    // Email
+    h+='<span style="font-size:11px;color:'+(l.email?'var(--g)':'var(--s2)')+';">'+(l.email?'&#10003; '+l.email.split('@')[0]+'...':'-')+'</span>';
+    // Status badge
+    h+='<span style="font-size:10px;padding:3px 7px;border-radius:99px;background:'+statusCol+';color:white;white-space:nowrap;font-weight:600;text-align:center;">'+l.status+'</span>';
+    // Arrow
+    h+='<span style="font-size:14px;color:var(--s3);">&#8250;</span>';
+    h+='</div>';
+  });
+  h+='</div>';
+
+  // Pagination
+  if(totalPages>1){
+    h+='<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;">';
+    if(bwPage>0)h+='<button onclick="bwPage--;rMain()" class="btn btn-outline btn-sm">&larr; Forra</button>';
+    h+='<span style="font-size:12px;color:var(--s5);">'+(bwPage+1)+' av '+totalPages+'</span>';
+    if(bwPage<totalPages-1)h+='<button onclick="bwPage++;rMain()" class="btn btn-outline btn-sm">Nasta &rarr;</button>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function pgBWDetail(id){
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l){bwDetailId=null;return pgBWLeads();}
+  if(!l.logs)l.logs=[];
+  var statusCol=BW_STATUS_COL[l.status]||'#6B7280';
+
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+  h+='<button onclick="bwDetailId=null;rMain()" class="btn btn-outline btn-sm">&larr; Alla leads</button>';
+  h+='<div style="flex:1;"><p style="font-size:15px;font-weight:700;color:var(--s9);">'+l.domain+'</p>';
+  if(l.company&&l.company!==l.domain)h+='<p style="font-size:11px;color:var(--s5);">'+l.company+'</p>';
+  h+='</div>';
+  h+='<span style="padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;background:'+statusCol+';color:white;">'+l.status+'</span>';
+  h+='</div>';
+
+  h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start;">';
+
+  // LEFT - anteckningar
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:10px;">Logga anteckning</p>';
+  h+='<textarea id="bw-note-inp" class="ri" style="min-height:90px;resize:none;font-size:13px;line-height:1.6;margin-bottom:10px;" placeholder="Vad hande? Vad sa de? Nasta steg..."></textarea>';
+  h+='<button onclick="bwSaveNote('+id+')" class="btn btn-primary" style="width:100%;padding:10px;">Spara anteckning</button>';
+  h+='</div>';
+
+  if(l.logs&&l.logs.length){
+    h+='<div class="card">';
+    h+='<div style="padding:9px 14px;border-bottom:1px solid var(--s1);display:flex;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s8);">Anteckningar ('+l.logs.length+')</p>';
+    h+='<span style="font-size:10px;color:var(--s4);">Senaste forst</span></div>';
+    l.logs.forEach(function(log,i){
+      h+='<div style="padding:11px 14px;border-bottom:1px solid var(--s1);">';
+      h+='<div style="display:flex;justify-content:space-between;margin-bottom:5px;">';
+      h+='<span style="font-size:10px;font-weight:600;color:var(--s4);">'+log.ts+'</span>';
+      h+='<button onclick="bwLeads.find(function(x){return x.id==='+id+'}).logs.splice('+i+',1);bwSave();bwDetailId='+id+';rMain()" style="border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--s2);">&#215;</button>';
+      h+='</div>';
+      h+='<p style="font-size:13px;color:var(--s7);line-height:1.6;">'+log.text+'</p></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // RIGHT - info + status
+  h+='<div style="display:flex;flex-direction:column;gap:10px;">';
+
+  // Kontaktuppgifter
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s7);margin-bottom:10px;">Kontaktuppgifter</p>';
+  h+=lbl('Domän')+'<p style="font-size:13px;font-weight:500;margin-bottom:8px;"><a href="https://'+l.domain+'" target="_blank" style="color:var(--b);">'+l.domain+' &#8599;</a></p>';
+  h+=lbl('Foretag')+'<input class="ri" value="'+(l.company||'')+'" onblur="bwUpdateField('+id+',\'company\',this.value)" style="margin-bottom:8px;">';
+  h+=lbl('Email');
+  if(l.email){
+    h+='<p style="margin-bottom:4px;"><a href="mailto:'+l.email+'" style="color:var(--b);font-size:13px;">'+l.email+'</a></p>';
+  }
+  h+='<input class="ri" value="'+(l.email||'')+'" placeholder="Lagg till email..." onblur="bwUpdateField('+id+',\'email\',this.value)" style="margin-bottom:8px;font-size:12px;">';
+  h+=lbl('Telefon')+'<input class="ri" value="'+(l.tel||'')+'" placeholder="Lagg till telefon..." onblur="bwUpdateField('+id+',\'tel\',this.value)" style="margin-bottom:8px;font-size:12px;">';
+  h+=lbl('Stad')+'<p style="font-size:13px;color:var(--s6);margin-bottom:8px;">'+(l.city||'-')+'</p>';
+  h+=lbl('Bransch')+'<p style="font-size:13px;color:var(--s6);margin-bottom:8px;">'+(l.vertical||'Okand')+'</p>';
+  if(l.facebook)h+='<a href="'+l.facebook+'" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--b);text-decoration:none;margin-bottom:5px;">Facebook &#8599;</a>';
+  if(l.linkedin)h+='<a href="'+l.linkedin+'" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--b);text-decoration:none;">LinkedIn &#8599;</a>';
+  h+='</div>';
+
+  // Status + uppfoljning
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s7);margin-bottom:10px;">Status</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;">';
+  BW_STATUS.forEach(function(s){
+    var a=l.status===s;var col=BW_STATUS_COL[s]||'#6B7280';
+    h+='<button onclick="bwSetStatus('+id+',\''+s+'\')" style="padding:5px 6px;border-radius:7px;font-size:10px;font-weight:'+(a?'700':'500')+';cursor:pointer;font-family:Inter,sans-serif;border:2px solid '+(a?col:'var(--s2)')+';background:'+(a?col:'white')+';color:'+(a?'white':'var(--s6)')+';">'+s+'</button>';
+  });
+  h+='</div>';
+  h+=lbl('Uppfoljningsdatum');
+  h+='<input class="ri" type="date" id="bw-uppf-inp" value="'+(l.uppfdat||'')+'" onchange="bwSaveUppf('+id+')" style="margin-bottom:8px;">';
+  if(l.revenue)h+='<p style="font-size:11px;color:var(--s5);">Estimerad omsattning: '+l.revenue+'</p>';
+  h+='</div>';
+
+  // Till CRM-knapp
+  h+='<div class="card" style="padding:14px;">';
+  h+='<p style="font-size:12px;font-weight:600;color:var(--s7);margin-bottom:8px;">Flytta till CRM</p>';
+  h+='<p style="font-size:11px;color:var(--s4);margin-bottom:10px;">Skapa ett CRM-lead med all info fran detta Wix-lead.</p>';
+  h+='<button onclick="bwTillCRM('+id+')" class="btn btn-primary" style="width:100%;">&#10003; Lagg till i CRM</button>';
+  h+='</div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+function bwTillCRM(id){
+  var l=bwLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  var nyId=newId();
+  crmLeads.unshift({
+    id:nyId,
+    foretag:l.company||l.domain,
+    kontakt:'',
+    mail:l.email||'',
+    tel:l.tel||'',
+    webb:l.domain,
+    paket:CRM_PAKET[0],
+    fas:'Lead',
+    uppfdat:l.uppfdat||'',
+    skapad:new Date().toISOString().slice(0,10),
+    logs:l.logs&&l.logs.length?[{ts:crmNowTs(),text:'Importerad fran BuiltWith-leads. '+l.domain}]:[]
+  });
+  crmSave();
+  l.status='Kontaktad';
+  bwSave();
+  alert(l.domain+' har lagts till i CRM under Lead-fasen!');
+  bwDetailId=null;
+  P='ma_crm';
+  save('page',P);
+  render();
+}
+
+
 function crmFmtTs(ts){return ts||'';}
 function crmNowTs(){var d=new Date();var pad=function(n){return n<10?'0'+n:n;};return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
 function crmSave(){save('crmLeads',crmLeads);}
@@ -2451,6 +2824,7 @@ function rMain(){
     case'ma_l':h=pgLeads();break;
     case'ma_kb':h=pgKanban();break;
     case'ma_crm':h=pgCRM();break;
+    case'ma_bw':h=pgBWLeads();break;
     case'ek_i':h=pgIntakter();break;
     case'ek_s':h=pgScenario();break;
     case'ek_f':h=pgFasta();break;
