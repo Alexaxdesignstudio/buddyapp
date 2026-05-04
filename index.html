@@ -187,9 +187,9 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7e
 <div id="mw"><div id="mb"></div></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
+// -------------------------------------------------------
 // SUPABASE CONFIG + AUTH
-// ═══════════════════════════════════════════════════════
+// -------------------------------------------------------
 var SB_URL='https://rylnfdivvpsusvzyykab.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5bG5mZGl2dnBzdXN2enl5a2FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDE1MDksImV4cCI6MjA5MzM3NzUwOX0.ui0ftt7BIK9lHvvPRPdMzvk-XIE3DSB0_4Atf2QXGVU';
 var SB_CACHE={};
@@ -199,7 +199,7 @@ var SB_SYNC_TIMER=null;
 var SB_TOKEN=null;
 var SB_USER=null;
 
-// ── Status dot ────────────────────────────────────────
+// -- Status dot ----------------------------------------
 function sbStatus(state,msg){
   var dot=document.getElementById('sb-dot');
   var txt=document.getElementById('sb-txt');
@@ -210,13 +210,13 @@ function sbStatus(state,msg){
   txt.textContent=msg;
 }
 
-// ── Auth headers (with token if available) ────────────
+// -- Auth headers (with token if available) ------------
 function sbHeaders(){
   var token=SB_TOKEN||SB_KEY;
   return{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
 }
 
-// ── Login tab switch ──────────────────────────────────
+// -- Login tab switch ----------------------------------
 function lbShowTab(tab){
   document.getElementById('tab-login').className='lb-tab'+(tab==='login'?' act':'');
   document.getElementById('tab-signup').className='lb-tab'+(tab==='signup'?' act':'');
@@ -240,7 +240,7 @@ function lbSetLoading(loading){
   if(btn)btn.textContent=loading?'Loggar in...':'Logga in';
 }
 
-// ── Login ─────────────────────────────────────────────
+// -- Login ---------------------------------------------
 function lbLogin(){
   var email=(document.getElementById('lb-email').value||'').trim();
   var pass=document.getElementById('lb-pass').value||'';
@@ -264,7 +264,7 @@ function lbLogin(){
   }).catch(function(){lbSetLoading(false);lbShowErr('Anslutningsfel. Kontrollera internet.');});
 }
 
-// ── Sign up ───────────────────────────────────────────
+// -- Sign up -------------------------------------------
 function lbSignup(){
   var email=(document.getElementById('lb-email2').value||'').trim();
   var pass=document.getElementById('lb-pass2').value||'';
@@ -292,7 +292,7 @@ function lbSignup(){
   }).catch(function(){lbShowErr('Anslutningsfel.');});
 }
 
-// ── Forgot password ───────────────────────────────────
+// -- Forgot password -----------------------------------
 function lbForgot(){
   var email=(document.getElementById('lb-email').value||'').trim();
   if(!email){lbShowErr('Skriv din e-postadress ovan forst.');return;}
@@ -303,7 +303,7 @@ function lbForgot(){
   }).then(function(){lbShowOk('Aterstallningslank skickad till '+email);}).catch(function(){lbShowErr('Kunde inte skicka mail.');});
 }
 
-// ── Logout ────────────────────────────────────────────
+// -- Logout --------------------------------------------
 function lbLogout(){
   if(!confirm('Logga ut?'))return;
   SB_TOKEN=null;SB_USER=null;
@@ -312,7 +312,7 @@ function lbLogout(){
   document.getElementById('sb-loading').style.display='none';
 }
 
-// ── Data helpers ──────────────────────────────────────
+// -- Data helpers --------------------------------------
 function sbFetchAll(){
   return fetch(SB_URL+'/rest/v1/buddy_data?select=id,value',{headers:sbHeaders()})
     .then(function(r){return r.json();});
@@ -352,7 +352,7 @@ function load(key,def){
   return def;
 }
 
-// ── Boot ──────────────────────────────────────────────
+// -- Boot ----------------------------------------------
 function sbBoot(){
   document.getElementById('sb-loading').style.display='flex';
   sbFetchAll()
@@ -374,7 +374,7 @@ function sbBoot(){
   });
 }
 
-// ── Auto-login if token saved ─────────────────────────
+// -- Auto-login if token saved -------------------------
 function sbInit(){
   try{
     var saved=localStorage.getItem('sb_token');
@@ -400,22 +400,22 @@ var SB_SYNC_TIMER=null;
 
 
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // LOCALS TORAGE HELPERS
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function save(key,val){try{localStorage.setItem('buddy_'+key,JSON.stringify(val));}catch(e){}}
 function load(key,def){try{var v=localStorage.getItem('buddy_'+key);return v?JSON.parse(v):def;}catch(e){return def;}}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // NAV + STATE
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 var P=load('page','hem');
 var EX=load('navex',{});
 var NAV=[
   {k:'tk',l:'Teknisk',c:'#2563EB',s:[{k:'tk_i',l:'Integrationer'},{k:'tk_s',l:'Säkerhet'},{k:'tk_a',l:'API & Webhooks'}]},
   {k:'pr',l:'Produkt',c:'#7C3AED',s:[{k:'pr_r',l:'Roadmap'},{k:'pr_f',l:'Feedback'},{k:'pr_e',l:'Releases'}]},
   {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'}]},
-  {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_k',l:'Kampanjer'},{k:'ma_l',l:'Leads'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'}]},
+  {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'}]},
   {k:'ek',l:'Ekonomi',c:'#166534',s:[{k:'ek_i',l:'Intäkter'},{k:'ek_s',l:'Scenario'},{k:'ek_f',l:'Fasta utgifter'},{k:'ek_u',l:'Int. & Utg.'}]},
   {k:'hr',l:'HR',c:'#BE185D',s:[{k:'hr_t',l:'Team'},{k:'hr_o',l:'Onboarding'},{k:'hr_f',l:'Förmåner'}]},
   {k:'in',l:'Inköp',c:'#92400E',s:[{k:'in_a',l:'Avtal'},{k:'in_t',l:'Tjänster'},{k:'in_l',l:'Leverantörer'}]},
@@ -423,16 +423,16 @@ var NAV=[
 function dof(k){for(var i=0;i<NAV.length;i++)for(var j=0;j<NAV[i].s.length;j++)if(NAV[i].s[j].k===k)return NAV[i];return null;}
 function lof(k){for(var i=0;i<NAV.length;i++)for(var j=0;j<NAV[i].s.length;j++)if(NAV[i].s[j].k===k)return NAV[i].s[j].l;return k;}
 
-// ─────────────────────────────────────────────────────────
-// DATA — allt laddas från localStorage, faller tillbaka på default
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
+// DATA -- allt laddas från localStorage, faller tillbaka på default
+// ---------------------------------------------------------
 var nid=load('nid',5000);
 function newId(){nid++;save('nid',nid);return nid;}
 
 var AVC=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#BE185D','#1D9E75'];
 var AVB=['#EFF6FF','#F5F3FF','#FEF2F2','#ECFDF5','#FFFBEB','#FDF2F8','#E6F7F1'];
 
-var integr=load('integr',[{n:'Fortnox',d:'Bokföring & fakturering',k:'Ekonomi',ico:'📊',on:true},{n:'Google Drive',d:'Fillagring och dokument',k:'Produktivitet',ico:'📁',on:true},{n:'Google Kalender',d:'Kalender & möten',k:'Produktivitet',ico:'📅',on:true},{n:'Stripe',d:'Betalningar online',k:'Ekonomi',ico:'💳',on:true},{n:'Slack',d:'Teamkommunikation',k:'Kommunikation',ico:'💬',on:false},{n:'Mailchimp',d:'E-postmarknadsföring',k:'Marknad',ico:'📧',on:false},{n:'Zapier',d:'Automatisering',k:'Automation',ico:'⚡',on:true}]);
+var integr=load('integr',[{n:'Fortnox',d:'Bokföring & fakturering',k:'Ekonomi',ico:'Ek',on:true},{n:'Google Drive',d:'Fillagring och dokument',k:'Produktivitet',ico:'?',on:true},{n:'Google Kalender',d:'Kalender & möten',k:'Produktivitet',ico:'?',on:true},{n:'Stripe',d:'Betalningar online',k:'Ekonomi',ico:'?',on:true},{n:'Slack',d:'Teamkommunikation',k:'Kommunikation',ico:'?',on:false},{n:'Mailchimp',d:'E-postmarknadsföring',k:'Marknad',ico:'Mail',on:false},{n:'Zapier',d:'Automatisering',k:'Automation',ico:'-',on:true}]);
 
 var rmItems=load('rmItems',[{id:1,t:'Tidrapportering v2',d:'Förbättrad tidrapport med timer',p:'Hög',s:'Pågår'},{id:2,t:'Mobilapp iOS',d:'Native app för iPhone',p:'Hög',s:'Planerad'},{id:3,t:'AI-assistent',d:'Buddy AI för analys',p:'Medel',s:'Idé'},{id:4,t:'Fakturaintegration',d:'Skicka fakturor direkt',p:'Hög',s:'Klar'},{id:5,t:'Mörkt läge',d:'Dark mode',p:'Låg',s:'Planerad'},{id:6,t:'Team-vyer',d:'Flera användare',p:'Medel',s:'Idé'},{id:7,t:'Exportera rapporter',d:'PDF & Excel',p:'Medel',s:'Pågår'}]);
 var rmCols=['Idé','Planerad','Pågår','Klar'];
@@ -441,23 +441,23 @@ var rmCTc={'Idé':'#6B7280','Planerad':'#1E40AF','Pågår':'#92400E','Klar':'#16
 var pBg={'Hög':'#FEF2F2','Medel':'#FEF3C7','Låg':'#EFF6FF'};
 var pTc={'Hög':'#DC2626','Medel':'#92400E','Låg':'#1D4ED8'};
 
-var fbItems=load('fbItems',[{id:1,n:'Jessica — Keolis',m:'Bättre mobilvy för tidrapporter',d:'2026-04-22',s:'Ny',p:'Hög'},{id:2,n:'Lina — Golfarenan',m:'Automatiska påminnelser',d:'2026-04-20',s:'Bearbetas',p:'Medel'},{id:3,n:'Nicke — Elcentralen',m:'Exportfunktion för rapporter',d:'2026-04-15',s:'Bearbetas',p:'Hög'},{id:4,n:'Perfect Event',m:'Flera prisnivåer per kund',d:'2026-04-10',s:'Klar',p:'Medel'}]);
+var fbItems=load('fbItems',[{id:1,n:'Jessica -- Keolis',m:'Bättre mobilvy för tidrapporter',d:'2026-04-22',s:'Ny',p:'Hög'},{id:2,n:'Lina -- Golfarenan',m:'Automatiska påminnelser',d:'2026-04-20',s:'Bearbetas',p:'Medel'},{id:3,n:'Nicke -- Elcentralen',m:'Exportfunktion för rapporter',d:'2026-04-15',s:'Bearbetas',p:'Hög'},{id:4,n:'Perfect Event',m:'Flera prisnivåer per kund',d:'2026-04-10',s:'Klar',p:'Medel'}]);
 var fbSb={'Ny':'#FEF2F2','Bearbetas':'#FEF3C7','Planerad':'#EFF6FF','Klar':'#DCFCE7'};
 var fbSt={'Ny':'#DC2626','Bearbetas':'#92400E','Planerad':'#1D4ED8','Klar':'#166534'};
 
-var kunder=load('kunder',[{id:1,n:'Nicke — Elcentralen',t:'Hemsida',tx:720,h:0,fp:39600,fak:'fast',ci:0,ark:false,tasks:[{t:'Samla logotypfiler',done:false},{t:'Godkänn designutkast',done:false}],notes:'Stort projekt.',timlogs:[]},{id:2,n:'Lina — Golfarenan',t:'Uppdatering hemsida',tx:720,h:15,fp:0,fak:'tim',ci:1,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Boka uppstartsmöte',done:true},{t:'Leverera v1',done:false}],notes:'Redesign, ny navigation och mobilanpassning.',timlogs:[]},{id:3,n:'Jessica — Keolis',t:'Övrigt',tx:720,h:0,fp:108000,fak:'fast',ci:2,ark:false,tasks:[{t:'Kravspecifikation signerad',done:true},{t:'Del 1 fakturerad',done:true},{t:'Produktion klar',done:false}],notes:'Fast pris 108 000 kr. Betalas i tre delar.',timlogs:[]},{id:4,n:'Greenhouse — Fredrik',t:'Övrigt',tx:720,h:4,fp:0,fak:'tim',ci:3,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Copywriting startar v18',done:false}],notes:'Copywriting och webbdesign.',timlogs:[]},{id:5,n:'Perfect Event',t:'Event',tx:700,h:0,fp:6650,fak:'fast',ci:4,ark:false,tasks:[{t:'Samla underlag från kund',done:false},{t:'Leverera event-material',done:false}],notes:'Inväntar underlag från kund.',timlogs:[]}]);
+var kunder=load('kunder',[{id:1,n:'Nicke -- Elcentralen',t:'Hemsida',tx:720,h:0,fp:39600,fak:'fast',ci:0,ark:false,tasks:[{t:'Samla logotypfiler',done:false},{t:'Godkänn designutkast',done:false}],notes:'Stort projekt.',timlogs:[]},{id:2,n:'Lina -- Golfarenan',t:'Uppdatering hemsida',tx:720,h:15,fp:0,fak:'tim',ci:1,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Boka uppstartsmöte',done:true},{t:'Leverera v1',done:false}],notes:'Redesign, ny navigation och mobilanpassning.',timlogs:[]},{id:3,n:'Jessica -- Keolis',t:'Övrigt',tx:720,h:0,fp:108000,fak:'fast',ci:2,ark:false,tasks:[{t:'Kravspecifikation signerad',done:true},{t:'Del 1 fakturerad',done:true},{t:'Produktion klar',done:false}],notes:'Fast pris 108 000 kr. Betalas i tre delar.',timlogs:[]},{id:4,n:'Greenhouse -- Fredrik',t:'Övrigt',tx:720,h:4,fp:0,fak:'tim',ci:3,ark:false,tasks:[{t:'Skicka offert',done:true},{t:'Copywriting startar v18',done:false}],notes:'Copywriting och webbdesign.',timlogs:[]},{id:5,n:'Perfect Event',t:'Event',tx:700,h:0,fp:6650,fak:'fast',ci:4,ark:false,tasks:[{t:'Samla underlag från kund',done:false},{t:'Leverera event-material',done:false}],notes:'Inväntar underlag från kund.',timlogs:[]}]);
 
 var PST=['Avtal','Produktion','Granskning','Leverans','Slutfaktura','Betald'];
 var prows=load('prows',[{id:1,n:'Jessica',s:'Keolis',steg:1,ci:2},{id:2,n:'Lina',s:'Golfarenan',steg:2,ci:1},{id:3,n:'Greenhouse',s:'Fredrik',steg:4,ci:3},{id:4,n:'Alvin',s:'Kasino',steg:2,ci:0},{id:5,n:'Perfect',s:'Ica 9 maj',steg:1,ci:4}]);
 
-// WEBBLÄNKAR — med redigering och drag-drop
+// WEBBLÄNKAR -- med redigering och drag-drop
 var wbcats=load('wbcats',[
   {id:1,n:'Inspiration',l:[{id:101,n:'Awwwards',u:'https://awwwards.com',d:'Prisad design'},{id:102,n:'Dribbble',u:'https://dribbble.com',d:'Design inspo'}]},
   {id:2,n:'Verktyg',l:[{id:103,n:'Figma',u:'https://figma.com',d:'Design & prototyp'},{id:104,n:'Notion',u:'https://notion.so',d:'Anteckningar'},{id:105,n:'Google Analytics',u:'https://analytics.google.com',d:'Webbstatistik'}]},
   {id:3,n:'Kunder',l:[{id:106,n:'Designab AB',u:'https://designab.se',d:'Kundens sajt'}]},
 ]);
 
-var kampanjer=load('kampanjer',[{id:1,n:'Vårens webb-erbjudande',kanal:'Instagram',budget:5000,spend:3200,leads:18,stat:'Aktiv'},{id:2,n:'Google Ads — hemsidor',kanal:'Google',budget:8000,spend:8000,leads:34,stat:'Avslutad'},{id:3,n:'LinkedIn B2B',kanal:'LinkedIn',budget:6000,spend:1500,leads:7,stat:'Aktiv'}]);
+var kampanjer=load('kampanjer',[{id:1,n:'Vårens webb-erbjudande',kanal:'Instagram',budget:5000,spend:3200,leads:18,stat:'Aktiv'},{id:2,n:'Google Ads -- hemsidor',kanal:'Google',budget:8000,spend:8000,leads:34,stat:'Avslutad'},{id:3,n:'LinkedIn B2B',kanal:'LinkedIn',budget:6000,spend:1500,leads:7,stat:'Aktiv'}]);
 
 var leads=load('leads',[{id:1,n:'Marcus Lindqvist',f:'Lindqvist Bygg',kanal:'LinkedIn',s:'Varm',d:'2026-04-23',not:'Intresserad av hemsida',uppfdat:'2026-05-05'},{id:2,n:'Sofia Berg',f:'Berg Consulting',kanal:'Google',s:'Ny',d:'2026-04-22',not:'',uppfdat:''},{id:3,n:'Emil Johansson',f:'Johansson & Co',kanal:'Referral',s:'Kvalificerad',d:'2026-04-20',not:'Refererad av Lina',uppfdat:'2026-04-30'},{id:4,n:'Peter Holm',f:'Holm Tech',kanal:'E-post',s:'Varm',d:'2026-04-17',not:'Bokat möte 28 april',uppfdat:''}]);
 
@@ -471,28 +471,28 @@ var iuPosts=load('iuPosts',null);
 if(!iuPosts){
   iuPosts={};
   for(var mm=0;mm<6;mm++){iuPosts[mm]=[];fastaU.forEach(function(f){iuPosts[mm].push({id:nid++,typ:'u',d:f.n,b:f.b,mo:f.m,fast:true});});}
-  [{m:0,d:'Konsultarvode Q1',b:28000,mo:true},{m:1,d:'Designab AB',b:12500,mo:true},{m:2,d:'Lina — Golfarenan',b:14400,mo:true},{m:3,d:'Jessica — Keolis del 1',b:36000,mo:true},{m:3,d:'Greenhouse',b:2880,mo:true},{m:4,d:'Perfect Event',b:6650,mo:true}].forEach(function(p){if(!iuPosts[p.m])iuPosts[p.m]=[];iuPosts[p.m].push({id:nid++,typ:'i',d:p.d,b:p.b,mo:p.mo,fast:false});});
+  [{m:0,d:'Konsultarvode Q1',b:28000,mo:true},{m:1,d:'Designab AB',b:12500,mo:true},{m:2,d:'Lina -- Golfarenan',b:14400,mo:true},{m:3,d:'Jessica -- Keolis del 1',b:36000,mo:true},{m:3,d:'Greenhouse',b:2880,mo:true},{m:4,d:'Perfect Event',b:6650,mo:true}].forEach(function(p){if(!iuPosts[p.m])iuPosts[p.m]=[];iuPosts[p.m].push({id:nid++,typ:'i',d:p.d,b:p.b,mo:p.mo,fast:false});});
 }
 var iuExp=load('iuExp',{2:true,3:true});
 function mCalc(m){var ps=iuPosts[m]||[];var iE=0,uE=0,iMo=0,uMo=0;ps.forEach(function(p){if(p.typ==='i'){iE+=p.b;if(p.mo)iMo+=p.b*.25;}else{uE+=p.b;if(p.mo)uMo+=p.b*.2;}});return{iE:iE,uE:uE,iMo:iMo,uMo:uMo,iInkl:iE+iMo,net:iE-uE,ps:ps};}
 
 var team=load('team',[{id:1,n:'Anna Eriksson',r:'Grundare & VD',e:'anna@erikssondesign.se',tl:'070-123 45 67',s:'Heltid',ci:2},{id:2,n:'Erik Svensson',r:'Underleverantör · Design',e:'erik@freelance.se',tl:'073-456 78 90',s:'Deltid',ci:1}]);
-var onbSteps=load('onbSteps',[{t:'Skapa ditt konto',d:'Namn, företag och kontaktuppgifter',k:true},{t:'Lägg till din första kund',d:'Försäljning → Kunder',k:true},{t:'Sätt upp fasta utgifter',d:'Ekonomi → Fasta utgifter',k:true},{t:'Koppla din bokföring',d:'Integrera Fortnox eller annat',k:true},{t:'Skapa ett scenario',d:'Ekonomi → Scenario',k:false},{t:'Bjud in teammedlem',d:'HR → Team',k:false},{t:'Koppla en integration',d:'Teknisk → Integrationer',k:false}]);
-var formaner=load('formaner',[{id:1,n:'Friskvårdsbidrag',d:'1 000 kr/år per person',k:'Hälsa',a:true,ico:'💪'},{id:2,n:'Hemarbete',d:'Flexibel arbetsplats',k:'Flexibilitet',a:true,ico:'🏠'},{id:3,n:'Kompetensutveckling',d:'5 000 kr/år',k:'Utbildning',a:true,ico:'📚'},{id:4,n:'Tjänstepension',d:'4,5% av lönen',k:'Pension',a:true,ico:'🏦'},{id:5,n:'Sjukvårdsförsäkring',d:'Via Länsförsäkringar',k:'Försäkring',a:false,ico:'🏥'},{id:6,n:'Föräldralön',d:'100% i 3 månader',k:'Familj',a:false,ico:'👶'}]);
+var onbSteps=load('onbSteps',[{t:'Skapa ditt konto',d:'Namn, företag och kontaktuppgifter',k:true},{t:'Lägg till din första kund',d:'Forsaljning - Kunder',k:true},{t:'Sätt upp fasta utgifter',d:'Ekonomi - Fasta utgifter',k:true},{t:'Koppla din bokföring',d:'Integrera Fortnox eller annat',k:true},{t:'Skapa ett scenario',d:'Ekonomi - Scenario',k:false},{t:'Bjud in teammedlem',d:'HR - Team',k:false},{t:'Koppla en integration',d:'Teknisk - Integrationer',k:false}]);
+var formaner=load('formaner',[{id:1,n:'Friskvårdsbidrag',d:'1 000 kr/år per person',k:'Hälsa',a:true,ico:'Hal'},{id:2,n:'Hemarbete',d:'Flexibel arbetsplats',k:'Flexibilitet',a:true,ico:'Hem'},{id:3,n:'Kompetensutveckling',d:'5 000 kr/år',k:'Utbildning',a:true,ico:'Bok'},{id:4,n:'Tjänstepension',d:'4,5% av lönen',k:'Pension',a:true,ico:'Bank'},{id:5,n:'Sjukvårdsförsäkring',d:'Via Länsförsäkringar',k:'Försäkring',a:false,ico:'Sjuk'},{id:6,n:'Föräldralön',d:'100% i 3 månader',k:'Familj',a:false,ico:'Bab'}]);
 var avtal=load('avtal',[{id:1,n:'Tre',k:'Telefoni',p:'iPhone 15',sl:'2026-09-23',ko:700,a:true},{id:2,n:'Fortnox',k:'Mjukvara',p:'Bokföring',sl:'2026-12-31',ko:399,a:true},{id:3,n:'Telia Bredband',k:'Bredband',p:'500/500',sl:'2025-06-01',ko:499,a:false}]);
-var tjKats=[{l:'Ekonomi',bg:'#ECFDF5',tc:'#166534',ico:'📊',items:[{n:'Fortnox',d:'Bokföring',b:'Populär',k:true},{n:'Visma',d:'Småföretag',b:'',k:false}]},{l:'Finansiering',bg:'#EFF6FF',tc:'#1D4ED8',ico:'🏦',items:[{n:'Krea',d:'30+ banker',b:'Rek.',k:false},{n:'Lendo',d:'Snabb finans.',b:'',k:false}]},{l:'Telekom',bg:'#FFFBEB',tc:'#92400E',ico:'📱',items:[{n:'Telia Företag',d:'Mobil & bredband',b:'',k:true},{n:'Tele2',d:'Flexibla paket',b:'',k:false}]},{l:'Försäkringar',bg:'#FEF2F2',tc:'#DC2626',ico:'🛡',items:[{n:'Länsförsäkringar',d:'Heltäckande',b:'Viktig',k:false},{n:'Trygg-Hansa',d:'Frilansare',b:'',k:false}]},{l:'Energi',bg:'#F0FDF4',tc:'#166634',ico:'⚡',items:[{n:'Vattenfall',d:'Grön el',b:'',k:false},{n:'E.ON',d:'Flexibla avtal',b:'',k:false}]},{l:'Hälsa',bg:'#F5F3FF',tc:'#7C3AED',ico:'💪',items:[{n:'Benify',d:'Förmånsplattform',b:'',k:false},{n:'Feelgood',d:'Företagshälsa',b:'',k:false}]}];
+var tjKats=[{l:'Ekonomi',bg:'#ECFDF5',tc:'#166534',ico:'Ek',items:[{n:'Fortnox',d:'Bokföring',b:'Populär',k:true},{n:'Visma',d:'Småföretag',b:'',k:false}]},{l:'Finansiering',bg:'#EFF6FF',tc:'#1D4ED8',ico:'Bank',items:[{n:'Krea',d:'30+ banker',b:'Rek.',k:false},{n:'Lendo',d:'Snabb finans.',b:'',k:false}]},{l:'Telekom',bg:'#FFFBEB',tc:'#92400E',ico:'Mob',items:[{n:'Telia Företag',d:'Mobil & bredband',b:'',k:true},{n:'Tele2',d:'Flexibla paket',b:'',k:false}]},{l:'Försäkringar',bg:'#FEF2F2',tc:'#DC2626',ico:'Forsakring',items:[{n:'Länsförsäkringar',d:'Heltäckande',b:'Viktig',k:false},{n:'Trygg-Hansa',d:'Frilansare',b:'',k:false}]},{l:'Energi',bg:'#F0FDF4',tc:'#166634',ico:'-',items:[{n:'Vattenfall',d:'Grön el',b:'',k:false},{n:'E.ON',d:'Flexibla avtal',b:'',k:false}]},{l:'Hälsa',bg:'#F5F3FF',tc:'#7C3AED',ico:'Hal',items:[{n:'Benify',d:'Förmånsplattform',b:'',k:false},{n:'Feelgood',d:'Företagshälsa',b:'',k:false}]}];
 var levs=load('levs',[{id:1,n:'Fortnox',k:'Bokföring',e:'support@fortnox.se',sl:'2026-12-31',ko:399,ci:0},{id:2,n:'Telia Företag',k:'Telekom',e:'foretagskundservice@telia.se',sl:'2027-03-01',ko:700,ci:1},{id:3,n:'Adobe CC',k:'Programvara',e:'support.adobe.com',sl:'2026-09-15',ko:599,ci:2},{id:4,n:'Hetzner Cloud',k:'Hosting',e:'support@hetzner.com',sl:'Löpande',ko:249,ci:3}]);
-var apiKeys=load('apiKeys',[{id:1,n:'Produktionsnyckel',key:'bdy_live_••••4a2f',anv:'idag'},{id:2,n:'Testnyckel',key:'bdy_test_••••8c1d',anv:'3 dagar sedan'}]);
+var apiKeys=load('apiKeys',[{id:1,n:'Produktionsnyckel',key:'bdy_live_xxxx4a2f',anv:'idag'},{id:2,n:'Testnyckel',key:'bdy_test_xxxx8c1d',anv:'3 dagar sedan'}]);
 var wbooks=load('wbooks',[{id:1,url:'https://hooks.zapier.com/abc123',ev:'Ny kund',on:true},{id:2,url:'https://myapp.se/webhook',ev:'Ny faktura',on:true}]);
 
 // Releases
-var releases=[{v:'2.0.0',d:'2026-04-29',b:'Senaste',items:['Svarta knappar genomgående','Webblänkar — redigering + drag-och-släpp','localStorage — data sparas automatiskt','Leads med uppföljningsdatum']},{v:'1.4.0',d:'2026-04-24',b:'',items:['Gantt/Timeline med statusar','Kundkort i navigeringen','Fullständig interaktivitet']},{v:'1.0.0',d:'2026-03-01',b:'',items:['Plattformen lanserad','7 avdelningar']}];
+var releases=[{v:'2.0.0',d:'2026-04-29',b:'Senaste',items:['Svarta knappar genomgående','Webblänkar -- redigering + drag-och-släpp','localStorage -- data sparas automatiskt','Leads med uppföljningsdatum']},{v:'1.4.0',d:'2026-04-24',b:'',items:['Gantt/Timeline med statusar','Kundkort i navigeringen','Fullständig interaktivitet']},{v:'1.0.0',d:'2026-03-01',b:'',items:['Plattformen lanserad','7 avdelningar']}];
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // HELPERS
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function kr(v){return Math.round(v).toLocaleString('sv-SE')+' kr';}
-function ini(n){var p=n.split(/[\s—\-]+/);return((p[0]||'')[0]||'').toUpperCase()+((p[1]||p[0]||'')[0]||'').toUpperCase();}
+function ini(n){var p=n.split(/[\s--\-]+/);return((p[0]||'')[0]||'').toUpperCase()+((p[1]||p[0]||'')[0]||'').toUpperCase();}
 function dS(d){return d.toISOString().slice(0,10);}
 var TODAY=new Date();TODAY.setHours(0,0,0,0);
 function cm(){document.getElementById('mw').style.display='none';}
@@ -504,9 +504,9 @@ function openMob(){document.getElementById('sbw').classList.add('open');document
 function closeMob(){document.getElementById('sbw').classList.remove('open');document.getElementById('mob-ov').classList.remove('show');}
 function go(p){P=p;save('page',p);var d=dof(p);if(d)EX[d.k]=true;save('navex',EX);closeMob();render();}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // SIDEBAR
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function rSB(){
   var h='';var iH=P==='hem';
   h+='<button class="ni'+(iH?' act':'')+'" onclick="go(\'hem\')">Översikt</button>';
@@ -515,7 +515,7 @@ function rSB(){
     var op=EX[d.k];var cur=dof(P);var da=cur&&cur.k===d.k;
     h+='<button class="ni'+(da?' act':'')+'" onclick="EX[\''+d.k+'\']=!EX[\''+d.k+'\'];save(\'navex\',EX);render()" style="'+(da?'background:#E6F7F1;color:#0F6B50;':'')+'">';
     h+='<span class="dep-dot" style="background:'+d.c+';">'+d.l.substring(0,2).toUpperCase()+'</span>';
-    h+='<span style="flex:1;">'+d.l+'</span><span style="font-size:10px;opacity:.35;">'+(op?'▾':'▸')+'</span></button>';
+    h+='<span style="flex:1;">'+d.l+'</span><span style="font-size:10px;opacity:.35;">'+(op?'-':'-')+'</span></button>';
     if(op)d.s.forEach(function(s){var sA=P===s.k;
       h+='<button class="ns'+(sA?' act':'')+'" onclick="go(\''+s.k+'\')" style="'+(sA?'background:#E6F7F1;color:'+d.c+';':'')+'">';
       h+='<span style="width:5px;height:5px;border-radius:50%;background:'+(sA?d.c:'var(--s2)')+';flex-shrink:0;"></span>'+s.l+'</button>';
@@ -524,9 +524,9 @@ function rSB(){
   document.getElementById('sb').innerHTML=h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // PAGE HEADER
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function phdr(dept,title,bl,bfn){
   var d=dof(P);var bread=d?('<span style="color:'+d.c+';">'+d.l+'</span>'):'Buddy';
   var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
@@ -536,9 +536,9 @@ function phdr(dept,title,bl,bfn){
   h+='</div>';return h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // HEM
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgHem(){
   var tot=kunder.filter(function(k){return !k.ark;}).reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
   var akt=kunder.filter(function(k){return !k.ark;}).length;
@@ -563,9 +563,9 @@ function pgHem(){
   h+='</div>';return h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // INTEGRATIONER
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgIntegrationer(){
   var on=integr.filter(function(x){return x.on;}).length;
   var h=phdr('Integrationer','Integrationer','+ Ny integration','alert(\'Öppnar integrationskatalog\')');
@@ -584,9 +584,9 @@ function pgIntegrationer(){
   h+='</div></div>';return h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // SÄKERHET
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgSak(){
   var h=phdr('Säkerhet','Säkerhet','','');
   h+='<div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
@@ -603,9 +603,9 @@ function pgSak(){
   h+='</div></div>';return h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // API
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgAPI(){
   var h=phdr('API & Webhooks','API & Webhooks','+ Ny nyckel','omNewKey()');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
@@ -626,9 +626,9 @@ function pgAPI(){
 function omNewKey(){om(mhdr('Ny API-nyckel')+lbl('Namn')+'<input id="ak-n" class="ri" placeholder="T.ex. Produktionsnyckel" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'ak-n\').value;if(n){apiKeys.push({id:newId(),n:n,key:\'bdy_live_\u2022\u2022\u2022\u2022\'+Math.random().toString(36).slice(2,6),anv:\'aldrig\'});save(\'apiKeys\',apiKeys);cm();rMain()}','Skapa nyckel'));}
 function omNewWH(){om(mhdr('Ny webhook')+lbl('URL')+'<input id="wh-u" class="ri" placeholder="https://..." style="margin-bottom:10px;">'+lbl('Event')+'<input id="wh-e" class="ri" placeholder="T.ex. Ny kund" style="margin-bottom:16px;">'+mfooter('var u=document.getElementById(\'wh-u\').value,e=document.getElementById(\'wh-e\').value;if(u&&e){wbooks.push({id:newId(),url:u,ev:e,on:true});save(\'wbooks\',wbooks);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // ROADMAP
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgRoadmap(){
   var h=phdr('Roadmap','Roadmap','+ Ny feature','omNewFeature()');
   h+='<div style="padding:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;align-items:start;">';
@@ -642,7 +642,7 @@ function pgRoadmap(){
       h+='<p style="font-size:11px;color:var(--s4);margin-bottom:6px;">'+it.d+'</p>';
       h+='<div style="display:flex;gap:3px;flex-wrap:wrap;">';
       rmCols.filter(function(c){return c!==col;}).forEach(function(c){
-        h+='<button onclick="rmItems.find(function(x){return x.id==='+it.id+'}).s=\''+c+'\';save(\'rmItems\',rmItems);rMain()" style="font-size:9px;padding:2px 6px;border-radius:20px;cursor:pointer;border:1px solid '+rmCBg[c]+';background:'+rmCBg[c]+';color:'+rmCTc[c]+';font-family:Inter,sans-serif;">→'+c+'</button>';
+        h+='<button onclick="rmItems.find(function(x){return x.id==='+it.id+'}).s=\''+c+'\';save(\'rmItems\',rmItems);rMain()" style="font-size:9px;padding:2px 6px;border-radius:20px;cursor:pointer;border:1px solid '+rmCBg[c]+';background:'+rmCBg[c]+';color:'+rmCTc[c]+';font-family:Inter,sans-serif;">-&gt;'+c+'</button>';
       });
       h+='<button onclick="rmItems=rmItems.filter(function(x){return x.id!=='+it.id+'});save(\'rmItems\',rmItems);rMain()" style="font-size:9px;padding:2px 6px;border-radius:20px;cursor:pointer;border:1px solid var(--s2);background:transparent;color:var(--s3);font-family:Inter,sans-serif;">×</button></div></div>';
     });
@@ -652,9 +652,9 @@ function pgRoadmap(){
 }
 function omNewFeature(s){var sv=s||'Idé';om(mhdr('Ny feature')+lbl('Titel')+'<input id="nf-t" class="ri" placeholder="T.ex. Mobilapp iOS" style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nf-d" class="ri" placeholder="Kort beskrivning" style="margin-bottom:10px;">'+lbl('Status')+'<select id="nf-s" class="ri" style="margin-bottom:16px;"><option '+(sv==='Idé'?'selected':'')+'>Idé</option><option '+(sv==='Planerad'?'selected':'')+'>Planerad</option><option '+(sv==='Pågår'?'selected':'')+'>Pågår</option><option '+(sv==='Klar'?'selected':'')+'>Klar</option></select>'+mfooter('var t=document.getElementById(\'nf-t\').value;if(t){rmItems.push({id:newId(),t:t,d:document.getElementById(\'nf-d\').value,p:\'Medel\',s:document.getElementById(\'nf-s\').value});save(\'rmItems\',rmItems);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // FEEDBACK
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgFeedback(){
   var h=phdr('Feedback','Feedback','+ Ny post','omNewFb()');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
@@ -670,9 +670,9 @@ function pgFeedback(){
 }
 function omNewFb(){om(mhdr('Ny feedback')+lbl('Kund / Namn')+'<input id="fb-n" class="ri" placeholder="T.ex. Anna Karlsson" style="margin-bottom:10px;">'+lbl('Feedback')+'<textarea id="fb-m" class="ri" style="height:72px;resize:none;margin-bottom:16px;font-family:Inter,sans-serif;" placeholder="Vad gäller det?"></textarea>'+mfooter('var n=document.getElementById(\'fb-n\').value,m=document.getElementById(\'fb-m\').value;if(n&&m){fbItems.unshift({id:newId(),n:n,m:m,d:new Date().toISOString().slice(0,10),s:\'Ny\',p:\'Medel\'});save(\'fbItems\',fbItems);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // RELEASES
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgReleases(){
   var h=phdr('Releases','Releases','','');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:8px;">';
@@ -682,15 +682,15 @@ function pgReleases(){
     if(r.b)h+='<span class="bdg" style="background:#F5F3FF;color:var(--p);">'+r.b+'</span>';
     h+='<span style="font-size:11px;color:var(--s4);margin-left:auto;">'+r.d+'</span></div>';
     h+='<div style="padding:10px 14px;">';
-    r.items.forEach(function(it){h+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="color:var(--p);font-size:12px;">✦</span><p style="font-size:12px;color:var(--s7);">'+it+'</p></div>';});
+    r.items.forEach(function(it){h+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="color:var(--p);font-size:12px;">-</span><p style="font-size:12px;color:var(--s7);">'+it+'</p></div>';});
     h+='</div></div>';
   });
   h+='</div>';return h;
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // KUNDER
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgKunder(){
   if(kundOpen)return pgKundDetail(kundOpen);
   var akt=kunder.filter(function(k){return !k.ark;});
@@ -766,9 +766,9 @@ function omNyKund(){
 }
 function omEditKund(id){var k=kunder.find(function(x){return x.id===id;});if(!k)return;om(mhdr('Redigera kund')+lbl('Namn')+'<input id="ek-n" class="ri" value="'+k.n+'" style="margin-bottom:10px;">'+lbl('Typ')+'<input id="ek-t" class="ri" value="'+k.t+'" style="margin-bottom:10px;">'+lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'" style="margin-bottom:16px;">'+mfooter('var k=kunder.find(function(x){return x.id==='+id+'});k.n=document.getElementById(\'ek-n\').value;k.t=document.getElementById(\'ek-t\').value;k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;save(\'kunder\',kunder);cm();render()','Spara'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // PIPELINE
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgPipeline(){
   var nc=PST.length;var gc='100px repeat('+nc+',1fr)';
   var h=phdr('Pipeline','Aktiv pipeline','+ Kund','omNyPipe()');
@@ -792,9 +792,9 @@ function pgPipeline(){
 }
 function omNyPipe(){om(mhdr('Ny kund i pipeline')+lbl('Namn')+'<input id="np-n" class="ri" placeholder="T.ex. Anna" style="margin-bottom:10px;">'+lbl('Projekt')+'<input id="np-s" class="ri" placeholder="T.ex. Hemsida" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'np-n\').value;if(n){prows.push({id:newId(),n:n,s:document.getElementById(\'np-s\').value,steg:0,ci:prows.length%7});save(\'prows\',prows);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
-// WEBBLÄNKAR — med redigering + drag-drop
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
+// WEBBLÄNKAR -- med redigering + drag-drop
+// ---------------------------------------------------------
 var wbDragLink=null;var wbDragCat=null;
 
 function pgWebb(){
@@ -812,7 +812,7 @@ function pgWebb(){
     c.l.forEach(function(l,li){
       h+='<div class="wblink" id="wbl-'+l.id+'" draggable="true" ondragstart="wbDragStart('+c.id+','+l.id+')" ondragover="event.preventDefault();wbLinkOver(this)" ondragleave="this.classList.remove(\'drag-over\')" ondrop="event.preventDefault();wbDropOnLink('+c.id+','+l.id+')">';
       // Drag handle
-      h+='<span class="drag-h" title="Dra för att flytta">⠿</span>';
+      h+='<span class="drag-h" title="Dra för att flytta">-</span>';
       // Editable link name
       h+='<div style="flex:1;min-width:0;">';
       h+='<input value="'+l.n+'" onchange="var c=wbcats.find(function(x){return x.id==='+c.id+'});c.l.find(function(x){return x.id==='+l.id+'}).n=this.value;save(\'wbcats\',wbcats)" style="font-size:12px;font-weight:500;color:var(--s8);border:none;background:transparent;outline:none;font-family:Inter,sans-serif;width:100%;" onfocus="this.style.background=\'var(--s0)\';this.style.border=\'1px solid var(--s2)\';this.style.borderRadius=\'4px\';this.style.padding=\'1px 5px\'" onblur="this.style.background=\'transparent\';this.style.border=\'none\';this.style.padding=\'0\'">';
@@ -859,9 +859,9 @@ function wbDrop(toCatId){
 function omNyWbKat(){om(mhdr('Ny kategori')+lbl('Kategorinamn')+'<input id="nwk" class="ri" placeholder="T.ex. Design, Kunder..." style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nwk\').value;if(n){wbcats.push({id:newId(),n:n,l:[]});save(\'wbcats\',wbcats);cm();rMain()}','Skapa'));}
 function omNyWbLink(cid){om(mhdr('Ny länk')+lbl('Namn')+'<input id="nwl-n" class="ri" placeholder="T.ex. Figma" style="margin-bottom:10px;">'+lbl('URL')+'<input id="nwl-u" class="ri" placeholder="https://..." style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nwl-d" class="ri" placeholder="Kort beskrivning (valfritt)" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nwl-n\').value,u=document.getElementById(\'nwl-u\').value;if(n&&u){var c=wbcats.find(function(x){return x.id==='+cid+'});c.l.push({id:newId(),n:n,u:u.startsWith(\'http\')?u:\'https://\'+u,d:document.getElementById(\'nwl-d\').value});save(\'wbcats\',wbcats);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // KAMPANJER
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgKampanjer(){
   var h=phdr('Kampanjer','Kampanjer','+ Ny kampanj','omNyKamp()');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
@@ -879,9 +879,9 @@ function pgKampanjer(){
 }
 function omNyKamp(){om(mhdr('Ny kampanj')+lbl('Namn')+'<input id="nka-n" class="ri" placeholder="T.ex. Vårens erbjudande" style="margin-bottom:10px;">'+lbl('Kanal')+'<select id="nka-k" class="ri" style="margin-bottom:10px;"><option>Instagram</option><option>Google</option><option>LinkedIn</option><option>E-post</option></select>'+lbl('Budget (kr)')+'<input id="nka-b" class="ri" type="number" value="5000" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nka-n\').value;if(n){kampanjer.push({id:newId(),n:n,kanal:document.getElementById(\'nka-k\').value,budget:parseInt(document.getElementById(\'nka-b\').value)||0,spend:0,leads:0,stat:\'Aktiv\'});save(\'kampanjer\',kampanjer);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // LEADS
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 var ldBg={'Ny':'#EFF6FF','Varm':'#FEF3C7','Kvalificerad':'#DCFCE7','Kall':'#F3F4F6'};
 var ldTc={'Ny':'#1D4ED8','Varm':'#92400E','Kvalificerad':'#166534','Kall':'#6B7280'};
 function pgLeads(){
@@ -930,9 +930,9 @@ function openUppfDatum(lid){
 function omNyLead(){om(mhdr('Ny lead')+lbl('Namn')+'<input id="nl-n" class="ri" placeholder="T.ex. Anna Karlsson" style="margin-bottom:10px;">'+lbl('Företag')+'<input id="nl-f" class="ri" placeholder="T.ex. Karlsson Design" style="margin-bottom:10px;">'+lbl('Kanal')+'<select id="nl-k" class="ri" style="margin-bottom:10px;"><option>Instagram</option><option>Google</option><option>LinkedIn</option><option>Referral</option><option>E-post</option></select>'+lbl('Uppföljningsdatum (valfritt)')+'<input id="nl-ud" class="ri" type="date" style="margin-bottom:10px;">'+lbl('Anteckning')+'<input id="nl-a" class="ri" placeholder="Valfri info..." style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nl-n\').value;if(n){leads.unshift({id:newId(),n:n,f:document.getElementById(\'nl-f\').value,kanal:document.getElementById(\'nl-k\').value,s:\'Ny\',d:new Date().toISOString().slice(0,10),not:document.getElementById(\'nl-a\').value,uppfdat:document.getElementById(\'nl-ud\').value});save(\'leads\',leads);cm();rMain()}','Lägg till lead'));}
 function leadTillKund(lid){var l=leads.find(function(x){return x.id===lid;});if(!l)return;kunder.push({id:newId(),n:l.n,t:l.f,tx:720,h:0,fp:0,fak:'tim',ci:kunder.length%7,ark:false,tasks:[],notes:'',timlogs:[]});leads=leads.filter(function(x){return x.id!==lid;});save('kunder',kunder);save('leads',leads);alert(l.n+' är nu en kund!');rMain();}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // EKONOMI
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgIntakter(){
   var akt=kunder.filter(function(k){return !k.ark;});var tot=akt.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
   var h=phdr('Intäkter','Intäkter','','');
@@ -946,7 +946,7 @@ function pgIntakter(){
   });
   h+='</div></div>';
   h+='<div style="border:2px solid var(--a);border-radius:12px;padding:14px;background:white;">';
-  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter — potentiella</p>';
+  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter -- potentiella</p>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
   [['Projekterat',kr(154080),'var(--a)'],['Moms (25%)',kr(38520),'var(--a)'],['Inkl. moms',kr(192600),'var(--a)'],['Leads',leads.length+' st','var(--s8)']].forEach(function(k){
     h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p><p style="font-size:16px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
@@ -1014,14 +1014,14 @@ function pgFasta(){
     h+='<div class="row"><div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+u.n+'</p><p style="font-size:10px;color:var(--s4);">'+u.k+'</p></div>';
     h+='<input type="checkbox" '+(u.m?'checked':'')+' onchange="fastaU['+i+'].m=this.checked;save(\'fastaU\',fastaU);rMain()" title="Moms avdragsgill" style="accent-color:var(--b);margin-right:8px;">';
     h+='<span style="font-size:12px;font-weight:700;color:var(--r);">'+kr(u.b)+'</span>';
-    h+='<button onclick="omEditFast('+u.id+')" style="border:1px solid var(--s2);background:transparent;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:10px;color:var(--s4);margin-left:7px;">✎</button>';
+    h+='<button onclick="omEditFast('+u.id+')" style="border:1px solid var(--s2);background:transparent;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:10px;color:var(--s4);margin-left:7px;">-</button>';
     h+='<button onclick="fastaU=fastaU.filter(function(x){return x.id!=='+u.id+'});save(\'fastaU\',fastaU);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);margin-left:2px;">×</button></div>';
   });
   h+='</div></div>';
   h+='<div style="display:flex;flex-direction:column;gap:8px;">';
   h+='<div class="card" style="padding:13px;"><p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:9px;">Momsöversikt</p>';
   h+='<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:11px;color:var(--s5);">Totala utgifter</span><span style="font-size:11px;font-weight:600;color:var(--r);">'+kr(tot)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--s1);"><span style="font-size:11px;color:var(--s5);">Avdragsgill moms</span><span style="font-size:11px;font-weight:600;color:var(--b);">−'+kr(mav)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--s1);"><span style="font-size:11px;color:var(--s5);">Avdragsgill moms</span><span style="font-size:11px;font-weight:600;color:var(--b);">-'+kr(mav)+'</span></div>';
   h+='<div style="display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:var(--s8);">Nettokostnad</span><span style="font-size:12px;font-weight:700;color:var(--a);">'+kr(tot-mav)+'</span></div></div>';
   h+='<div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:11px 13px;">';
   h+='<p style="font-size:11px;color:#166534;margin-bottom:7px;">Kopplas till <b>Int. & Utg.</b></p>';
@@ -1047,18 +1047,18 @@ function pgIU(){
   MONTHS.forEach(function(mn,m){var c=mCalc(m);var hd=c.ps.length>0;var open=iuExp[m];
     h+='<div onclick="iuExp['+m+']=!iuExp['+m+'];save(\'iuExp\',iuExp);rMain()" style="display:grid;grid-template-columns:60px 1fr 1fr 75px 75px 18px;padding:8px 13px;border-bottom:1px solid var(--s1);align-items:center;cursor:pointer;'+(open?'background:var(--s0);border-left:3px solid var(--g);':'')+'">';
     h+='<span style="font-size:12px;font-weight:'+(hd?'600':'400')+';color:'+(hd?'var(--s8)':'var(--s2)')+';">'+mn+'</span>';
-    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iE):'—')+'</span>';
-    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iInkl):'—')+'</span>';
-    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--a)':'var(--s2)')+';">'+(hd?kr(c.iMo):'—')+'</span>';
-    h+='<span style="font-size:11px;text-align:right;font-weight:600;color:'+(c.net>=0&&hd?'var(--g)':c.net<0?'var(--r)':'var(--s2)')+';">'+(hd?kr(c.net):'—')+'</span>';
-    h+='<span style="font-size:10px;text-align:center;color:var(--s2);">'+(hd?(open?'▲':'▽'):'')+'</span></div>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iE):'--')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--g)':'var(--s2)')+';">'+(hd?kr(c.iInkl):'--')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;color:'+(hd?'var(--a)':'var(--s2)')+';">'+(hd?kr(c.iMo):'--')+'</span>';
+    h+='<span style="font-size:11px;text-align:right;font-weight:600;color:'+(c.net>=0&&hd?'var(--g)':c.net<0?'var(--r)':'var(--s2)')+';">'+(hd?kr(c.net):'--')+'</span>';
+    h+='<span style="font-size:10px;text-align:center;color:var(--s2);">'+(hd?(open?'-':'-'):'')+'</span></div>';
     if(open){
       var ip=c.ps.filter(function(p){return p.typ==='i';});var fp2=c.ps.filter(function(p){return p.fast;});
       h+='<div style="padding:8px 13px 10px;border-bottom:1px solid var(--s1);background:var(--s0);">';
       if(ip.length){h+='<p style="font-size:9px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Intäkter</p>';
         ip.forEach(function(p){h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;margin-bottom:2px;background:white;"><span style="width:14px;height:14px;border-radius:50%;background:#DCFCE7;color:#166534;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;">+</span><span style="flex:1;font-size:11px;color:var(--s7);">'+p.d+'</span><span style="font-size:11px;font-weight:600;color:var(--g);">'+kr(p.b)+'</span></div>';});}
       if(fp2.length){h+='<p style="font-size:9px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;margin:7px 0 4px;">Fasta kostnader</p>';
-        fp2.slice(0,3).forEach(function(p){h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;margin-bottom:2px;background:white;"><span style="width:14px;height:14px;border-radius:50%;background:#FEF2F2;color:var(--r);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;">−</span><span style="flex:1;font-size:11px;color:var(--s7);">'+p.d+'</span><span class="bdg" style="background:var(--s1);color:var(--s5);">fast</span><span style="font-size:11px;font-weight:600;color:var(--r);">−'+kr(p.b)+'</span></div>';});
+        fp2.slice(0,3).forEach(function(p){h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;margin-bottom:2px;background:white;"><span style="width:14px;height:14px;border-radius:50%;background:#FEF2F2;color:var(--r);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;">-</span><span style="flex:1;font-size:11px;color:var(--s7);">'+p.d+'</span><span class="bdg" style="background:var(--s1);color:var(--s5);">fast</span><span style="font-size:11px;font-weight:600;color:var(--r);">-'+kr(p.b)+'</span></div>';});
         if(fp2.length>3)h+='<p style="font-size:10px;color:var(--s4);margin-left:8px;">...och '+(fp2.length-3)+' till</p>';}
       h+='<button onclick="event.stopPropagation();omNyIU('+m+')" style="margin-top:7px;border:1px solid var(--s2);background:white;border-radius:7px;padding:4px 11px;font-size:11px;cursor:pointer;color:var(--s6);font-family:Inter,sans-serif;">+ Lägg till post för '+mn+'</button></div>';
     }
@@ -1075,9 +1075,9 @@ function omNyIU(defM){var mi=defM!==undefined?defM:3;
   +mfooter('var m2=parseInt(document.getElementById(\'iu-m\').value),d=document.getElementById(\'iu-d\').value;if(d){if(!iuPosts[m2])iuPosts[m2]=[];iuPosts[m2].push({id:newId(),typ:iuNewTyp,d:d,b:parseFloat(document.getElementById(\'iu-b\').value)||0,mo:document.getElementById(\'iu-mo\').checked,fast:false});iuExp[m2]=true;save(\'iuPosts\',iuPosts);save(\'iuExp\',iuExp);cm();rMain()}','Lägg till'));
 }
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // HR
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgTeam(){
   var h=phdr('Team','Team','+ Bjud in','omNyTeam()');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
@@ -1124,11 +1124,11 @@ function pgFormaner(){
   });
   h+='</div>';return h;
 }
-function omNyForman(){om(mhdr('Ny förmån')+lbl('Namn')+'<input id="nfo-n" class="ri" placeholder="T.ex. Cykelförmån" style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nfo-d" class="ri" placeholder="T.ex. 3 000 kr/år" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nfo-k" class="ri" placeholder="T.ex. Transport" style="margin-bottom:10px;">'+lbl('Ikon (emoji)')+'<input id="nfo-i" class="ri" value="🎁" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nfo-n\').value;if(n){formaner.push({id:newId(),n:n,d:document.getElementById(\'nfo-d\').value,k:document.getElementById(\'nfo-k\').value,a:false,ico:document.getElementById(\'nfo-i\').value||\'🎁\'});save(\'formaner\',formaner);cm();rMain()}','Lägg till'));}
+function omNyForman(){om(mhdr('Ny förmån')+lbl('Namn')+'<input id="nfo-n" class="ri" placeholder="T.ex. Cykelförmån" style="margin-bottom:10px;">'+lbl('Beskrivning')+'<input id="nfo-d" class="ri" placeholder="T.ex. 3 000 kr/år" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nfo-k" class="ri" placeholder="T.ex. Transport" style="margin-bottom:10px;">'+lbl('Ikon (emoji)')+'<input id="nfo-i" class="ri" value="Gava" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nfo-n\').value;if(n){formaner.push({id:newId(),n:n,d:document.getElementById(\'nfo-d\').value,k:document.getElementById(\'nfo-k\').value,a:false,ico:document.getElementById(\'nfo-i\').value||\'Gava\'});save(\'formaner\',formaner);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // INKÖP
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 function pgAvtal(){
   var tot=avtal.reduce(function(s,a){return s+a.ko;},0);var akt=avtal.filter(function(a){return a.a;}).length;
   var h=phdr('Avtal','Avtal & Abonnemang','+ Nytt avtal','omNyAvtal()');
@@ -1140,7 +1140,7 @@ function pgAvtal(){
   h+='</div><div class="card">';
   avtal.forEach(function(a){
     var days=Math.ceil((new Date(a.sl)-new Date())/864e5);var dc=days<90?'var(--r)':days<180?'var(--a)':'var(--g)';
-    h+='<div class="row"><div style="width:34px;height:34px;border-radius:8px;background:var(--s0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+({'Telefoni':'📱','Bredband':'🌐','Mjukvara':'💻'}[a.k]||'📄')+'</div>';
+    h+='<div class="row"><div style="width:34px;height:34px;border-radius:8px;background:var(--s0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+({'Telefoni':'Mob','Bredband':'?','Mjukvara':'Dator'}[a.k]||'Dok')+'</div>';
     h+='<div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><span style="font-size:13px;font-weight:600;color:var(--s8);">'+a.n+'</span><span class="bdg" style="background:'+(a.a?'#DCFCE7':'var(--s1)')+';color:'+(a.a?'#166534':'var(--s5)')+';">'+(a.a?'Aktiv':'Utgången')+'</span></div>';
     h+='<p style="font-size:11px;color:var(--s4);">'+a.p+'</p></div>';
     h+='<div style="text-align:right;"><p style="font-size:12px;font-weight:600;color:'+dc+';margin-bottom:1px;">'+days+' dagar</p><p style="font-size:10px;color:var(--s4);margin-bottom:2px;">'+a.sl+'</p><p style="font-size:12px;font-weight:700;color:var(--r);">'+kr(a.ko)+'/mån</p></div></div>';
@@ -1190,9 +1190,9 @@ function pgLev(){
 }
 function omNyLev(){om(mhdr('Ny leverantör')+lbl('Namn')+'<input id="nl2-n" class="ri" placeholder="T.ex. Fortnox" style="margin-bottom:10px;">'+lbl('Kategori')+'<input id="nl2-k" class="ri" placeholder="T.ex. Bokföring" style="margin-bottom:10px;">'+lbl('E-post')+'<input id="nl2-e" class="ri" placeholder="support@example.com" style="margin-bottom:10px;">'+lbl('Avtal till')+'<input id="nl2-sl" class="ri" placeholder="T.ex. 2026-12-31 eller Löpande" style="margin-bottom:10px;">'+lbl('Månadskostnad (kr)')+'<input id="nl2-ko" class="ri" type="number" value="0" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'nl2-n\').value;if(n){levs.push({id:newId(),n:n,k:document.getElementById(\'nl2-k\').value,e:document.getElementById(\'nl2-e\').value,sl:document.getElementById(\'nl2-sl\').value||\'Löpande\',ko:parseFloat(document.getElementById(\'nl2-ko\').value)||0,ci:levs.length%7});save(\'levs\',levs);cm();rMain()}','Lägg till'));}
 
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // ROUTER
-// ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------
 // === GANTT INFO ===
 function pgGanttInfo(){
   var days=ganttDays();
@@ -1258,7 +1258,7 @@ function pgGanttInfo(){
     var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
     var sd2=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
     var ed2=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
-    var nm=k.n.indexOf(' ')>=0?k.n.split('—')[0].trim():k.n;
+    var nm=k.n.indexOf(' ')>=0?k.n.split('--')[0].trim():k.n;
     var tH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
     var badge=tH>0?(Math.round(tH*10)/10)+'h':'';
     h+=mkBar(nm,AVC[k.ci%7],sd2,ed2,'openKund('+k.id+')',pct,badge);
@@ -1685,6 +1685,14 @@ function pgKundDetail(id){
   } else {
     h+='<p style="font-size:11px;color:var(--s4);text-align:center;padding:10px 0;">Inga uppgifter annu</p>';
   }
+  if(k.crmMail||k.crmTel||k.crmWebb){
+    h+='<div style="background:var(--s0);border-radius:8px;padding:10px 12px;margin-top:8px;margin-bottom:8px;">';
+    h+='<p style="font-size:10px;font-weight:700;color:var(--s5);margin-bottom:6px;">KONTAKT (CRM)</p>';
+    if(k.crmMail)h+='<p style="font-size:11px;color:var(--s7);margin-bottom:3px;">'+k.crmMail+'</p>';
+    if(k.crmTel)h+='<p style="font-size:11px;color:var(--s7);margin-bottom:3px;">'+k.crmTel+'</p>';
+    if(k.crmWebb)h+='<p style="font-size:11px;color:var(--s7);">'+k.crmWebb+'</p>';
+    h+='</div>';
+  }
   h+='<p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s3);margin-top:12px;margin-bottom:5px;">Anteckningar</p>';
   h+='<textarea class="ri" style="min-height:90px;resize:none;font-size:12px;line-height:1.5;" placeholder="Klicka for att lagga till anteckningar..." onchange="kunder.find(function(x){return x.id==='+id+'}).notes=this.value;save(\'kunder\',kunder)">'+k.notes+'</textarea>';
   h+='</div></div>';
@@ -1746,6 +1754,73 @@ var crmLeads=load('crmLeads',[
 ]);
 var crmOpen=null;
 var crmFasFilter='Alla';
+
+// === CRM DRAG & DROP ===
+var crmDragId=null;
+
+function crmDragStart(id){crmDragId=id;}
+function crmDragOver(e){e.preventDefault();}
+function crmDropByEl(e,el){
+  var fas=el.getAttribute('data-fas');
+  if(fas)crmDropOnCol(fas);
+}
+function crmDropOnCol(fas){
+  if(crmDragId===null)return;
+  var lead=crmLeads.find(function(x){return x.id===crmDragId;});
+  if(!lead)return;
+  var oldFas=lead.fas;
+  lead.fas=fas;
+  // Log the phase change
+  if(oldFas!==fas){
+    if(!lead.logs)lead.logs=[];
+    lead.logs.unshift({ts:crmNowTs(),text:'Fas andrad: '+oldFas+' -> '+fas});
+  }
+  crmSave();
+  crmDragId=null;
+  rMain();
+}
+
+// === KONVERTERA LEAD TILL KUND ===
+function crmTillKund(id){
+  var lead=crmLeads.find(function(x){return x.id===id;});
+  if(!lead)return;
+  if(!confirm('Konvertera '+lead.foretag+' till aktiv kund? All info foljer med.'))return;
+  // Create customer with all CRM info
+  var nk={
+    id:newId(),
+    n:lead.foretag+(lead.kontakt?' -- '+lead.kontakt:''),
+    t:lead.paket||'Ovrigt',
+    tx:720,h:0,fp:0,
+    fak:'tim',
+    ci:kunder.length%7,
+    ark:false,
+    kundtyp:'aktiv',
+    timMin:0,timMax:0,
+    tasks:[],
+    notes:(lead.logs&&lead.logs.length?lead.logs.map(function(l){return l.ts+': '+l.text;}).join('\n'):''),
+    timlogs:[],
+    startDat:new Date().toISOString().slice(0,10),
+    slutDat:new Date(new Date().getTime()+60*864e5).toISOString().slice(0,10),
+    // Keep CRM info
+    crmMail:lead.mail||'',
+    crmTel:lead.tel||'',
+    crmWebb:lead.webb||''
+  };
+  kunder.push(nk);
+  save('kunder',kunder);
+  // Update lead status
+  lead.fas='Vunnen';
+  lead.logs=lead.logs||[];
+  lead.logs.unshift({ts:crmNowTs(),text:'Konverterad till aktiv kund i systemet.'});
+  crmSave();
+  // Also add to pipeline
+  prows.push({id:newId(),n:lead.foretag.split(' ')[0],s:lead.paket||'',steg:0,ci:nk.ci});
+  save('prows',prows);
+  alert(lead.foretag+' ar nu en aktiv kund! Hittas under Forsaljning - Kunder.');
+  crmOpen=null;
+  rMain();
+}
+
 
 function crmDelLead(id){
   if(!confirm('Ta bort lead?'))return;
@@ -1895,7 +1970,7 @@ function pgCRMLeads(){
       h+='</select>';
 
       // Col 5: uppfoljning
-      h+='<span class="bdg" style="background:'+(overdue?'#FEE2E2':todayDue?'#FEF3C7':'#F1F5F9')+';color:'+(overdue?'#991B1B':todayDue?'#92400E':'#475569')+';">'+(lead.uppfoljning||'—')+'</span>';
+      h+='<span class="bdg" style="background:'+(overdue?'#FEE2E2':todayDue?'#FEF3C7':'#F1F5F9')+';color:'+(overdue?'#991B1B':todayDue?'#92400E':'#475569')+';">'+(lead.uppfoljning||'--')+'</span>';
 
       // Col 6: actions
       h+='<div style="display:flex;gap:4px;">';
@@ -2064,16 +2139,16 @@ var CRM_PAKET=[
   'Paket Ovrigt - 35 000-60 000 kr'
 ];
 var CRM_FASER=[
-  'Kall','Kontaktad','Intresserad','Offert skickad',
+  'Lead','Kall','Kontaktad','Intresserad','Offert skickad',
   'Forhandling','Vunnen','Forlorad','Pausad'
 ];
 var CRM_FARG={
-  'Kall':'#6B7280','Kontaktad':'#2563EB','Intresserad':'#D97706',
+  'Lead':'#14B8A6','Kall':'#6B7280','Kontaktad':'#2563EB','Intresserad':'#D97706',
   'Offert skickad':'#7C3AED','Forhandling':'#EC4899',
   'Vunnen':'#059669','Forlorad':'#DC2626','Pausad':'#9CA3AF'
 };
 var crmLeads=load('crmLeads',[
-  {id:3001,foretag:'Bergstrom Bygg AB',kontakt:'Lars Bergstrom',mail:'lars@bergstrombygg.se',tel:'070-111 22 33',webb:'www.bergstrombygg.se',paket:'Paket 2 - 20 000 kr',fas:'Kall',uppfdat:'',skapad:'2026-04-30',logs:[{ts:'2026-04-30 09:15',text:'Hittat via Google. Ser ut att ha en gammal sajt.'}]},
+  {id:3001,foretag:'Bergstrom Bygg AB',kontakt:'Lars Bergstrom',mail:'lars@bergstrombygg.se',tel:'070-111 22 33',webb:'www.bergstrombygg.se',paket:'Paket 2 - 20 000 kr',fas:'Lead',uppfdat:'',skapad:'2026-04-30',logs:[{ts:'2026-04-30 09:15',text:'Hittat via Google. Ser ut att ha en gammal sajt.'}]},
   {id:3002,foretag:'Janssons Redovisning',kontakt:'Eva Jansson',mail:'eva@janssonsredo.se',tel:'073-444 55 66',webb:'',paket:'Paket 1 - 15 000 kr',fas:'Kontaktad',uppfdat:'2026-05-07',skapad:'2026-04-29',logs:[{ts:'2026-04-29 14:30',text:'Skickade inledande mail. Vantar pa svar.'},{ts:'2026-04-30 10:00',text:'Ringde - hon ar intresserad men vill prata nasta vecka.'}]},
   {id:3003,foretag:'Pettersson Fastigheter',kontakt:'Mikael Pettersson',mail:'mikael@pfab.se',tel:'',webb:'www.pfab.se',paket:'Paket 3 - 25 000 kr',fas:'Intresserad',uppfdat:'2026-05-03',skapad:'2026-04-28',logs:[{ts:'2026-04-28 11:00',text:'Hittade via LinkedIn. Skickade kontaktforfragan.'},{ts:'2026-04-30 08:45',text:'Svarade! Vill ha offert pa webb + SEO-paket.'}]}
 ]);
@@ -2182,7 +2257,7 @@ function pgCRM(){
 
   var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
   h+='<div><p style="font-size:9px;color:#B45309;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Marknad &middot; CRM</p>';
-  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">CRM / Kalla leads</h2></div>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">CRM</h2></div>';
   h+='<button class="btn btn-primary btn-sm" onclick="omNyCRMLead()">+ Ny kontakt</button></div>';
 
   // KPI row
@@ -2208,7 +2283,7 @@ function pgCRM(){
   visibleFaser.forEach(function(fas){
     var items=filtered.filter(function(l){return l.fas===fas;});
     var col=CRM_FARG[fas]||'#6B7280';
-    h+='<div style="flex:1;min-width:155px;background:var(--s1);border-radius:12px;border-top:3px solid '+col+';">';
+    h+='<div style="flex:1;min-width:155px;background:var(--s1);border-radius:12px;border-top:3px solid '+col+';" ondragover="crmDragOver(event)" data-fas="'+fas+'" ondrop="crmDropByEl(event,this)">';
     h+='<div style="padding:8px 10px;display:flex;align-items:center;gap:6px;">';
     h+='<span style="font-size:12px;font-weight:600;color:var(--s8);">'+fas+'</span>';
     h+='<span style="font-size:10px;background:white;border-radius:99px;padding:1px 6px;color:var(--s5);">'+items.length+'</span></div>';
@@ -2273,6 +2348,7 @@ function pgCRMDetail(id){
   if(lead.kontakt)h+='<p style="font-size:11px;color:var(--s5);">'+lead.kontakt+'</p>';
   h+='</div>';
   h+='<span style="padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;background:'+fasColor+';color:white;">'+lead.fas+'</span>';
+  if(lead.fas!=='Vunnen'&&lead.fas!=='Forlorad')h+='<button onclick="crmTillKund('+id+')" class="btn btn-primary btn-sm" style="background:#059669;">&#10003; Till kund</button>';
   h+='<button onclick="crmDelLead('+id+')" class="btn btn-danger btn-sm">Ta bort</button>';
   h+='</div>';
 
