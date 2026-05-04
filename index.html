@@ -716,16 +716,32 @@ function pgKunder(){
     h+='</div></div>';
     h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Tidlogg</button>';
     h+='<button onclick="omEditKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:4px;">Redigera</button>';
-    h+='<button onclick="kunder.find(function(x){return x.id==='+k.id+'}).ark=true;save(\'kunder\',kunder);render()" class="btn btn-outline btn-sm">Arkivera</button></div>';
+    h+='<button onclick="arkiveraKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--a);color:var(--a);">Arkivera</button></div>';
   });
   var ark=kunder.filter(function(k){return k.ark;});
   if(ark.length){
-    h+='<div style="padding:7px 14px;background:var(--s0);border-top:1px solid var(--s1);"><p style="font-size:11px;font-weight:500;color:var(--s4);">Arkiverade ('+ark.length+')</p></div>';
+    h+='<div style="margin:10px 14px 0;border:1px solid var(--a);border-radius:10px;overflow:hidden;">';
+    h+='<div style="padding:9px 14px;background:#FEF3C7;display:flex;align-items:center;justify-content:space-between;">';
+    h+='<div style="display:flex;align-items:center;gap:8px;">';
+    h+='<span style="font-size:13px;">&#128230;</span>';
+    h+='<p style="font-size:12px;font-weight:600;color:#92400E;">Arkiverade kunder ('+ark.length+')</p></div>';
+    h+='<p style="font-size:11px;color:#92400E;">Finns kvar i ekonomi &middot; Visas ej i Gantt</p>';
+    h+='</div>';
     ark.forEach(function(k){
-      h+='<div class="row" style="opacity:.6;"><div class="av" style="width:28px;height:28px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
-      h+='<p style="font-size:12px;color:var(--s5);flex:1;">'+k.n+'</p>';
-      h+='<button onclick="kunder.find(function(x){return x.id==='+k.id+'}).ark=false;save(\'kunder\',kunder);render()" class="btn btn-outline btn-sm">Aterstall</button></div>';
+      var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
+      var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
+      h+='<div class="row" style="background:white;">';
+      h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;opacity:.6;">'+ini(k.n)+'</div>';
+      h+='<div style="flex:1;min-width:0;">';
+      h+='<p style="font-size:13px;font-weight:600;color:var(--s6);">'+k.n+'</p>';
+      h+='<p style="font-size:11px;color:var(--s4);">'+k.t;
+      if(totH>0)h+=' &middot; '+Math.round(totH*10)/10+'h &middot; '+kr(totKr);
+      h+='</p></div>';
+      h+='<button onclick="openKund('+k.id+')" class="btn btn-outline btn-sm" style="margin-right:6px;">Visa</button>';
+      h+='<button onclick="aterstallKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--g);color:var(--g);">Aterstall</button>';
+      h+='</div>';
     });
+    h+='</div>';
   }
   h+='<div style="padding:9px 14px;text-align:center;border-top:1px solid var(--s1);"><button class="btn btn-outline btn-sm" onclick="omNyKund()">+ Ny kund</button></div>';
   h+='</div></div>';return h;
@@ -935,7 +951,7 @@ function leadTillKund(lid){var l=leads.find(function(x){return x.id===lid;});if(
 // EKONOMI
 // ---------------------------------------------------------
 function pgIntakter(){
-  var akt=kunder.filter(function(k){return !k.ark;});var tot=akt.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
+  var akt=kunder.filter(function(k){return !k.ark;});var arkK=kunder.filter(function(k){return k.ark;});var tot=kunder.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.h*k.tx);},0);
   var h=phdr('Intäkter','Intäkter','','');
   h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
@@ -1930,6 +1946,12 @@ function pgKundDetail(id){
   var ed=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
   var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
   h+='<button onclick="kundOpen=null;rMain()" class="btn btn-outline btn-sm">&larr; Alla kunder</button>';
+  if(!k.ark){
+    h+='<button onclick="arkiveraKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--a);color:var(--a);">Arkivera kund</button>';
+  } else {
+    h+='<span style="padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;background:#FEF3C7;color:#92400E;">Arkiverad</span>';
+    h+='<button onclick="aterstallKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--g);color:var(--g);">Aterstall</button>';
+  }
   h+='<div class="av" style="width:32px;height:32px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;">'+ini(k.n)+'</div>';
   h+='<div><p style="font-size:15px;font-weight:700;color:var(--s9);">'+k.n+'</p>';
   h+='<p style="font-size:11px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p></div>';
@@ -3240,6 +3262,19 @@ function pgTidraknare(){
   }
   h+='</div>';
   return h;
+}
+
+function arkiveraKund(id){
+  if(!confirm('Arkivera kunden? Den tas bort fran Gantt men finns kvar i Ekonomi och kan aterstallas.'))return;
+  var k=kunder.find(function(x){return x.id===id;});
+  if(k){k.ark=true;save('kunder',kunder);}
+  kundOpen=null;
+  rMain();
+}
+function aterstallKund(id){
+  var k=kunder.find(function(x){return x.id===id;});
+  if(k){k.ark=false;save('kunder',kunder);}
+  rMain();
 }
 
 function rMain(){
