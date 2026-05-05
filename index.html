@@ -810,18 +810,70 @@ function omEditKund(id){
   var k=kunder.find(function(x){return x.id===id;});if(!k)return;
   var isOff=k.fak==='offert';var isFast=k.fak==='fast';
   var f=mhdr('Redigera kund');
+  // Namn + Kategori
   f+=lbl('Namn')+'<input id="ek-n" class="ri" value="'+k.n+'" style="margin-bottom:10px;">';
-  f+=lbl('Typ / Kategori')+'<input id="ek-t" class="ri" value="'+k.t+'" style="margin-bottom:10px;">';
-  f+=lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'" style="margin-bottom:10px;">';
+  f+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  f+='<div>'+lbl('Typ / Kategori')+'<input id="ek-t" class="ri" value="'+k.t+'"></div>';
+  f+='<div>'+lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'"></div>';
+  f+='</div>';
+  // Timmar
   f+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
   f+='<div>'+lbl('Min timmar')+'<input id="ek-tmin" class="ri" type="number" min="0" value="'+(k.timMin||0)+'"></div>';
   f+='<div>'+lbl('Max timmar')+'<input id="ek-tmax" class="ri" type="number" min="0" value="'+(k.timMax||0)+'"></div>';
   f+='</div>';
-  if(isOff){f+=lbl('Offertsumma ex. moms (kr)')+'<input id="ek-sum" class="ri" type="number" min="0" value="'+(k.offsum||0)+'" style="margin-bottom:16px;">';}
-  else if(isFast){f+=lbl('Fast pris ex. moms (kr)')+'<input id="ek-sum" class="ri" type="number" min="0" value="'+(k.fp||0)+'" style="margin-bottom:16px;">';}
-  else{f+='<input type="hidden" id="ek-sum" value="0"><div style="margin-bottom:12px;background:var(--s0);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--s5);">Timprisuppdrag \u2014 projekterat beraknas fran min/max x taxa</div>';}
-  var sv='var k=kunder.find(function(x){return x.id==='+id+'});k.n=document.getElementById(\'ek-n\').value;k.t=document.getElementById(\'ek-t\').value;k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;k.timMin=parseInt(document.getElementById(\'ek-tmin\').value)||0;k.timMax=parseInt(document.getElementById(\'ek-tmax\').value)||0;var s=parseFloat(document.getElementById(\'ek-sum\').value)||0;if(k.fak===\'offert\'){k.offsum=s;}else if(k.fak===\'fast\'){k.fp=s;}save(\'kunder\',kunder);cm();render()';
+  // Faktureringstyp
+  f+=lbl('Faktureringstyp');
+  f+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">';
+  ['tim','fast','offert'].forEach(function(typ){
+    var labels={tim:'Per timme',fast:'Fast pris',offert:'Offert'};
+    var active=k.fak===typ;
+    f+='<button type="button" id="ek-fak-'+typ+'" onclick="ekSetFak(\''+typ+'\')" style="padding:7px 6px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;border:2px solid '+(active?'var(--s9)':'var(--s2)')+';background:'+(active?'var(--s9)':'white')+';color:'+(active?'white':'var(--s6)')+';">'+labels[typ]+'</button>';
+  });
+  f+='</div>';
+  f+='<div id="ek-sum-wrap" style="margin-bottom:10px;'+(k.fak==='tim'?'display:none;':'')+'"><div id="ek-sum-lbl"></div><input id="ek-sum" class="ri" type="number" min="0" value="'+(isOff?(k.offsum||0):(k.fp||0))+'" style="margin-top:4px;"></div>';
+  // Kontakt
+  f+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  f+='<div>'+lbl('Kontaktperson')+'<input id="ek-kon" class="ri" value="'+(k.kontakt||k.crmKontakt||'')+'"></div>';
+  f+='<div>'+lbl('E-post')+'<input id="ek-mail" class="ri" value="'+(k.mail||k.crmMail||'')+'"></div>';
+  f+='</div>';
+  f+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">';
+  f+='<div>'+lbl('Telefon')+'<input id="ek-tel" class="ri" value="'+(k.tel||k.crmTel||'')+'"></div>';
+  f+='<div>'+lbl('Webbsida')+'<input id="ek-webb" class="ri" value="'+(k.webb||k.crmWebb||'')+'"></div>';
+  f+='</div>';
+  var sv='var k=kunder.find(function(x){return x.id==='+id+'});'+
+    'k.n=document.getElementById(\'ek-n\').value;'+
+    'k.t=document.getElementById(\'ek-t\').value;'+
+    'k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;'+
+    'k.timMin=parseInt(document.getElementById(\'ek-tmin\').value)||0;'+
+    'k.timMax=parseInt(document.getElementById(\'ek-tmax\').value)||0;'+
+    'k.kontakt=document.getElementById(\'ek-kon\').value;'+
+    'k.mail=document.getElementById(\'ek-mail\').value;'+
+    'k.tel=document.getElementById(\'ek-tel\').value;'+
+    'k.webb=document.getElementById(\'ek-webb\').value;'+
+    'k.fak=_ekFak;'+
+    'var s=parseFloat(document.getElementById(\'ek-sum\').value)||0;'+
+    'if(_ekFak===\'offert\'){k.offsum=s;k.fp=0;}'+
+    'else if(_ekFak===\'fast\'){k.fp=s;k.offsum=0;}'+
+    'else{k.fp=0;k.offsum=0;}'+
+    'save(\'kunder\',kunder);cm();render()';
   om(f+mfooter(sv,'Spara'));
+  setTimeout(function(){ekSetFak(k.fak);},0);
+}
+var _ekFak='tim';
+function ekSetFak(typ){
+  _ekFak=typ;
+  ['tim','fast','offert'].forEach(function(t){
+    var btn=document.getElementById('ek-fak-'+t);
+    if(!btn)return;
+    var a=t===typ;
+    btn.style.border='2px solid '+(a?'var(--s9)':'var(--s2)');
+    btn.style.background=a?'var(--s9)':'white';
+    btn.style.color=a?'white':'var(--s6)';
+  });
+  var wrap=document.getElementById('ek-sum-wrap');
+  var lbl2=document.getElementById('ek-sum-lbl');
+  if(wrap)wrap.style.display=typ==='tim'?'none':'block';
+  if(lbl2)lbl2.innerHTML='<label style="font-size:11px;color:var(--s5);font-weight:500;">'+(typ==='offert'?'Offertsumma ex. moms (kr)':'Fast pris ex. moms (kr)')+'</label>';
 }
 
 // ---------------------------------------------------------
@@ -1643,8 +1695,8 @@ function pgGanttInfo(){
 
   // ── ROW FACTORY ───────────────────────────────────────────────────
   function mkRow(label,sub,color,sdStr,edStr,pct,badge,clickFn,rowIdx){
-    var sd=sdStr?new Date(sdStr):null;
-    var ed=edStr?new Date(edStr):null;
+    var sd=sdStr?new Date(sdStr.replace(/-/g,'/')):null;
+    var ed=edStr?new Date(edStr.replace(/-/g,'/')):null;
     var bsDay=0,bwDay=0;
     if(sd&&ed){
       var bsD=Math.round((sd.getTime()-startD.getTime())/864e5);
@@ -1718,8 +1770,8 @@ function pgGanttInfo(){
   h+=groupHdr('Kunder &amp; Uppdrag',akt.length,'#1F2937');
   akt.forEach(function(k,idx){
     var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
-    var sd=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
-    var ed=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
+    var sd=k.startDat||new Date().toISOString().slice(0,10);
+    var ed=k.slutDat||new Date(new Date().getTime()+7*864e5).toISOString().slice(0,10);
     var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
     var badge=totH>0?(Math.round(totH*10)/10)+'h':'';
     h+=mkRow(k.n,k.t,AVC[k.ci%7],sd,ed,pct,badge,'openKund('+k.id+')',idx);
@@ -2087,8 +2139,8 @@ function pgKundDetail(id){
   if(!k.timlogs)k.timlogs=[];
   var totH=k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0);
   var totKr=k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
-  var sd=k.startDat||new Date(TODAY.getTime()-14*864e5).toISOString().slice(0,10);
-  var ed=k.slutDat||new Date(TODAY.getTime()+45*864e5).toISOString().slice(0,10);
+  var sd=k.startDat||new Date().toISOString().slice(0,10);
+  var ed=k.slutDat||new Date(new Date().getTime()+7*864e5).toISOString().slice(0,10);
   var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
   h+='<button onclick="kundOpen=null;rMain()" class="btn btn-outline btn-sm">&larr; Alla kunder</button>';
   if(!k.ark){
@@ -2101,6 +2153,7 @@ function pgKundDetail(id){
   h+='<div><p style="font-size:15px;font-weight:700;color:var(--s9);">'+k.n+'</p>';
   h+='<p style="font-size:11px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h &middot; '+(k.fak==='fast'?'Fast pris':'Per timme')+'</p></div>';
   h+='<div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">';
+  h+='<button onclick="omEditKund('+k.id+')" class="btn btn-outline btn-sm">&#9998; Redigera kund</button>';
   h+='<button onclick="offertFranKund('+k.id+')" class="btn btn-outline btn-sm" style="border-color:var(--p);color:var(--p);">&#128196; Skapa offert</button>';
   h+='<span class="bdg" style="background:var(--gl);color:var(--gd);">'+Math.round(totH*10)/10+' timmar loggade</span>';
   if(totKr>0)h+='<span class="bdg" style="background:#ECFDF5;color:#166534;">'+kr(totKr)+' fakturerbart</span>';
@@ -2239,7 +2292,7 @@ function omNyKundSave(){
     ci:nyKundCI,ark:false,kundtyp:nyKundTyp,
     timMin:tmin,timMax:tmax,offsum:offsum,
     kontakt:kontakt,mail:mail,tel:tel,webb:webb,
-    tasks:[],notes:notes,timlogs:[],startDat:'',slutDat:''
+    tasks:[],notes:notes,timlogs:[],startDat:new Date().toISOString().slice(0,10),slutDat:new Date(new Date().getTime()+7*864e5).toISOString().slice(0,10)
   });
   if(nyKundTyp!=='offert'){
     prows.push({id:newId(),n:n.split(' ')[0]||n,s:kat,steg:steg,ci:nyKundCI});
