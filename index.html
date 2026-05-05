@@ -35,7 +35,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7e
 
 /* ── MODAL ── */
 #mw{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:200;align-items:flex-start;justify-content:center;padding-top:60px;overflow-y:auto;}
-#mb{background:white;border-radius:14px;border:1px solid var(--s2);padding:1.5rem;width:420px;box-shadow:0 8px 32px rgba(0,0,0,.14);margin-bottom:60px;max-height:82vh;overflow-y:auto;}
+#mb{background:white;border-radius:14px;border:1px solid var(--s2);padding:1.5rem;width:520px;max-width:96vw;box-shadow:0 8px 32px rgba(0,0,0,.14);margin-bottom:60px;max-height:88vh;overflow-y:auto;}
 
 /* ── NAV ── */
 .ni{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:8px;font-size:12px;cursor:pointer;width:100%;border:none;background:transparent;text-align:left;color:var(--s5);font-family:'Inter',sans-serif;}
@@ -409,7 +409,7 @@ var EX=load('navex',{});
 var NAV=[
   {k:'tk',l:'Teknisk',c:'#2563EB',s:[{k:'tk_i',l:'Integrationer'},{k:'tk_s',l:'Säkerhet'},{k:'tk_a',l:'API & Webhooks'}]},
   {k:'pr',l:'Produkt',c:'#7C3AED',s:[{k:'pr_r',l:'Roadmap'},{k:'pr_f',l:'Feedback'},{k:'pr_e',l:'Releases'}]},
-  {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'},{k:'fs_offert',l:'Offertmall'}]},
+  {k:'fs',l:'Försäljning',c:'#059669',s:[{k:'fs_k',l:'Kunder'},{k:'fs_kb',l:'Kundtavla'},{k:'fs_p',l:'Pipeline'},{k:'fs_g',l:'Gantt / Timeline'},{k:'fs_t',l:'Texter'},{k:'fs_offert',l:'Offertmall'}]},
   {k:'ma',l:'Marknad',c:'#B45309',s:[{k:'ma_w',l:'Webblänkar'},{k:'ma_kb',l:'Uppföljning'},{k:'ma_crm',l:'CRM'},{k:'ma_bw',l:'Wix-leads (SE)'}]},
   {k:'ek',l:'Ekonomi',c:'#166534',s:[{k:'ek_i',l:'Intäkter'},{k:'ek_s',l:'Scenario'},{k:'ek_f',l:'Fasta utgifter'},{k:'ek_u',l:'Int. & Utg.'},{k:'ek_tid',l:'Tidräknare'}]},
   {k:'hr',l:'HR',c:'#BE185D',s:[{k:'hr_t',l:'Team'},{k:'hr_o',l:'Onboarding'},{k:'hr_f',l:'Förmåner'}]},
@@ -796,6 +796,7 @@ function omNyKund(){
   h+=lbl('Startposition i pipeline')+'<select id="nk-steg" class="ri" style="margin-bottom:12px;">';
   PST.forEach(function(s,i){h+='<option value="'+i+'">'+(i+1)+'. '+s+'</option>';});
   h+='</select>';
+  h+=lbl('Anteckningar')+'<textarea id="nk-notes" class="ri" placeholder="Klistra in info från kunden, bakgrund, kontaktuppgifter..." style="min-height:110px;resize:vertical;font-size:12px;line-height:1.5;margin-bottom:12px;font-family:Inter,sans-serif;"></textarea>';
   h+=lbl('Farg');
   h+='<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">';
   NKCOLORS.forEach(function(c,i){
@@ -2171,7 +2172,7 @@ function pgKundDetail(id){
     h+='</div>';
   }
   h+='<p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s3);margin-top:12px;margin-bottom:5px;">Anteckningar</p>';
-  h+='<textarea class="ri" style="min-height:90px;resize:none;font-size:12px;line-height:1.5;" placeholder="Klicka for att lagga till anteckningar..." onchange="kunder.find(function(x){return x.id==='+id+'}).notes=this.value;save(\'kunder\',kunder)">'+k.notes+'</textarea>';
+  h+='<textarea class="ri" style="min-height:200px;resize:vertical;font-size:12px;line-height:1.6;font-family:Inter,sans-serif;" placeholder="Klistra in info fran kunden, bakgrund, kontaktuppgifter, overenskommelser..." onchange="kunder.find(function(x){return x.id==='+id+'}).notes=this.value;save(\'kunder\',kunder)">'+k.notes+'</textarea>';
   h+='</div></div>';
   h+='</div>';return h;
 }
@@ -2213,6 +2214,7 @@ function omNyKundSave(){
   var tel=(document.getElementById('nk-tel').value||'').trim();
   var webb=(document.getElementById('nk-webb').value||'').trim();
   var offsum=parseInt(document.getElementById('nk-offsum').value)||0;
+  var notes=(document.getElementById('nk-notes')?document.getElementById('nk-notes').value:'').trim();
   var isOffert=nyKundTyp==='offert';
   kunder.push({
     id:newId(),n:n,t:kat,tx:tx,h:0,fp:isOffert?0:offsum,
@@ -2220,7 +2222,7 @@ function omNyKundSave(){
     ci:nyKundCI,ark:false,kundtyp:nyKundTyp,
     timMin:tmin,timMax:tmax,offsum:offsum,
     kontakt:kontakt,mail:mail,tel:tel,webb:webb,
-    tasks:[],notes:'',timlogs:[],startDat:'',slutDat:''
+    tasks:[],notes:notes,timlogs:[],startDat:'',slutDat:''
   });
   if(nyKundTyp!=='offert'){
     prows.push({id:newId(),n:n.split(' ')[0]||n,s:kat,steg:steg,ci:nyKundCI});
@@ -3312,6 +3314,110 @@ function kbRenameCol(id,name){
   if(col&&name.trim()){col.n=name.trim();save('kbCols',kbCols);}
 }
 
+// ── KUNDTAVLA (Försäljning Kanban) ──────────────────────────
+var ckCols=load('ckCols',[{id:1,n:'Ny kontakt',color:'#6B7280'},{id:2,n:'Offert skickad',color:'#D97706'},{id:3,n:'Aktivt projekt',color:'#2563EB'},{id:4,n:'Avslutat',color:'#1A9E75'}]);
+var ckCards=load('ckCards',[]);
+var ckOpen=null;
+
+function pgKundKanban(){
+  var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">';
+  h+='<div><p style="font-size:9px;color:#059669;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">F\u00f6rs\u00e4ljning &middot; Kundtavla</p>';
+  h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Kundtavla</h2></div>';
+  h+='<div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="ckNyKol()">+ Ny kolumn</button>';
+  h+='<button class="btn btn-primary btn-sm" onclick="ckNyKort()">+ Nytt kort</button></div></div>';
+  if(ckOpen){h+=ckDetail(ckOpen);}
+  h+='<div style="overflow-x:auto;padding:14px;"><div style="display:flex;gap:10px;align-items:flex-start;min-height:460px;">';
+  ckCols.forEach(function(col){
+    var cards=ckCards.filter(function(c){return c.colId===col.id;});
+    h+='<div ondragover="ckColOver(event,'+col.id+')" ondrop="ckColDrop(event,'+col.id+')" style="flex-shrink:0;width:255px;background:var(--s1);border-radius:12px;border-top:3px solid '+col.color+';">';
+    h+='<div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">';
+    h+='<input value="'+col.n+'" onblur="ckRenameCol('+col.id+',this.value)" style="font-size:13px;font-weight:600;color:var(--s8);border:none;background:transparent;outline:none;font-family:Inter,sans-serif;flex:1;min-width:0;" onfocus="this.style.background=\'white\';this.style.borderRadius=\'4px\';this.style.padding=\'1px 5px\'" onblur="this.style.background=\'transparent\';this.style.padding=\'0\';ckRenameCol('+col.id+',this.value)">';
+    h+='<span style="font-size:10px;background:white;border-radius:99px;padding:1px 7px;color:var(--s5);margin:0 6px;">'+cards.length+'</span>';
+    h+='<button onclick="ckDelKol('+col.id+')" style="border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--s3);">&#215;</button>';
+    h+='</div><div style="padding:0 8px 8px;">';
+    cards.forEach(function(c){
+      var chkD=c.checklista.filter(function(x){return x.done;}).length;
+      h+='<div draggable="true" ondragstart="ckDragStart(event,'+c.id+')" onclick="ckOpen='+c.id+';rMain()" style="background:white;border:1px solid var(--s2);border-radius:9px;padding:10px 12px;margin-bottom:7px;cursor:grab;transition:box-shadow .15s;" onmouseover="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,.1)\'" onmouseout="this.style.boxShadow=\'none\'">';
+      if(c.etiketter&&c.etiketter.length){h+='<div style="margin-bottom:6px;">';c.etiketter.forEach(function(e){h+='<span style="display:inline-block;width:32px;height:6px;border-radius:3px;background:'+e+';margin-right:3px;"></span>';});h+='</div>';}
+      h+='<p style="font-size:12px;font-weight:600;color:var(--s8);margin-bottom:5px;line-height:1.4;">'+c.titel+'</p>';
+      var meta=[];
+      if(c.datum)meta.push('<span class="bdg" style="background:#FEF3C7;color:#92400E;">'+c.datum+'</span>');
+      if(c.checklista&&c.checklista.length)meta.push('<span style="font-size:10px;color:var(--s4);">'+chkD+'/'+c.checklista.length+'</span>');
+      if(meta.length)h+='<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'+meta.join('')+'</div>';
+      h+='</div>';
+    });
+    h+='<button onclick="ckNyKortIKol('+col.id+')" style="width:100%;border:1px dashed var(--s2);background:transparent;border-radius:8px;padding:7px;font-size:11px;cursor:pointer;color:var(--s5);font-family:Inter,sans-serif;">+ L\u00e4gg till ett kort</button>';
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+function ckDetail(cid){
+  var c=ckCards.find(function(x){return x.id===cid;});if(!c)return'';
+  var col=ckCols.find(function(x){return x.id===c.colId;});
+  var chkD=c.checklista?c.checklista.filter(function(x){return x.done;}).length:0;
+  var pct=c.checklista&&c.checklista.length?Math.round(chkD/c.checklista.length*100):0;
+  var h='<div onclick="ckOpen=null;rMain()" style="position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto;">';
+  h+='<div onclick="event.stopPropagation()" style="background:white;border-radius:14px;width:480px;max-width:96vw;box-shadow:0 8px 32px rgba(0,0,0,.14);margin-bottom:40px;max-height:80vh;overflow-y:auto;">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid var(--s1);display:flex;align-items:flex-start;justify-content:space-between;">';
+  h+='<div style="flex:1;margin-right:12px;"><input value="'+c.titel+'" onchange="ckCards.find(function(x){return x.id==='+cid+'}).titel=this.value;save(\'ckCards\',ckCards)" style="font-size:16px;font-weight:600;color:var(--s9);border:none;background:transparent;outline:none;width:100%;font-family:Inter,sans-serif;">';
+  if(col)h+='<p style="font-size:11px;color:var(--s4);margin-top:3px;">i kolumnen <b style="color:var(--s7);">'+col.n+'</b></p>';
+  h+='</div><button onclick="ckOpen=null;rMain()" style="border:none;background:transparent;cursor:pointer;font-size:22px;color:var(--s4);padding:0;line-height:1;flex-shrink:0;">&#215;</button></div>';
+  h+='<div style="padding:12px 18px;border-bottom:1px solid var(--s1);display:flex;gap:6px;flex-wrap:wrap;">';
+  h+='<button onclick="ckEtiketterDlg('+cid+')" class="btn btn-outline btn-sm">Etiketter</button>';
+  h+='<button onclick="ckDatumDlg('+cid+')" class="btn btn-outline btn-sm">Datum</button>';
+  h+='<button onclick="ckChkDlg('+cid+')" class="btn btn-outline btn-sm">+ Checklista</button>';
+  h+='<select onchange="ckCards.find(function(x){return x.id==='+cid+'}).colId=parseInt(this.value);save(\'ckCards\',ckCards);rMain()" class="ri" style="font-size:11px;padding:3px 8px;width:auto;">';
+  ckCols.forEach(function(kl){h+='<option value="'+kl.id+'"'+(c.colId===kl.id?' selected':'')+'>'+kl.n+'</option>';});
+  h+='</select></div>';
+  h+='<div style="padding:16px 18px;">';
+  if(c.etiketter&&c.etiketter.length){
+    h+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:6px;">Etiketter</p><div style="display:flex;gap:6px;flex-wrap:wrap;">';
+    c.etiketter.forEach(function(e,i){h+='<span onclick="ckRmLbl('+cid+','+i+')" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:'+e+';color:white;font-size:11px;font-weight:600;cursor:pointer;">'+e+' &#215;</span>';});
+    h+='</div></div>';
+  }
+  if(c.datum){
+    h+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:5px;">Datum</p>';
+    h+='<span class="bdg" style="background:#FEF3C7;color:#92400E;font-size:12px;">'+c.datum+'</span> ';
+    h+='<button onclick="ckCards.find(function(x){return x.id==='+cid+'}).datum=\'\';save(\'ckCards\',ckCards);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--s4);font-family:Inter,sans-serif;">Ta bort</button></div>';
+  }
+  h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:5px;">Beskrivning / anteckningar</p>';
+  h+='<textarea class="ri" style="min-height:120px;resize:vertical;line-height:1.5;margin-bottom:14px;font-family:Inter,sans-serif;font-size:12px;" placeholder="L\u00e4gg till beskrivning, kontaktinfo, overenskommelser..." onchange="ckCards.find(function(x){return x.id==='+cid+'}).beskrivning=this.value;save(\'ckCards\',ckCards)">'+c.beskrivning+'</textarea>';
+  if(c.checklista&&c.checklista.length){
+    h+='<p style="font-size:11px;font-weight:600;color:var(--s7);margin-bottom:6px;">Checklista <span style="font-weight:400;color:var(--s4);">'+chkD+'/'+c.checklista.length+'</span></p>';
+    h+='<div style="height:4px;background:var(--s1);border-radius:2px;margin-bottom:8px;"><div style="height:4px;width:'+pct+'%;background:var(--g);border-radius:2px;"></div></div>';
+    c.checklista.forEach(function(ci,i){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--s1);">';
+      h+='<input type="checkbox" '+(ci.done?'checked':'')+' style="accent-color:var(--g);width:15px;height:15px;cursor:pointer;" onchange="ckCards.find(function(x){return x.id==='+cid+'}).checklista['+i+'].done=this.checked;save(\'ckCards\',ckCards);rMain()">';
+      h+='<span style="font-size:12px;flex:1;color:'+(ci.done?'var(--s3)':'var(--s7)')+';text-decoration:'+(ci.done?'line-through':'none')+';">'+ci.t+'</span>';
+      h+='<button onclick="ckCards.find(function(x){return x.id==='+cid+'}).checklista.splice('+i+',1);save(\'ckCards\',ckCards);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--s3);">&#215;</button></div>';
+    });
+  }
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--s1);margin-top:10px;">';
+  h+='<button onclick="ckDelKort('+cid+')" style="font-size:11px;color:var(--r);border:none;background:transparent;cursor:pointer;font-family:Inter,sans-serif;">Ta bort kort</button>';
+  h+='<button onclick="ckOpen=null;rMain()" class="btn btn-primary btn-sm">St\u00e4ng</button></div>';
+  h+='</div></div></div>';return h;
+}
+function ckDelKol(id){if(ckCards.find(function(c){return c.colId===id;})){alert('Flytta korten forst.');return;}if(!confirm('Ta bort kolumnen?'))return;ckCols=ckCols.filter(function(x){return x.id!==id;});save('ckCols',ckCols);rMain();}
+function ckDelKort(id){if(!confirm('Ta bort kortet?'))return;ckCards=ckCards.filter(function(x){return x.id!==id;});save('ckCards',ckCards);ckOpen=null;rMain();}
+function ckRmLbl(cid,idx){var c=ckCards.find(function(x){return x.id===cid;});if(c){c.etiketter.splice(idx,1);save('ckCards',ckCards);rMain();}}
+function ckEtiketterDlg(cid){var c=ckCards.find(function(x){return x.id===cid;});var colors=['#EF4444','#F59E0B','#22C55E','#2563EB','#7C3AED','#EC4899','#6B7280','#14B8A6'];var h=mhdr('Etiketter')+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">';colors.forEach(function(lc){var has=c.etiketter&&c.etiketter.indexOf(lc)>=0;h+='<div onclick="ckTogLbl('+cid+',\''+lc+'\')" style="width:36px;height:36px;border-radius:8px;background:'+lc+';cursor:pointer;display:flex;align-items:center;justify-content:center;border:'+(has?'3px solid var(--s9)':'3px solid transparent')+';"><span style="color:white;font-size:15px;">'+(has?'&#10003;':'')+'</span></div>';});h+='</div>'+mfooter('ckOpen='+cid+';cm();rMain()','Klar');om(h);}
+function ckTogLbl(cid,lc){var c=ckCards.find(function(x){return x.id===cid;});if(!c.etiketter)c.etiketter=[];var idx=c.etiketter.indexOf(lc);if(idx>=0)c.etiketter.splice(idx,1);else c.etiketter.push(lc);save('ckCards',ckCards);ckEtiketterDlg(cid);}
+function ckDatumDlg(cid){var c=ckCards.find(function(x){return x.id===cid;});var h=mhdr('Datum')+lbl('Datum')+'<input id="ck-dat" class="ri" type="date" value="'+(c.datum||new Date().toISOString().slice(0,10))+'" style="margin-bottom:16px;">';h+=mfooter('ckSaveDatum('+cid+')','Spara');om(h);}
+function ckSaveDatum(cid){var v=document.getElementById('ck-dat').value;ckCards.find(function(x){return x.id===cid;}).datum=v;save('ckCards',ckCards);ckOpen=cid;cm();rMain();}
+function ckChkDlg(cid){var h=mhdr('Ny checklistepunkt')+lbl('Uppgift')+'<input id="ck-chk" class="ri" placeholder="T.ex. Skicka offert" style="margin-bottom:16px;">';h+=mfooter('ckSaveChk('+cid+')','Lagg till');om(h);}
+function ckSaveChk(cid){var t=(document.getElementById('ck-chk').value||'').trim();if(!t){alert('Ange en uppgift.');return;}var c=ckCards.find(function(x){return x.id===cid;});if(!c.checklista)c.checklista=[];c.checklista.push({t:t,done:false});save('ckCards',ckCards);ckOpen=cid;cm();rMain();}
+function ckNyKol(){var h=mhdr('Ny kolumn')+lbl('Namn')+'<input id="ck-kol-n" class="ri" placeholder="T.ex. Vantar pa svar" style="margin-bottom:10px;">';h+=lbl('Farg')+'<input id="ck-kol-c" class="ri" type="color" value="#059669" style="margin-bottom:16px;height:38px;">';h+=mfooter('ckSaveKol()','Skapa kolumn');om(h);}
+function ckSaveKol(){var n=(document.getElementById('ck-kol-n').value||'').trim();if(!n){alert('Ange ett namn.');return;}ckCols.push({id:newId(),n:n,color:document.getElementById('ck-kol-c').value});save('ckCols',ckCols);cm();rMain();}
+function ckNyKort(){if(!ckCols.length){alert('Skapa en kolumn forst.');return;}var h=mhdr('Nytt kort')+lbl('Titel')+'<input id="ck-t" class="ri" placeholder="T.ex. Anna Karlsson Design" style="margin-bottom:10px;">';h+=lbl('Kolumn')+'<select id="ck-c" class="ri" style="margin-bottom:10px;">'+ckCols.map(function(c){return'<option value="'+c.id+'">'+c.n+'</option>';}).join('')+'</select>';h+=lbl('Datum (valfritt)')+'<input id="ck-d" class="ri" type="date" style="margin-bottom:16px;">';h+=mfooter('ckSaveKort()','Lagg till kort');om(h);}
+function ckSaveKort(){var t=(document.getElementById('ck-t').value||'').trim();if(!t){alert('Ange en titel.');return;}var colId=parseInt(document.getElementById('ck-c').value);var datum=document.getElementById('ck-d').value;ckCards.push({id:newId(),colId:colId,titel:t,etiketter:[],datum:datum,beskrivning:'',checklista:[]});save('ckCards',ckCards);cm();rMain();}
+function ckNyKortIKol(colId){var h=mhdr('Nytt kort')+lbl('Titel')+'<input id="ck-ik-t" class="ri" placeholder="T.ex. Anna Karlsson" style="margin-bottom:16px;">';h+=mfooter('ckSaveKortIKol('+colId+')','Lagg till');om(h);}
+function ckSaveKortIKol(colId){var t=(document.getElementById('ck-ik-t').value||'').trim();if(!t){alert('Ange en titel.');return;}ckCards.push({id:newId(),colId:colId,titel:t,etiketter:[],datum:'',beskrivning:'',checklista:[]});save('ckCards',ckCards);cm();rMain();}
+function ckDragStart(e,id){e.dataTransfer.setData('ckCardId',id);e.target.style.opacity='0.5';}
+function ckColOver(e,colId){e.preventDefault();e.currentTarget.style.background='var(--gl)';}
+function ckColDrop(e,colId){e.preventDefault();e.currentTarget.style.background='var(--s1)';var id=parseInt(e.dataTransfer.getData('ckCardId'));var c=ckCards.find(function(x){return x.id===id;});if(c){c.colId=colId;save('ckCards',ckCards);}rMain();}
+function ckRenameCol(id,name){var col=ckCols.find(function(x){return x.id===id;});if(col&&name.trim()){col.n=name.trim();save('ckCols',ckCols);}}
+
 
 // === TIDRÄKNARE ===
 var tidState={fran:'08:00',till:'17:00',rast:60,avrundning:15,kundId:0};
@@ -3458,6 +3564,7 @@ function rMain(){
     case'pr_f':h=pgFeedback();break;
     case'pr_e':h=pgReleases();break;
     case'fs_k':h=pgKunder();break;
+    case'fs_kb':h=pgKundKanban();break;
     case'fs_p':h=pgPipeline();break;
     case'fs_g':h=pgGanttInfo();break;
     case'fs_t':h=pgTexter();break;
