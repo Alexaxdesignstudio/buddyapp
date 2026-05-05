@@ -402,12 +402,6 @@ var SB_SYNC_TIMER=null;
 
 
 // ---------------------------------------------------------
-// LOCALS TORAGE HELPERS
-// ---------------------------------------------------------
-function save(key,val){try{localStorage.setItem('buddy_'+key,JSON.stringify(val));}catch(e){}}
-function load(key,def){try{var v=localStorage.getItem('buddy_'+key);return v?JSON.parse(v):def;}catch(e){return def;}}
-
-// ---------------------------------------------------------
 // NAV + STATE
 // ---------------------------------------------------------
 var P=load('page','hem');
@@ -811,7 +805,23 @@ function omNyKund(){
   h+=mfooter('omNyKundSave()','Lagg till kund');
   om(h);
 }
-function omEditKund(id){var k=kunder.find(function(x){return x.id===id;});if(!k)return;om(mhdr('Redigera kund')+lbl('Namn')+'<input id="ek-n" class="ri" value="'+k.n+'" style="margin-bottom:10px;">'+lbl('Typ')+'<input id="ek-t" class="ri" value="'+k.t+'" style="margin-bottom:10px;">'+lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'" style="margin-bottom:16px;">'+mfooter('var k=kunder.find(function(x){return x.id==='+id+'});k.n=document.getElementById(\'ek-n\').value;k.t=document.getElementById(\'ek-t\').value;k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;save(\'kunder\',kunder);cm();render()','Spara'));}
+function omEditKund(id){
+  var k=kunder.find(function(x){return x.id===id;});if(!k)return;
+  var isOff=k.fak==='offert';var isFast=k.fak==='fast';
+  var f=mhdr('Redigera kund');
+  f+=lbl('Namn')+'<input id="ek-n" class="ri" value="'+k.n+'" style="margin-bottom:10px;">';
+  f+=lbl('Typ / Kategori')+'<input id="ek-t" class="ri" value="'+k.t+'" style="margin-bottom:10px;">';
+  f+=lbl('Taxa (kr/h)')+'<input id="ek-tx" class="ri" type="number" value="'+k.tx+'" style="margin-bottom:10px;">';
+  f+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
+  f+='<div>'+lbl('Min timmar')+'<input id="ek-tmin" class="ri" type="number" min="0" value="'+(k.timMin||0)+'"></div>';
+  f+='<div>'+lbl('Max timmar')+'<input id="ek-tmax" class="ri" type="number" min="0" value="'+(k.timMax||0)+'"></div>';
+  f+='</div>';
+  if(isOff){f+=lbl('Offertsumma ex. moms (kr)')+'<input id="ek-sum" class="ri" type="number" min="0" value="'+(k.offsum||0)+'" style="margin-bottom:16px;">';}
+  else if(isFast){f+=lbl('Fast pris ex. moms (kr)')+'<input id="ek-sum" class="ri" type="number" min="0" value="'+(k.fp||0)+'" style="margin-bottom:16px;">';}
+  else{f+='<input type="hidden" id="ek-sum" value="0"><div style="margin-bottom:12px;background:var(--s0);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--s5);">Timprisuppdrag \u2014 projekterat beraknas fran min/max x taxa</div>';}
+  var sv='var k=kunder.find(function(x){return x.id==='+id+'});k.n=document.getElementById(\'ek-n\').value;k.t=document.getElementById(\'ek-t\').value;k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;k.timMin=parseInt(document.getElementById(\'ek-tmin\').value)||0;k.timMax=parseInt(document.getElementById(\'ek-tmax\').value)||0;var s=parseFloat(document.getElementById(\'ek-sum\').value)||0;if(k.fak===\'offert\'){k.offsum=s;}else if(k.fak===\'fast\'){k.fp=s;}save(\'kunder\',kunder);cm();render()';
+  om(f+mfooter(sv,'Spara'));
+}
 
 // ---------------------------------------------------------
 // PIPELINE
@@ -1022,7 +1032,7 @@ function pgIntakter(){
       h+='<tr style="border-bottom:1px solid var(--s1);">';
       h+='<td style="padding:10px 12px;"><div style="display:flex;align-items:center;gap:9px;">';
       h+='<div class="av" style="width:30px;height:30px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;flex-shrink:0;">'+ini(k.n)+'</div>';
-      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'</p>';
+      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'<button onclick="omEditKund('+k.id+')" title="Redigera" style="border:none;background:transparent;cursor:pointer;color:var(--s3);font-size:11px;margin-left:5px;padding:0;" onmouseover="this.style.color=\'var(--s6)\'" onmouseout="this.style.color=\'var(--s3)\'">&#9998;</button></p>';
       h+='<p style="font-size:10px;color:var(--a);">Offert \u2014 ej bekr\u00e4ftad</p></div></div></td>';
       h+='<td style="padding:10px 12px;font-size:12px;color:var(--s6);white-space:nowrap;">'+k.t+'</td>';
       h+='<td style="padding:10px 12px;font-size:12px;font-weight:500;color:var(--s7);white-space:nowrap;">'+k.tx+' kr/h</td>';
@@ -1060,7 +1070,7 @@ function pgIntakter(){
       h+='<td style="padding:0 0 0 10px;color:var(--s3);font-size:16px;cursor:grab;">\u22ee</td>';
       h+='<td style="padding:10px 8px;"><div style="display:flex;align-items:center;gap:8px;">';
       h+='<div class="av" style="width:28px;height:28px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;flex-shrink:0;">'+ini(k.n)+'</div>';
-      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'</p>';
+      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'<button onclick="omEditKund('+k.id+')" title="Redigera" style="border:none;background:transparent;cursor:pointer;color:var(--s3);font-size:11px;margin-left:5px;padding:0;" onmouseover="this.style.color=\'var(--s6)\'" onmouseout="this.style.color=\'var(--s3)\'">&#9998;</button></p>';
       h+='<p style="font-size:10px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h</p></div></div></td>';
       h+='<td style="padding:10px 8px;font-size:12px;color:var(--s6);white-space:nowrap;">'+(minH?minH+'h':'—')+'</td>';
       h+='<td style="padding:10px 8px;font-size:12px;color:var(--s6);white-space:nowrap;">'+(maxH?maxH+'h':'—')+'</td>';
