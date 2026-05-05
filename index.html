@@ -360,6 +360,7 @@ function sbBoot(){
   .then(function(rows){
     if(Array.isArray(rows)){
       rows.forEach(function(row){SB_CACHE[row.id]=row.value;});
+      sbReloadVars();
       SB_ONLINE=true;
       sbStatus('ok','Ansluten');
     } else {
@@ -373,6 +374,41 @@ function sbBoot(){
     document.getElementById('sb-loading').style.display='none';
     render();
   });
+}
+
+function sbReloadVars(){
+  var rl=function(k,def){var v=SB_CACHE['buddy_'+k];return v!==undefined?v:def;};
+  bwLeads=rl('bwLeads',bwLeads);
+  kunder=rl('kunder',kunder);
+  prows=rl('prows',prows);
+  leads=rl('leads',leads);
+  kampanjer=rl('kampanjer',kampanjer);
+  scens=rl('scens',scens);
+  scAS=rl('scAS',scAS);
+  fastaU=rl('fastaU',fastaU);
+  team=rl('team',team);
+  kbCols=rl('kbCols',kbCols);
+  kbCards=rl('kbCards',kbCards);
+  ledigtRows=rl('ganttLedigt',ledigtRows);
+  texter=rl('texter',texter);
+  avtal=rl('avtal',avtal);
+  levs=rl('levs',levs);
+  iuPosts=rl('iuPosts',iuPosts);
+  fbItems=rl('fbItems',fbItems);
+  rmItems=rl('rmItems',rmItems);
+  nid=rl('nid',nid);
+  crmLeads=rl('crmLeads',crmLeads);
+  crmPaket=rl('crmPaket',crmPaket);
+  integr=rl('integr',integr);
+  wbcats=rl('wbcats',wbcats);
+  ganttP=rl('ganttP',ganttP);
+  ganttOff=rl('ganttOff',ganttOff);
+  formaner=rl('formaner',formaner);
+  onbSteps=rl('onbSteps',onbSteps);
+  apiKeys=rl('apiKeys',apiKeys);
+  wbooks=rl('wbooks',wbooks);
+  fbItems=rl('fbItems',fbItems);
+  rmItems=rl('rmItems',rmItems);
 }
 
 // -- Auto-login if token saved -------------------------
@@ -880,25 +916,56 @@ function ekSetFak(typ){
 // PIPELINE
 // ---------------------------------------------------------
 function pgPipeline(){
-  var nc=PST.length;var gc='100px repeat('+nc+',1fr)';
+  var nc=PST.length;var gc='28px 110px repeat('+nc+',1fr) 28px';
+  var aktiva=prows.filter(function(r){return !r.ark;});
+  var arkiv=prows.filter(function(r){return r.ark;});
   var h=phdr('Pipeline','Aktiv pipeline','+ Kund','omNyPipe()');
-  h+='<div style="padding:14px;overflow-x:auto;"><div class="card" style="min-width:500px;">';
+  h+='<div style="padding:14px;overflow-x:auto;"><div class="card" style="min-width:520px;">';
+  // Header
   h+='<div style="display:grid;grid-template-columns:'+gc+';border-bottom:1px solid var(--s1);background:var(--s0);">';
+  h+='<div></div>';
   h+='<div style="padding:7px 11px;font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-right:1px solid var(--s1);">Kund</div>';
   PST.forEach(function(s){h+='<div style="font-size:10px;font-weight:600;color:var(--s5);padding:7px 5px;text-align:center;border-right:1px solid var(--s1);">'+s+'</div>';});
+  h+='<div></div>';
   h+='</div>';
-  prows.forEach(function(r){
+  // Active rows
+  aktiva.forEach(function(r){
     h+='<div style="display:grid;grid-template-columns:'+gc+';border-bottom:1px solid var(--s1);align-items:center;">';
+    h+='<div style="padding:0 0 0 8px;"><button onclick="if(confirm(\'Arkivera kunden ur pipeline?\'))prows.find(function(x){return x.id==='+r.id+'}).ark=true;save(\'prows\',prows);rMain()" title="Arkivera" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s3);padding:2px;" onmouseover="this.style.color=\'var(--a)\'" onmouseout="this.style.color=\'var(--s3)\'">&#8659;</button></div>';
     h+='<div style="padding:7px 9px;border-right:1px solid var(--s1);display:flex;align-items:center;gap:6px;">';
     h+='<div class="av" style="width:24px;height:24px;background:'+AVB[r.ci%7]+';color:'+AVC[r.ci%7]+';font-size:8px;">'+ini(r.n)+'</div>';
     h+='<div><p style="font-size:11px;font-weight:600;color:var(--s8);">'+r.n+'</p><p style="font-size:9px;color:var(--s4);">'+r.s+'</p></div></div>';
     PST.forEach(function(s,si){var cls=si<r.steg?'done':si===r.steg?'act2':'fut';
       h+='<div style="padding:4px;border-right:1px solid var(--s1);"><div class="sc '+cls+'" onclick="prows.find(function(x){return x.id==='+r.id+'}).steg='+si+';save(\'prows\',prows);rMain()">'+s+'</div></div>';
     });
+    h+='<div style="padding:0 6px 0 4px;"><button onclick="if(confirm(\'Ta bort?\'))prows=prows.filter(function(x){return x.id!=='+r.id+'});save(\'prows\',prows);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);" onmouseover="this.style.color=\'var(--r)\'" onmouseout="this.style.color=\'var(--s2)\'">&#215;</button></div>';
     h+='</div>';
   });
+  if(!aktiva.length){
+    h+='<div style="padding:20px;text-align:center;"><p style="font-size:12px;color:var(--s4);">Inga aktiva kunder i pipeline</p></div>';
+  }
   h+='<div style="padding:9px;text-align:center;"><button class="btn btn-outline btn-sm" onclick="omNyPipe()">+ Lägg till kund</button></div>';
-  h+='</div></div>';return h;
+  h+='</div>';
+
+  // Archived section
+  if(arkiv.length){
+    h+='<div class="card" style="min-width:520px;margin-top:10px;">';
+    h+='<div style="padding:9px 14px;background:var(--s0);border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;">';
+    h+='<p style="font-size:12px;font-weight:600;color:var(--s5);">Arkiverade ('+arkiv.length+' st)</p>';
+    h+='<button onclick="if(confirm(\'Rensa alla arkiverade?\'))prows=prows.filter(function(x){return !x.ark;});save(\'prows\',prows);rMain()" class="btn btn-outline btn-sm" style="font-size:10px;color:var(--r);border-color:#FECACA;">Rensa alla</button>';
+    h+='</div>';
+    arkiv.forEach(function(r){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--s1);opacity:.65;">';
+      h+='<div class="av" style="width:22px;height:22px;background:'+AVB[r.ci%7]+';color:'+AVC[r.ci%7]+';font-size:8px;">'+ini(r.n)+'</div>';
+      h+='<div style="flex:1;"><p style="font-size:11px;font-weight:500;color:var(--s7);">'+r.n+'</p><p style="font-size:9px;color:var(--s4);">'+r.s+' &middot; '+PST[Math.min(r.steg,PST.length-1)]+'</p></div>';
+      h+='<button onclick="prows.find(function(x){return x.id==='+r.id+'}).ark=false;save(\'prows\',prows);rMain()" class="btn btn-outline btn-sm" style="font-size:10px;">Återställ</button>';
+      h+='<button onclick="if(confirm(\'Ta bort?\'))prows=prows.filter(function(x){return x.id!=='+r.id+'});save(\'prows\',prows);rMain()" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--s2);" onmouseover="this.style.color=\'var(--r)\'" onmouseout="this.style.color=\'var(--s2)\'">&#215;</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+
+  h+='</div>';return h;
 }
 function omNyPipe(){om(mhdr('Ny kund i pipeline')+lbl('Namn')+'<input id="np-n" class="ri" placeholder="T.ex. Anna" style="margin-bottom:10px;">'+lbl('Projekt')+'<input id="np-s" class="ri" placeholder="T.ex. Hemsida" style="margin-bottom:16px;">'+mfooter('var n=document.getElementById(\'np-n\').value;if(n){prows.push({id:newId(),n:n,s:document.getElementById(\'np-s\').value,steg:0,ci:prows.length%7});save(\'prows\',prows);cm();rMain()}','Lägg till'));}
 
@@ -1766,7 +1833,7 @@ function pgGanttInfo(){
 
   // ── RENDER ROWS ──────────────────────────────────────────────────
   h+='<div>';
-  var akt=kunder.filter(function(k){return !k.ark;});
+  var akt=kunder.filter(function(k){return !k.ark&&k.fak!=='offert';});
   h+=groupHdr('Kunder &amp; Uppdrag',akt.length,'#1F2937');
   akt.forEach(function(k,idx){
     var pct=k.tasks.length>0?Math.round(k.tasks.filter(function(t){return t.done;}).length/k.tasks.length*100):0;
@@ -2737,6 +2804,41 @@ var BW_STATUS_COL={
 
 function bwSave(){save('bwLeads',bwLeads);}
 
+function bwExport(){
+  if(!bwLeads.length){alert('Inga leads att exportera.');return;}
+  var data=JSON.stringify(bwLeads,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='wix-leads-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function bwImportBackup(){
+  var inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=function(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var data=JSON.parse(ev.target.result);
+        if(!Array.isArray(data)){alert('Ogiltig backup-fil.');return;}
+        if(!confirm('Återställ '+data.length+' leads? Befintliga leads skrivs över.'))return;
+        bwLeads=data;
+        bwSave();
+        bwDetailId=null;
+        rMain();
+        alert('\u2713 '+data.length+' leads återställda från backup!');
+      }catch(er){alert('Fel vid import: '+er.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
 function bwImportCSV(){
   var inp=document.getElementById('bw-csv-inp');
   if(!inp||!inp.files||!inp.files[0])return;
@@ -2890,7 +2992,13 @@ function pgBWLeads(){
   var h='<div style="background:white;border-bottom:1px solid var(--s1);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
   h+='<div><p style="font-size:9px;color:#B45309;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;font-weight:600;">Marknad &middot; Leads</p>';
   h+='<h2 style="font-size:15px;font-weight:700;color:var(--s9);">Wix-leads Sverige</h2></div>';
-  h+='<button class="btn btn-primary btn-sm" onclick="bwNyImport()">&#8593; Importera CSV</button></div>';
+  h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
+  if(total>0){
+    h+='<button class="btn btn-outline btn-sm" onclick="bwExport()" title="Ladda ner backup som JSON" style="border-color:var(--g);color:var(--g);">&#8659; Ladda ner backup ('+total+')</button>';
+  }
+  h+='<button class="btn btn-outline btn-sm" onclick="bwImportBackup()" title="Återställ från JSON-backup">&#8593; Återställ backup</button>';
+  h+='<button class="btn btn-primary btn-sm" onclick="bwNyImport()">&#8593; Importera CSV</button>';
+  h+='</div></div>';
 
   // KPIs
   h+='<div style="padding:12px 14px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
