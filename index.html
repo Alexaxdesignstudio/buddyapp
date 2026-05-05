@@ -984,74 +984,118 @@ function pgIntakter(){
   var akt=kunder.filter(function(k){return !k.ark&&k.fak!=='offert';});
   var offerter=kunder.filter(function(k){return !k.ark&&k.fak==='offert';});
   var arkK=kunder.filter(function(k){return k.ark;});
-  // Real revenue: fast pris + logged hours for non-offert
-  var totAkt=akt.reduce(function(s,k){
-    if(k.fak==='fast')return s+k.fp;
-    return s+k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0);
-  },0);
-  var totArk=arkK.reduce(function(s,k){
-    if(k.fak==='fast')return s+k.fp;
-    return s+k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0);
-  },0);
-  var totAll=totAkt+totArk;
-  // Offer potential
-  var totOff=offerter.reduce(function(s,k){return s+(k.offsum||k.fp||0);},0);
+
+  var totArk=arkK.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0));},0);
+
+  function projKr(k){
+    if(k.fak==='fast')return k.fp;
+    return Math.round(((k.timMin||0)+(k.timMax||0))/2)*k.tx;
+  }
+  var totProjAkt=akt.reduce(function(s,k){return s+projKr(k);},0);
+  var totProjMin=akt.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:(k.timMin||0)*k.tx);},0);
+  var totProjMax=akt.reduce(function(s,k){return s+(k.fak==='fast'?k.fp:(k.timMax||0)*k.tx);},0);
+  var totLoggat=akt.reduce(function(s,k){return s+k.timlogs.reduce(function(t,l){return t+(l.belopp||0);},0);},0);
+  var totFaktH=akt.reduce(function(s,k){return s+(k.h||0);},0);
+  var totFaktKr=akt.reduce(function(s,k){return s+(k.faktKr!==undefined?k.faktKr:Math.round((k.h||0)*k.tx));},0);
+  var totMinH=akt.reduce(function(s,k){return s+(k.timMin||0);},0);
+  var totMaxH=akt.reduce(function(s,k){return s+(k.timMax||0);},0);
+  var totOff=offerter.reduce(function(s,k){return s+(k.offsum||0);},0);
+
   var h=phdr('Intakter','Intakter','','');
-  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  h+='<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">';
 
-  // Confirmed
-  h+='<div style="border:2px solid var(--g);border-radius:12px;padding:14px;background:white;">';
-  h+='<p style="font-size:11px;font-weight:600;color:var(--g);margin-bottom:10px;">Bekraftade intakter</p>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  [['Fakturerat ex. moms',kr(totAll),'var(--g)'],['Moms (25%)',kr(totAll*.25),'var(--a)'],['Inkl. moms',kr(totAll*1.25),'var(--g)'],['Aktiva kunder',akt.length+' st','var(--s7)']].forEach(function(k){
-    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
-    h+='<p style="font-size:18px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
-  });
-  h+='</div></div>';
-
-  // Offers
-  h+='<div style="border:2px solid var(--a);border-radius:12px;padding:14px;background:white;">';
-  h+='<p style="font-size:11px;font-weight:600;color:var(--a);margin-bottom:10px;">Offerter &mdash; potentiella</p>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  [['Projekterat ex. moms',kr(totOff),'var(--a)'],['Moms (25%)',kr(totOff*.25),'var(--a)'],['Inkl. moms',kr(totOff*1.25),'var(--a)'],['Offerter',offerter.length+' st','var(--s7)']].forEach(function(k){
-    h+='<div><p style="font-size:9px;color:var(--s4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;">'+k[0]+'</p>';
-    h+='<p style="font-size:18px;font-weight:700;color:'+k[2]+';letter-spacing:-.02em;">'+k[1]+'</p></div>';
-  });
-  h+='</div></div>';
-  h+='</div>';
-
-  // Active customers list
-  if(akt.length){
-    h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:var(--gl);">';
-    h+='<p style="font-size:12px;font-weight:600;color:var(--gd);">Bekraftade kunder</p></div>';
-    akt.forEach(function(k){
-      var fk=k.fak==='fast'?k.fp:k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
-      h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
-      h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p>';
-      h+='<p style="font-size:10px;color:var(--s4);">'+k.t+'</p></div>';
-      h+='<span class="bdg" style="background:'+(k.fak==='fast'?'var(--bl)':'var(--gl)')+';color:'+(k.fak==='fast'?'var(--b)':'var(--gd)')+';">'+(k.fak==='fast'?'Fast pris':'Per timme')+'</span>';
-      h+='<span style="font-size:12px;font-weight:700;color:var(--g);margin-left:10px;">'+kr(fk)+'</span></div>';
-    });
-    h+='</div>';
-  }
-
-  // Offers list
+  /* ── OFFERTER TABLE ── */
   if(offerter.length){
-    h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:#FEF3C7;">';
-    h+='<p style="font-size:12px;font-weight:600;color:#92400E;">Offerter</p></div>';
-    offerter.forEach(function(k){
-      var offBel=k.offsum||k.fp||0;
-      h+='<div class="row"><div class="av" style="width:27px;height:27px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;">'+ini(k.n)+'</div>';
-      h+='<div style="flex:1;"><p style="font-size:12px;font-weight:500;color:var(--s8);">'+k.n+'</p>';
-      h+='<p style="font-size:10px;color:var(--s4);">'+k.t+(k.kontakt?' &middot; '+k.kontakt:'')+'</p></div>';
-      h+='<button onclick="beKraftaOffert('+k.id+')" class="btn btn-primary btn-sm" style="background:var(--g);margin-right:8px;">Bekrafta</button>';
-      h+='<span style="font-size:12px;font-weight:700;color:var(--a);">'+kr(offBel)+'</span></div>';
+    h+='<div class="card" style="overflow-x:auto;">';
+    h+='<div style="padding:12px 16px;border-bottom:1px solid var(--s1);">';
+    h+='<p style="font-size:14px;font-weight:700;color:var(--s9);">Offerter \u2014 potentiella kunder</p></div>';
+    h+='<table style="width:100%;border-collapse:collapse;min-width:680px;">';
+    h+='<thead><tr style="background:var(--s0);">';
+    ['KUND','KATEGORI','TAXA','MIN','MAX','PROJEKTERAT','ÅTGÄRD'].forEach(function(col){
+      h+='<th style="padding:7px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s4);text-align:left;border-bottom:2px solid var(--s2);white-space:nowrap;">'+col+'</th>';
     });
-    h+='</div>';
+    h+='</tr></thead><tbody>';
+    offerter.forEach(function(k){
+      var offBel=k.offsum||0;
+      var minH=k.timMin||0;var maxH=k.timMax||0;
+      var minKr=minH*k.tx;var maxKr=maxH*k.tx;
+      h+='<tr style="border-bottom:1px solid var(--s1);">';
+      h+='<td style="padding:10px 12px;"><div style="display:flex;align-items:center;gap:9px;">';
+      h+='<div class="av" style="width:30px;height:30px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:10px;flex-shrink:0;">'+ini(k.n)+'</div>';
+      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'</p>';
+      h+='<p style="font-size:10px;color:var(--a);">Offert \u2014 ej bekr\u00e4ftad</p></div></div></td>';
+      h+='<td style="padding:10px 12px;font-size:12px;color:var(--s6);white-space:nowrap;">'+k.t+'</td>';
+      h+='<td style="padding:10px 12px;font-size:12px;font-weight:500;color:var(--s7);white-space:nowrap;">'+k.tx+' kr/h</td>';
+      h+='<td style="padding:10px 12px;font-size:11px;color:var(--s6);white-space:nowrap;">'+(minH?minH+'h / '+minKr.toLocaleString('sv-SE')+' kr':'—')+'</td>';
+      h+='<td style="padding:10px 12px;font-size:11px;color:var(--s6);white-space:nowrap;">'+(maxH?maxH+'h / '+maxKr.toLocaleString('sv-SE')+' kr':'—')+'</td>';
+      h+='<td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--a);white-space:nowrap;">'+kr(offBel)+'</td>';
+      h+='<td style="padding:8px 12px;white-space:nowrap;"><button onclick="beKraftaOffert('+k.id+')" class="btn" style="background:var(--g);color:white;font-size:11px;padding:6px 14px;border-radius:7px;">\u2713 G\u00f6r till aff\u00e4r</button></td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table>';
+    h+='<div style="padding:10px 16px;background:var(--s0);display:flex;justify-content:flex-end;gap:24px;border-top:1px solid var(--s2);">';
+    h+='<span style="font-size:12px;color:var(--s6);">Potentiellt ex. moms: <strong style="color:var(--a);">'+kr(totOff)+'</strong></span>';
+    h+='<span style="font-size:12px;color:var(--s6);">Moms (25%): <strong style="color:var(--a);">'+kr(totOff*.25)+'</strong></span>';
+    h+='</div></div>';
   }
 
-  // Archived totals
+  /* ── AKTIVA KUNDER TABLE ── */
+  if(akt.length){
+    h+='<div class="card" style="overflow-x:auto;">';
+    h+='<div style="padding:12px 16px;border-bottom:1px solid var(--s1);">';
+    h+='<p style="font-size:14px;font-weight:700;color:var(--s9);">Bekr\u00e4ftade int\u00e4kter \u2014 aktiva kunder</p></div>';
+    h+='<table style="width:100%;border-collapse:collapse;min-width:760px;">';
+    h+='<thead><tr style="background:var(--s0);">';
+    ['','KUND','MIN','MAX','PROJ.','LOGGAT','FAKTISKT H','FAKTISKT KR'].forEach(function(col){
+      h+='<th style="padding:7px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s4);text-align:left;border-bottom:2px solid var(--s2);white-space:nowrap;">'+col+'</th>';
+    });
+    h+='</tr></thead><tbody>';
+    akt.forEach(function(k){
+      var proj=projKr(k);
+      var loggat=k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0);
+      var faktH=k.h||0;
+      var faktKr=k.faktKr!==undefined?k.faktKr:Math.round(faktH*k.tx);
+      var minH=k.timMin||0;var maxH=k.timMax||0;
+      h+='<tr style="border-bottom:1px solid var(--s1);">';
+      h+='<td style="padding:0 0 0 10px;color:var(--s3);font-size:16px;cursor:grab;">\u22ee</td>';
+      h+='<td style="padding:10px 8px;"><div style="display:flex;align-items:center;gap:8px;">';
+      h+='<div class="av" style="width:28px;height:28px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:9px;flex-shrink:0;">'+ini(k.n)+'</div>';
+      h+='<div><p style="font-size:12px;font-weight:600;color:var(--s9);white-space:nowrap;">'+k.n+'</p>';
+      h+='<p style="font-size:10px;color:var(--s4);">'+k.t+' &middot; '+k.tx+' kr/h</p></div></div></td>';
+      h+='<td style="padding:10px 8px;font-size:12px;color:var(--s6);white-space:nowrap;">'+(minH?minH+'h':'—')+'</td>';
+      h+='<td style="padding:10px 8px;font-size:12px;color:var(--s6);white-space:nowrap;">'+(maxH?maxH+'h':'—')+'</td>';
+      h+='<td style="padding:10px 8px;font-size:12px;font-weight:700;color:var(--b);white-space:nowrap;">'+kr(proj)+'</td>';
+      h+='<td style="padding:10px 8px;font-size:12px;font-weight:700;color:'+(loggat>proj?'var(--a)':'var(--g)')+';white-space:nowrap;">'+kr(loggat)+'</td>';
+      h+='<td style="padding:6px 8px;"><input type="number" class="ri" value="'+faktH+'" min="0" step="0.1" style="width:72px;text-align:right;padding:4px 6px;font-size:12px;" onchange="var kk=kunder.find(function(x){return x.id==='+k.id+'});if(kk){kk.h=parseFloat(this.value)||0;save(\'kunder\',kunder);rMain()}"></td>';
+      h+='<td style="padding:6px 8px;"><input type="number" class="ri" value="'+faktKr+'" min="0" style="width:88px;text-align:right;padding:4px 6px;font-size:12px;" onchange="var kk=kunder.find(function(x){return x.id==='+k.id+'});if(kk){kk.faktKr=parseFloat(this.value)||0;save(\'kunder\',kunder)}"></td>';
+      h+='</tr>';
+    });
+    h+='</tbody>';
+    /* totals row */
+    h+='<tfoot><tr style="background:var(--s0);border-top:2px solid var(--s2);">';
+    h+='<td></td>';
+    h+='<td style="padding:9px 8px;font-size:10px;font-weight:700;color:var(--s7);letter-spacing:.04em;white-space:nowrap;">TOTALT PROJEKTERAT</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--b);white-space:nowrap;">'+kr(totProjMin)+'</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--b);white-space:nowrap;">'+kr(totProjMax)+'</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--b);white-space:nowrap;">'+kr(totProjAkt)+'</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--g);white-space:nowrap;">'+kr(totLoggat)+'</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--s7);white-space:nowrap;">'+totFaktH.toFixed(1)+'h</td>';
+    h+='<td style="padding:9px 8px;font-size:12px;font-weight:700;color:var(--s7);white-space:nowrap;">'+kr(totFaktKr)+'</td>';
+    h+='</tr></tfoot>';
+    h+='</table>';
+    /* summary bars */
+    h+='<div style="padding:8px 16px;border-top:1px solid var(--s1);font-size:11px;color:var(--s6);">';
+    h+='Projekterat: <strong style="color:var(--b);">'+kr(totProjAkt)+' ex. moms</strong>';
+    h+=' &middot; <strong style="color:var(--b);">'+kr(totProjAkt*.25)+' moms</strong>';
+    h+=' &middot; <strong style="color:var(--b);">'+kr(totProjAkt*1.25)+' inkl. moms</strong>';
+    h+='</div>';
+    h+='<div style="padding:6px 16px 10px;border-top:1px solid var(--s1);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--s6);">';
+    h+='<span>Loggat: <strong style="color:var(--g);">'+kr(totLoggat)+'</strong> &middot; Moms: <strong style="color:var(--g);">'+kr(totLoggat*.25)+'</strong> &middot; Inkl. moms: <strong style="color:var(--g);">'+kr(totLoggat*1.25)+'</strong></span>';
+    h+='<span>Faktiskt: <strong style="color:var(--s8);">'+kr(totFaktKr)+'</strong> &middot; Faktiska timmar: <strong style="color:var(--s8);">'+totFaktH.toFixed(1)+'h</strong></span>';
+    h+='</div></div>';
+  }
+
+  /* ── ARKIVERADE ── */
   if(arkK.length){
     h+='<div class="card"><div style="padding:9px 14px;border-bottom:1px solid var(--s1);background:var(--s0);">';
     h+='<div style="display:flex;align-items:center;justify-content:space-between;">';
@@ -1065,6 +1109,7 @@ function pgIntakter(){
     });
     h+='</div>';
   }
+
   h+='</div>';return h;
 }
 
