@@ -402,6 +402,7 @@ function sbReloadVars(){
   integr=rl('integr',integr);
   wbcats=rl('wbcats',wbcats);
   ganttP=rl('ganttP',ganttP);
+  ganttZoom=rl('ganttZoom',ganttZoom);
   ganttOff=rl('ganttOff',ganttOff);
   formaner=rl('formaner',formaner);
   onbSteps=rl('onbSteps',onbSteps);
@@ -738,7 +739,8 @@ function pgKunder(){
       var pct=k.tasks.length>0?Math.round(done/k.tasks.length*100):0;
       var totKr=k.timlogs?k.timlogs.reduce(function(s,l){return s+(l.belopp||0);},0):0;
       var totH=k.timlogs?k.timlogs.reduce(function(s,l){return s+l.h+(l.m||0)/60;},0):0;
-      h+='<div class="row">';
+      h+='<div class="row" draggable="true" ondragstart="kundDragStart(event,'+k.id+')" ondragover="kundDragOver(event,'+k.id+')" ondrop="kundDrop(event,'+k.id+')" ondragleave="this.style.borderTop=\'\'" id="krow-'+k.id+'" style="cursor:default;">';
+      h+='<span title="Dra för att sortera om" style="color:var(--s3);font-size:18px;cursor:grab;padding:0 6px 0 2px;user-select:none;flex-shrink:0;">⠿</span>';
       h+='<div class="av" style="width:35px;height:35px;background:'+AVB[k.ci%7]+';color:'+AVC[k.ci%7]+';font-size:11px;border:2px solid '+AVC[k.ci%7]+'22;">'+ini(k.n)+'</div>';
       h+='<div style="flex:1;min-width:0;cursor:pointer;" onclick="openKund('+k.id+')">';
       h+='<p style="font-size:13px;font-weight:600;color:var(--b);margin-bottom:2px;text-decoration:underline;">'+k.n+'</p>';
@@ -876,7 +878,18 @@ function omEditKund(id){
   f+='<div>'+lbl('Telefon')+'<input id="ek-tel" class="ri" value="'+(k.tel||k.crmTel||'')+'"></div>';
   f+='<div>'+lbl('Webbsida')+'<input id="ek-webb" class="ri" value="'+(k.webb||k.crmWebb||'')+'"></div>';
   f+='</div>';
+  // Color picker
+  f+=lbl('Färg');
+  f+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">';
+  AVB.forEach(function(bg,i){
+    var sel=k.ci===i;
+    f+='<div onclick="ekSetColor('+i+')" id="ek-ci-'+i+'" style="width:28px;height:28px;border-radius:50%;background:'+bg+';cursor:pointer;display:flex;align-items:center;justify-content:center;border:3px solid '+(sel?'var(--s9)':'transparent')+';box-shadow:'+(sel?'0 0 0 2px var(--s9)':'none')+';transition:box-shadow .1s;">';
+    f+=(sel?'<span style="color:'+AVC[i]+';font-size:13px;font-weight:700;">✓</span>':'');
+    f+='</div>';
+  });
+  f+='</div>';
   var sv='var k=kunder.find(function(x){return x.id==='+id+'});'+
+    'k.ci=_ekCI;'+
     'k.n=document.getElementById(\'ek-n\').value;'+
     'k.t=document.getElementById(\'ek-t\').value;'+
     'k.tx=parseInt(document.getElementById(\'ek-tx\').value)||720;'+
@@ -893,9 +906,37 @@ function omEditKund(id){
     'else{k.fp=0;k.offsum=0;}'+
     'save(\'kunder\',kunder);cm();render()';
   om(f+mfooter(sv,'Spara'));
-  setTimeout(function(){ekSetFak(k.fak);},0);
+  setTimeout(function(){ekSetFak(k.fak);_ekCI=k.ci||0;},0);
+}
+var _kundDragId=null;
+function kundDragStart(e,id){_kundDragId=id;e.dataTransfer.effectAllowed='move';e.target.style.opacity='0.5';}
+function kundDragOver(e,id){e.preventDefault();if(id===_kundDragId)return;var el=document.getElementById('krow-'+id);if(el)el.style.borderTop='2px solid var(--b)';}
+function kundDrop(e,id){
+  e.preventDefault();
+  var el=document.getElementById('krow-'+id);if(el)el.style.borderTop='';
+  if(!_kundDragId||id===_kundDragId)return;
+  var fromIdx=kunder.findIndex(function(x){return x.id===_kundDragId;});
+  var toIdx=kunder.findIndex(function(x){return x.id===id;});
+  if(fromIdx<0||toIdx<0)return;
+  var item=kunder.splice(fromIdx,1)[0];
+  kunder.splice(toIdx,0,item);
+  save('kunder',kunder);
+  _kundDragId=null;
+  rMain();
 }
 var _ekFak='tim';
+var _ekCI=0;
+function ekSetColor(i){
+  _ekCI=i;
+  AVB.forEach(function(bg,j){
+    var el=document.getElementById('ek-ci-'+j);
+    if(!el)return;
+    var sel=j===i;
+    el.style.border='3px solid '+(sel?'var(--s9)':'transparent');
+    el.style.boxShadow=sel?'0 0 0 2px var(--s9)':'none';
+    el.innerHTML=sel?'<span style="color:'+AVC[j]+';font-size:13px;font-weight:700;">\u2713</span>':'';
+  });
+}
 function ekSetFak(typ){
   _ekFak=typ;
   ['tim','fast','offert'].forEach(function(t){
@@ -1702,7 +1743,7 @@ function pgGanttInfo(){
   var MN=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
   var todayS=dS(TODAY);
   var LKOL=200;var INFO_W=68;
-  var colW=Math.max(14,Math.min(28,Math.floor(680/days)));
+  var colW=Math.round(Math.max(14,Math.min(28,Math.floor(680/days)))*ganttZoom);
   var totalW=days*colW;
   var todayPx=Math.floor((TODAY.getTime()-startD.getTime())/864e5)*colW;
 
@@ -1717,6 +1758,11 @@ function pgGanttInfo(){
   h+='<button onclick="ganttNav(-7)" class="btn btn-outline btn-sm">&larr;</button>';
   h+='<button onclick="ganttNav(0)" class="btn btn-outline btn-sm" style="font-size:11px;">Idag</button>';
   h+='<button onclick="ganttNav(7)" class="btn btn-outline btn-sm">&rarr;</button>';
+  h+='<div style="width:1px;height:16px;background:var(--s2);margin:0 4px;"></div>';
+  h+='<button onclick="ganttZoomIn()" title="Zooma in" style="padding:3px 9px;border-radius:6px;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;border:1.5px solid var(--s2);background:white;color:var(--s6);" onmouseover="this.style.background=\'var(--s1)\'" onmouseout="this.style.background=\'white\'">🔍+</button>';
+  h+='<span style="font-size:10px;color:var(--s4);padding:0 2px;min-width:32px;text-align:center;">'+Math.round(ganttZoom*100)+'%</span>';
+  h+='<button onclick="ganttZoomOut()" title="Zooma ut" style="padding:3px 9px;border-radius:6px;font-size:14px;cursor:pointer;font-family:Inter,sans-serif;border:1.5px solid var(--s2);background:white;color:var(--s6);" onmouseover="this.style.background=\'var(--s1)\'" onmouseout="this.style.background=\'white\'">🔍−</button>';
+  h+='<button onclick="ganttZoomReset()" title="Återställ zoom" style="padding:3px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:Inter,sans-serif;border:1.5px solid var(--s2);background:white;color:var(--s5);" onmouseover="this.style.background=\'var(--s1)\'" onmouseout="this.style.background=\'white\'">1:1</button>';
   h+='<button onclick="omNyLedigt()" class="btn btn-primary btn-sm" style="margin-left:4px;">+ Ledigt</button>';
   h+='</div>';
 
@@ -2181,6 +2227,7 @@ function kbSaveKortIKol(colId){
 
 // === GANTT + KUNDKORT + TIDLOGGAR ===
 var ganttP=load('ganttP','8v');
+var ganttZoom=load('ganttZoom',1);
 var ganttOff=load('ganttOff',0);
 var kundOpen=null;
 var ledigtRows=load('ganttLedigt',[{id:9001,label:'Semester',start:'',end:'',color:'#D97706'}]);
@@ -2188,6 +2235,10 @@ var ledigtRows=load('ganttLedigt',[{id:9001,label:'Semester',start:'',end:'',col
 function ganttDays(){return {'4v':28,'8v':56,'16v':112,'Kvartal':91,'Halvar':182,'Helar':365}[ganttP]||56;}
 function ganttSetP(p){ganttP=p;save('ganttP',ganttP);rMain();}
 function ganttNav(n){if(n===0)ganttOff=0;else ganttOff+=n;save('ganttOff',ganttOff);rMain();}
+var _ZOOM_STEPS=[0.5,0.6,0.7,0.8,0.9,1,1.25,1.5,1.75,2,2.5,3];
+function ganttZoomIn(){var i=_ZOOM_STEPS.indexOf(ganttZoom);ganttZoom=_ZOOM_STEPS[Math.min(i+1,_ZOOM_STEPS.length-1)];save('ganttZoom',ganttZoom);rMain();}
+function ganttZoomOut(){var i=_ZOOM_STEPS.indexOf(ganttZoom);if(i<0)i=_ZOOM_STEPS.reduce(function(b,v,j){return Math.abs(v-ganttZoom)<Math.abs(_ZOOM_STEPS[b]-ganttZoom)?j:b;},0);ganttZoom=_ZOOM_STEPS[Math.max(i-1,0)];save('ganttZoom',ganttZoom);rMain();}
+function ganttZoomReset(){ganttZoom=1;save('ganttZoom',ganttZoom);rMain();}
 function openKund(id){kundOpen=id;go('fs_k');}
 function setKundDat(id,type,val){var k=kunder.find(function(x){return x.id===id;});if(!k)return;if(type===0)k.startDat=val;else k.slutDat=val;save('kunder',kunder);}
 function tlPrev(id){var hv=parseFloat(document.getElementById('tl-h').value)||0;var mv=parseFloat(document.getElementById('tl-m').value)||0;var k=kunder.find(function(x){return x.id===id;});if(!k)return;var tot=hv+mv/60;var bel=Math.round(tot*k.tx);var pr=document.getElementById('tl-prev');if(pr){if(tot>0){pr.style.display='block';pr.textContent=hv+'t '+mv+'m \xd7 '+k.tx+' kr/h = '+bel.toLocaleString('sv-SE')+' kr';}else pr.style.display='none';}}
