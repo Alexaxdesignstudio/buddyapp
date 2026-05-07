@@ -101,7 +101,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7e
 #sb-loading{position:fixed;inset:0;background:white;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 #sb-loading .spin{width:36px;height:36px;border:3px solid var(--s1);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-#sb-status{position:fixed;bottom:8px;right:12px;font-size:10px;color:var(--s4);z-index:200;display:flex;align-items:center;gap:5px;}
+#sb-status{position:fixed;bottom:8px;right:12px;font-size:10px;color:var(--s4);z-index:200;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.9);border:1px solid var(--s2);border-radius:8px;padding:4px 10px;backdrop-filter:blur(4px);}
 .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--g);}
 .sb-dot.err{background:var(--r);}
 .sb-dot.sync{background:var(--a);animation:pulse .8s ease-in-out infinite alternate;}
@@ -128,6 +128,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:#e5e7e
 <div id="sb-status" title="Supabase-anslutning">
   <div class="sb-dot sync" id="sb-dot"></div>
   <span id="sb-txt">Synkar...</span>
+  <button onclick="forceSyncAll()" title="Synka all data från denna webbläsare till Supabase (fix om annan enhet ser tomt)" style="border:none;background:var(--s1);cursor:pointer;font-size:10px;color:var(--s6);border-radius:5px;padding:2px 7px;font-family:Inter,sans-serif;margin-left:4px;">&#8645; Synka allt</button>
 </div>
 
 <div id="login-screen">
@@ -345,6 +346,33 @@ function save(key,val){
   try{localStorage.setItem('buddy_'+key,JSON.stringify(val));}catch(e){}
   if(SB_SYNC_TIMER)clearTimeout(SB_SYNC_TIMER);
   SB_SYNC_TIMER=setTimeout(sbFlush,800);
+}
+
+// Force-sync everything from localStorage → Supabase
+function forceSyncAll(){
+  var keys=[];
+  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('buddy_')===0)keys.push(k);}}catch(e){}
+  if(!keys.length){alert('Inget att synka – localStorage är tom.');return;}
+  if(!confirm('Synka '+keys.length+' dataposter från denna webbläsare till Supabase?\n\nDetta gör att alla andra enheter (Safari, mobil) ser samma data.'))return;
+  sbStatus('sync','Synkar '+keys.length+' poster...');
+  var done=0;var errs=0;
+  var next=function(){
+    if(!keys.length){
+      if(errs>0)sbStatus('err','Synkat '+done+', '+errs+' fel');
+      else sbStatus('ok','Synkat '+done+' poster till Supabase ✓');
+      alert(errs===0?'✓ Allt synkat! Öppna nu Safari – all data ska finnas där.':'Synkat '+done+' poster. '+errs+' fel. Försök igen.');
+      return;
+    }
+    var k=keys.shift();
+    var val;
+    try{val=JSON.parse(localStorage.getItem(k));}catch(e){next();return;}
+    SB_CACHE[k]=val;
+    sbUpsert(k,val).then(function(r){
+      if(r.ok)done++;else errs++;
+      next();
+    }).catch(function(){errs++;next();});
+  };
+  next();
 }
 function load(key,def){
   var cached=SB_CACHE['buddy_'+key];
